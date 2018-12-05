@@ -1,28 +1,20 @@
-# CI4RESTExtension
-RESTExtension for Code Igniter 4
+<?php namespace RestExtension\Filter;
+use CodeIgniter\HTTP\Request;
 
-Should be used in coherence with [ORMExtension](https://github.com/4spacesdk/CI4OrmExtension).
+/**
+ * Created by PhpStorm.
+ * User: martin
+ * Date: 2018-12-04
+ * Time: 12:07
+ *
+ * @property Request $request
+ * @property QueryFilter[][] $filters
+ */
+class QueryParser {
 
-## Query Parser
-Add this lines in your base controller `ApiController`:
-```php
-$this->queryParser = new QueryParser();
-$this->queryParser->parseRequest($this->request);
-```
-If you use OrmExtension add this trait to your base model: `use OrmExtensionModelTrait;`. 
-This allow RestExtension to filter your resources based on your models and their relations.
-
-### Examples
-`/milestones?filter=name:[Milepæl%202,Milepæl%201],project.id:9`   
-Filtering milestones by name either "Milepæl 02" or "Milepæl 01" and related to project with id 9.  
-
-`/projects?filter=id:>=10,id:<=100,name:"SOME PROJECT"`  
-Filtering projects by id greater than or equal to 10 and lower than or equal to 100 and name equals "SOME PROJECT". 
-
-### Filtering
-
-This uses the RFS filter method
-
+    /*
+     * This uses the RFS filter method
+     *
      * Example
      * GET /items?filter=price:>=10,price:<=100.
      * This will filter items with price greater than or equal to 10 AND lower than or equal to 100. (>=10 & <=100)
@@ -94,3 +86,70 @@ This uses the RFS filter method
      *  , - represents or
      *  ( filter expression ) - overrides operator precedence OBS! Not supported
      *  [] - grouping fpr IN style, ex. tags:[first-tag,second-tag]
+     *
+     *
+     * More info https://api.ghost.org/docs/filter
+     *
+     */
+
+    private $filters = [];
+
+    public function parseRequest(Request $request) {
+        $this->request = $request;
+        $filter = $request->getGet('filter');
+        if($filter)
+            $this->parseFilter($request->getGet('filter'));
+    }
+
+    public function parseFilter(string $line) {
+        $filters = [];
+        $buffer = '';
+        $inSquareBracket = false;
+        for($i = 0 ; $i < strlen($line) ; $i++) {
+            $char = substr($line, $i, 1);
+            if(in_array($char, ['[', ']']))
+                $inSquareBracket = !$inSquareBracket;
+
+            if($char == ',' &! $inSquareBracket) {
+                $filters[] = $buffer;
+                $buffer = '';
+            } else
+                $buffer .= $char;
+        }
+        if(strlen($buffer))
+            $filters[] = $buffer;
+
+        foreach($filters as $filter) {
+            $item = QueryFilter::parse($filter);
+            $this->pushFilter($item->property, $item);
+        }
+    }
+
+    private function pushFilter($name, $filter) {
+        if(!isset($this->filters[$name]))
+            $this->filters[$name] = [];
+        $this->filters[$name][] = $filter;
+    }
+
+    public function hasFilter($name): bool {
+        return isset($this->filters[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return QueryFilter[]
+     */
+    public function getFilter($name) {
+        return $this->filters[$name];
+    }
+
+    public function getFilters() {
+        $all = [];
+        foreach($this->filters as $name => $filters)
+            foreach($filters as $filter)
+                $all[] = $filter;
+        return $all;
+    }
+
+
+}

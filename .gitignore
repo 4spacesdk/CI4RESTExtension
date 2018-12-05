@@ -125,7 +125,6 @@ nb-configuration.xml
 *.sublime-workspace
 *.sublime-project
 .phpintel
-/api/
 
 # Visual Studio Code
 .vscode/
