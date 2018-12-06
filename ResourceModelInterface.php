@@ -13,33 +13,34 @@ use RestExtension\Filter\QueryParser;
 interface ResourceModelInterface {
 
     /**
-     * @param $id
      * @param QueryParser $queryParser
-     * @return Entity
+     * @param $id
      */
-    public function restGet($id, $queryParser);
+    public function preRestGet($queryParser, $id);
 
     /**
-     * @param QueryFilter $filter
+     * @param QueryParser $queryParser
+     * @param Entity $items
      */
-    public function apply(QueryFilter $filter);
+    public function postRestGet($queryParser, $items);
 
     /**
      * @param Entity $item
+     * @return boolean
      */
-    public function applyRestGetOneRelations($item);
+    public function isRestCreationAllowed($item): bool;
+
+    /**
+     * @param Entity $item
+     * @return boolean
+     */
+    public function isRestUpdateAllowed($item): bool;
 
     /**
      * @param Entity $item
      * @return boolean
      */
     public function isRestDeleteAllowed($item): bool;
-
-    /**
-     * @param QueryParser $request
-     * @param $id
-     */
-    public function applyRestGetFilter($request, $id);
 
     /**
      * @param Entity $items

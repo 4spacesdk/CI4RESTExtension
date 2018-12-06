@@ -17,19 +17,26 @@ trait ResourceEntityTrait {
         $className = get_called_class();
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
+        $model = $item->getModel();
+
         $item->populatePatch($data);
+        if(!$model->isRestCreationAllowed($item)) {
+            Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+            return $item;
+        }
         $item->save();
 
         // Create relations
         if(is_array($data)) {
-            $relations = $item->getModel()->getRelations();
+            $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
                         if(isset($data[$relationName])) {
-                            /** @var Entity $entityName */
+                            /** @var Entity|ResourceEntityInterface $entityName */
                             $entityName = $relation->getEntityName();
                             $relationEntity = $entityName::post($data[$relationName]);
                             $item->save($relationEntity);
@@ -68,15 +75,24 @@ trait ResourceEntityTrait {
         $className = get_called_class();
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
-        $item = $item->getModel()
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
+        $model = $item->getModel();
+
+        $item = $model
             ->where('id', $id)
             ->find();
-        $item->populatePut($data);
-        $item->save();
+        if($item->populatePut($data)) {
+            if(!$model->isRestUpdateAllowed($item)) {
+                Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+                return $item;
+            }
+            $item->save();
+        } else
+            Data::debug(get_class($item), "Nothing to put, skipping save");
 
         // Update relations
         if(is_array($data)) {
-            $relations = $item->getModel()->getRelations();
+            $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
@@ -151,15 +167,24 @@ trait ResourceEntityTrait {
         $className = get_called_class();
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
-        $item = $item->getModel()
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
+        $model = $item->getModel();
+
+        $item = $model
             ->where('id', $id)
             ->find();
-        $item->populatePatch($data);
-        $item->save();
+        if($item->populatePatch($data)) {
+            if(!$model->isRestUpdateAllowed($item)) {
+                Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+                return $item;
+            }
+            $item->save();
+        } else
+            Data::debug(get_class($item), "Nothing to patch, skipping save");
 
         // Update relations
         if(is_array($data)) {
-            $relations = $item->getModel()->getRelations();
+            $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
@@ -172,7 +197,7 @@ trait ResourceEntityTrait {
 
                             $dataItem = $data[$relationName];
                             if(isset($dataItem['id']))
-                                $relationEntity = $entityName::put($dataItem['id'], $dataItem);
+                                $relationEntity = $entityName::patch($dataItem['id'], $dataItem);
                             else
                                 $relationEntity = $entityName::post($dataItem);
 
@@ -226,7 +251,7 @@ trait ResourceEntityTrait {
             }
         }
 
-        /** @var Model|ResourceModelInterface $model */
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $model = $item->getModel();
         $model->applyRestGetOneRelations($item);
 
@@ -234,8 +259,7 @@ trait ResourceEntityTrait {
     }
 
     /**
-     * @param $data
-     * @return mixed
+     * @param array $data
      */
     public function populatePut($data) {
         if($data) {
@@ -250,14 +274,14 @@ trait ResourceEntityTrait {
                     $this->{$field} = null;
             }
         }
-        return $this;
     }
 
     /**
-     * @param $data
-     * @return mixed
+     * @param array $data
+     * @return bool
      */
     public function populatePatch($data) {
+        $hasChange = false;
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->getModel();
@@ -267,10 +291,11 @@ trait ResourceEntityTrait {
             foreach($data as $field => $value) {
                 if(in_array($field, $fields)) {
                     $this->{$field} = $value;
+                    $hasChange = true;
                 }
             }
         }
-        return $this;
+        return $hasChange;
     }
 
 }

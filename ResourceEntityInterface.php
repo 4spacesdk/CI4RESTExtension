@@ -11,21 +11,21 @@ interface ResourceEntityInterface {
 
     /**
      * @param array $data
-     * @return ResourceEntityInterface<Entity>
+     * @return ResourceEntityInterface|Entity
      */
     public static function post($data);
 
     /**
      * @param int $id
      * @param array $data
-     * @return ResourceEntityInterface<Entity>
+     * @return ResourceEntityInterface|Entity
      */
     public static function put($id, $data);
 
     /**
      * @param int $id
      * @param array $data
-     * @return ResourceEntityInterface<Entity>
+     * @return ResourceEntityInterface|Entity
      */
     public static function patch($id, $data);
 
@@ -36,18 +36,17 @@ interface ResourceEntityInterface {
 
     /**
      * @param array $data
-     * @return ResourceEntityInterface<Entity>
      */
     public function populatePut($data);
 
     /**
      * @param array $data
-     * @return ResourceEntityInterface<Entity>
+     * @return bool
      */
     public function populatePatch($data);
 
     /**
-     * @param ResourceEntityInterface<Entity>
+     * @param ResourceEntityInterface|Entity
      */
     public function relationAdded($relation);
 }

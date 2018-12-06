@@ -1,5 +1,6 @@
 <?php namespace RestExtension;
 
+use CodeIgniter\HTTP\Request;
 use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
@@ -11,6 +12,7 @@ use OrmExtension\Extensions\Model;
  * Time: 15.28
  *
  * @property string $resource
+ * @property Request $request
  */
 trait ResourceControllerTrait {
 
@@ -25,7 +27,7 @@ trait ResourceControllerTrait {
     }
 
     public function get($id = 0) {
-        /** @var Model $model */
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $className = $this->_getResourceName();
         $model = new $className();
         $items = $model->restGet($id, $this->queryParser);
@@ -40,7 +42,7 @@ trait ResourceControllerTrait {
         $model = new $className();
         $entityName = $model->returnType;
 
-        /** @var Entity $entityName */
+        /** @var Entity|ResourceEntityInterface $entityName */
         $item = $entityName::post($this->request->getJSON(true));
 
         $this->_setResource($item);
@@ -55,7 +57,7 @@ trait ResourceControllerTrait {
         $model = new $className();
         $entityName = $model->returnType;
 
-        /** @var Entity $entityName */
+        /** @var Entity|ResourceEntityInterface $entityName */
         $item = $entityName::put($id, $this->request->getJSON(true));
 
         $this->_setResource($item);
@@ -70,7 +72,7 @@ trait ResourceControllerTrait {
         $model = new $className();
         $entityName = $model->returnType;
 
-        /** @var Entity $entityName */
+        /** @var Entity|ResourceEntityInterface $entityName */
         $item = $entityName::patch($id, $this->request->getJSON(true));
 
         $this->_setResource($item);
@@ -81,7 +83,7 @@ trait ResourceControllerTrait {
     public function delete($id) {
         $className = $this->_getResourceName();
 
-        /** @var Model $model */
+        /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $model = new $className();
         $model->where('id', $id);
 

@@ -22,29 +22,37 @@ trait ResourceModelTrait {
     public function restGet($id, $queryParser) {
         Data::debug(get_class($this), "restGet");
 
-        if($this instanceof Model && $this instanceof ResourceModelInterface) {
+        if($this instanceof Model) {
+            if($this instanceof ResourceModelInterface) {
 
-            if($id) $this->where('id', $id);
+                if($id) $this->where('id', $id);
 
-            foreach($queryParser->getFilters() as $filter) $this->apply($filter);
-            $this->applyRestGetFilter($queryParser, $id);
+                foreach($queryParser->getFilters() as $filter) $this->apply($filter);
 
-            /** @var Entity $items */
-            $items = $this->find();
+                $this->preRestGet($queryParser, $id);
 
-            if($items->exists()) {
-                if($id) {
-                    $item = $items->first();
-                    $this->applyRestGetOneRelations($item);
-                } else {
-                    $this->appleRestGetManyRelations($items);
+                /** @var Entity $items */
+                $items = $this->find();
 
+                if($items->exists()) {
+                    if($id) {
+                        $item = $items->first();
+                        $this->applyRestGetOneRelations($item);
+                    } else {
+                        $this->appleRestGetManyRelations($items);
+
+                    }
                 }
+
+                $this->postRestGet($queryParser, $items);
+
+                return $items;
+
             }
 
-            return $items;
-
-        }
+            return $this->find();
+        } else
+            return new Entity();
     }
 
     /**
