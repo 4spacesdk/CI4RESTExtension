@@ -81,14 +81,12 @@ trait ResourceEntityTrait {
         $item = $model
             ->where('id', $id)
             ->find();
-        if($item->populatePut($data)) {
-            if(!$model->isRestUpdateAllowed($item)) {
-                Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
-                return $item;
-            }
-            $item->save();
-        } else
-            Data::debug(get_class($item), "Nothing to put, skipping save");
+        $item->populatePut($data);
+        if(!$model->isRestUpdateAllowed($item)) {
+            Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+            return $item;
+        }
+        $item->save();
 
         // Update relations
         if(is_array($data)) {
