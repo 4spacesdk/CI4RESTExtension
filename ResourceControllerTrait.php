@@ -31,7 +31,10 @@ trait ResourceControllerTrait {
         $className = $this->_getResourceName();
         $model = new $className();
         $items = $model->restGet($id, $this->queryParser);
-        $this->_setResources($items);
+        if($id)
+            $this->_setResource($items->first());
+        else
+            $this->_setResources($items);
         $this->success();
     }
 
