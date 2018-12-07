@@ -265,6 +265,7 @@ trait ResourceEntityTrait {
             $model = $this->getModel();
             $fields = $model->getTableFields();
             $fields = array_diff($fields, $this->getPopulateIgnore());
+            $fields = array_diff($fields, $this->hiddenFields);
             foreach($fields as $field) {
                 if(isset($data[$field])) {
                     $this->{$field} = $data[$field];
