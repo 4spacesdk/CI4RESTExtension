@@ -1,5 +1,6 @@
 <?php namespace RestExtension;
 use DebugTool\Data;
+use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilderInterface;
 use OrmExtension\DataMapper\RelationDef;
 use OrmExtension\Extensions\Entity;
@@ -102,7 +103,7 @@ trait ResourceEntityTrait {
                             $entityName = $relation->getEntityName();
 
                             $dataItem = $data[$relationName];
-                            if(isset($dataItem['id']))
+                            if(isset($dataItem['id']) && $dataItem['id'] > 0)
                                 $relationEntity = $entityName::put($dataItem['id'], $dataItem);
                             else
                                 $relationEntity = $entityName::post($dataItem);
@@ -130,7 +131,7 @@ trait ResourceEntityTrait {
 
                             $newRelations = [];
                             foreach($data[$relationName] as $dataItem) {
-                                if(isset($dataItem['id']))
+                                if(isset($dataItem['id']) && $dataItem['id'] > 0)
                                     $relationEntity = $entityName::put($dataItem['id'], $dataItem);
                                 else
                                     $relationEntity = $entityName::post($dataItem);
@@ -177,7 +178,7 @@ trait ResourceEntityTrait {
             ->find();
         if($item->populatePatch($data)) {
             if(!$model->isRestUpdateAllowed($item)) {
-                Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+                Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess, 'Update not allowed');
                 return $item;
             }
             $item->save();
@@ -198,7 +199,7 @@ trait ResourceEntityTrait {
                             $entityName = $relation->getEntityName();
 
                             $dataItem = $data[$relationName];
-                            if(isset($dataItem['id']))
+                            if(isset($dataItem['id']) && $dataItem['id'] > 0)
                                 $relationEntity = $entityName::patch($dataItem['id'], $dataItem);
                             else
                                 $relationEntity = $entityName::post($dataItem);
@@ -226,7 +227,7 @@ trait ResourceEntityTrait {
 
                             $newRelations = [];
                             foreach($data[$relationName] as $dataItem) {
-                                if(isset($dataItem['id']))
+                                if(isset($dataItem['id']) && $dataItem['id'] > 0)
                                     $relationEntity = $entityName::patch($dataItem['id'], $dataItem);
                                 else
                                     $relationEntity = $entityName::post($dataItem);
@@ -267,12 +268,23 @@ trait ResourceEntityTrait {
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->getModel();
+
+            $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
+            $fieldName2Type = [];
+            foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+
             $fields = $model->getTableFields();
             $fields = array_diff($fields, $this->getPopulateIgnore());
             $fields = array_diff($fields, $this->hiddenFields);
             foreach($fields as $field) {
                 if(isset($data[$field])) {
-                    $this->{$field} = $data[$field];
+                    switch($fieldName2Type[$field]) {
+                        case 'datetime':
+                            $this->{$field} = date('Y-m-d H:i:s', strtotime($value));
+                            break;
+                        default:
+                            $this->{$field} = $data[$field];
+                    }
                 } else
                     $this->{$field} = null;
             }
@@ -288,12 +300,23 @@ trait ResourceEntityTrait {
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->getModel();
+
+            $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
+            $fieldName2Type = [];
+            foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+
             $fields = array_keys($data);
             $fields = array_intersect($fields, $model->getTableFields());
             $fields = array_diff($fields, $this->getPopulateIgnore());
             foreach($data as $field => $value) {
                 if(in_array($field, $fields)) {
-                    $this->{$field} = $value;
+                    switch($fieldName2Type[$field]) {
+                        case 'datetime':
+                            $this->{$field} = date('Y-m-d H:i:s', strtotime($value));
+                            break;
+                        default:
+                            $this->{$field} = $value;
+                    }
                     $hasChange = true;
                 }
             }
