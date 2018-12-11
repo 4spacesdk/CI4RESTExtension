@@ -280,7 +280,7 @@ trait ResourceEntityTrait {
                 if(isset($data[$field])) {
                     switch($fieldName2Type[$field]) {
                         case 'datetime':
-                            $this->{$field} = date('Y-m-d H:i:s', strtotime($value));
+                            $this->{$field} = date('Y-m-d H:i:s', strtotime($data[$field]));
                             break;
                         default:
                             $this->{$field} = $data[$field];
