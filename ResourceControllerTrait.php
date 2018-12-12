@@ -33,8 +33,9 @@ trait ResourceControllerTrait {
         $items = $model->restGet($id, $this->queryParser);
         if($id)
             $this->_setResource($items->first());
-        else
+        else {
             $this->_setResources($items);
+        }
         $this->success();
     }
 

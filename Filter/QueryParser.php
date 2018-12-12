@@ -93,12 +93,18 @@ class QueryParser {
      */
 
     private $filters = [];
+    private $limit = null;
+    private $offset = null;
+    private $count = null;
 
     public function parseRequest(Request $request) {
         $this->request = $request;
         $filter = $request->getGet('filter');
-        if($filter)
-            $this->parseFilter($request->getGet('filter'));
+        if($filter) $this->parseFilter($request->getGet('filter'));
+
+        $this->limit = $request->getGet('limit');
+        $this->offset = $request->getGet('offset');
+        $this->count = $request->getGet('count');
     }
 
     public function parseFilter(string $line) {
@@ -149,6 +155,30 @@ class QueryParser {
             foreach($filters as $filter)
                 $all[] = $filter;
         return $all;
+    }
+
+    public function getOffset(): int {
+        return $this->offset;
+    }
+
+    public function hasOffset(): bool {
+        return !is_null($this->offset);
+    }
+
+    public function getLimit(): int {
+        return $this->limit;
+    }
+
+    public function hasLimit(): bool {
+        return !is_null($this->limit);
+    }
+
+    public function isCount(): bool {
+        return !is_null($this->count);
+    }
+
+    public function getCount(): bool {
+        return $this->count;
     }
 
 

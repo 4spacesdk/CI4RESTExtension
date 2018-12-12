@@ -31,6 +31,13 @@ trait ResourceModelTrait {
 
                 $this->preRestGet($queryParser, $id);
 
+                if($queryParser->isCount()) {
+                    return $this->countAllResults();
+                }
+
+                if($queryParser->hasLimit()) $this->limit($queryParser->getLimit());
+                if($queryParser->hasOffset()) $this->offset($queryParser->getOffset());
+
                 /** @var Entity $items */
                 $items = $this->find();
 
