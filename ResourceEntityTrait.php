@@ -16,6 +16,11 @@ trait ResourceEntityTrait {
 
     public static function post($data) {
         $className = get_called_class();
+
+        if(isset($data['id']) && $data['id'] > 0) { // TODO !! Is this okay? Client want to send relations as objects. But post should always create.
+            return new $className($data);
+        }
+
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
