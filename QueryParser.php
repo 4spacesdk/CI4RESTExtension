@@ -1,5 +1,9 @@
-<?php namespace RestExtension\Filter;
+<?php namespace RestExtension;
 use CodeIgniter\HTTP\Request;
+use DebugTool\Data;
+use RestExtension\Filter\QueryFilter;
+use RestExtension\Includes\QueryInclude;
+use RestExtension\Ordering\QueryOrder;
 
 /**
  * Created by PhpStorm.
@@ -9,6 +13,11 @@ use CodeIgniter\HTTP\Request;
  *
  * @property Request $request
  * @property QueryFilter[][] $filters
+ * @property QueryInclude[] $includes
+ * @property QueryOrder[] $ordering
+ * @property int $limit
+ * @property int $offset
+ * @property int $count
  */
 class QueryParser {
 
@@ -92,20 +101,56 @@ class QueryParser {
      *
      */
 
+    private $includes = [];
     private $filters = [];
+    private $ordering = [];
     private $limit = null;
     private $offset = null;
     private $count = null;
 
     public function parseRequest(Request $request) {
         $this->request = $request;
+
+        $includes = $request->getGet('include');
+        if($includes) $this->parseInclude($request->getGet('include'));
         $filter = $request->getGet('filter');
         if($filter) $this->parseFilter($request->getGet('filter'));
+        $ordering = $request->getGet('ordering');
+        if($ordering) $this->parseOrdering($request->getGet('ordering'));
 
         $this->limit = $request->getGet('limit');
         $this->offset = $request->getGet('offset');
         $this->count = $request->getGet('count');
     }
+
+    public static function parse($line) {
+        $item = new QueryParser();
+        parse_str($line, $params);
+
+        if(isset($params['include'])) $item->parseInclude($params['include']);
+        if(isset($params['filter'])) $item->parseFilter($params['filter']);
+        if(isset($params['ordering'])) $item->parseOrdering($params['ordering']);
+
+        if(isset($params['limit'])) $item->limit = $params['limit'];
+        if(isset($params['offset'])) $item->offset = $params['offset'];
+        if(isset($params['count'])) $item->count = $params['count'];
+
+        return $item;
+    }
+
+
+    public function parseInclude(string $value) {
+        foreach(explode(',', $value) as $line) {
+            $this->includes[] = QueryInclude::parse($line);
+        }
+    }
+
+    public function parseOrdering(string $value) {
+        foreach(explode(',', $value) as $line) {
+            $this->ordering[] = QueryOrder::parse($line);
+        }
+    }
+
 
     public function parseFilter(string $line) {
         $filters = [];
@@ -179,6 +224,14 @@ class QueryParser {
 
     public function getCount(): bool {
         return $this->count;
+    }
+
+    public function getIncludes() {
+        return $this->includes;
+    }
+
+    public function getOrdering() {
+        return $this->ordering;
     }
 
 

@@ -1,8 +1,6 @@
 <?php namespace RestExtension;
 
 use OrmExtension\Extensions\Entity;
-use RestExtension\Filter\QueryFilter;
-use RestExtension\Filter\QueryParser;
 
 /**
  * Created by PhpStorm.

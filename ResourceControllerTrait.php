@@ -1,7 +1,6 @@
 <?php namespace RestExtension;
 
 use CodeIgniter\HTTP\Request;
-use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 

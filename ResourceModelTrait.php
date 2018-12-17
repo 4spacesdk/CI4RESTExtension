@@ -5,7 +5,8 @@ use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
-use RestExtension\Filter\QueryParser;
+use RestExtension\Includes\QueryInclude;
+use RestExtension\Ordering\QueryOrder;
 
 /**
  * Created by PhpStorm.
@@ -21,14 +22,15 @@ trait ResourceModelTrait {
      * @return Entity|array|object
      */
     public function restGet($id, $queryParser) {
-        Data::debug(get_class($this), "restGet");
+        Data::debug(get_class($this), "restGet", $id);
 
         if($this instanceof Model) {
             if($this instanceof ResourceModelInterface) {
 
                 if($id) $this->where('id', $id);
 
-                foreach($queryParser->getFilters() as $filter) $this->apply($filter);
+                foreach($queryParser->getIncludes() as $include) $this->applyIncludeOne($include);
+                foreach($queryParser->getFilters() as $filter) $this->applyFilter($filter);
 
                 $this->preRestGet($queryParser, $id);
 
@@ -38,6 +40,7 @@ trait ResourceModelTrait {
 
                 if($queryParser->hasLimit()) $this->limit($queryParser->getLimit());
                 if($queryParser->hasOffset()) $this->offset($queryParser->getOffset());
+                foreach($queryParser->getOrdering() as $order) $this->applyOrder($order);
 
                 /** @var Entity $items */
                 $items = $this->find();
@@ -48,45 +51,96 @@ trait ResourceModelTrait {
                         $this->applyRestGetOneRelations($item);
                     } else {
                         $this->appleRestGetManyRelations($items);
-
                     }
+
+                    foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
                 }
 
                 $this->postRestGet($queryParser, $items);
 
                 return $items;
 
-            }
-
-            return $this->find();
+            } else
+                return $this->find();
         } else
             return new Entity();
+    }
+
+    public function applyOrder(QueryOrder $order) {
+        Data::debug(get_class($this), "apply order", $order->property);
+
+        $classes = explode('.', $order->property);
+        $field = array_pop($classes);
+
+        /** @var RelationDef[] $relations */
+        $relations = $this->getRelation($classes, true);
+        $relationNames = [];
+        foreach($relations as $relation) {
+            if($relation->getType() != RelationDef::HasOne) return;
+            $relationNames[] = $relation->getName();
+        }
+        if(count($relationNames) > 0)
+            $this->orderByRelated($relationNames, $field, $order->direction);
+        else
+            $this->orderBy($field, $order->direction);
+    }
+
+
+    /**
+     * @param QueryInclude $include
+     */
+    public function applyIncludeOne(QueryInclude $include) {
+        /** @var RelationDef[] $relations */
+        $relations = $this->getRelation(explode('.', $include->property), true);
+        $relationNames = [];
+        foreach($relations as $relation) {
+            if($relation->getType() != RelationDef::HasOne) return;
+            $relationNames[] = $relation->getName();
+        }
+        if(count($relationNames)) $this->includeRelated($relationNames);
+    }
+
+    /**
+     * @param Entity $items
+     * @param QueryInclude $include
+     */
+    public function applyIncludeMany(Entity $items, QueryInclude $include) {
+        /** @var RelationDef[] $relations */
+        $relations = $this->getRelation(explode('.', $include->property), true);
+        foreach($relations as $relation) {
+            if($relation->getType() == RelationDef::HasOne) continue;
+            $propertyName = $relation->getType() == RelationDef::HasMany ? plural($relation->getSimpleName()) : $relation->getSimpleName();
+
+            $modelName = $relation->getClass();
+            foreach($items as $item) {
+                $model = new $modelName();
+
+                if($model instanceof ResourceBaseModelInterface) {
+                    $queryParser = clone $include->queryParser;
+                    $queryParser->parseFilter("{$relation->getSimpleOtherField()}.id:{$item->id}");
+                    $items = $model->restGet(null, $queryParser);
+                    $item->{$propertyName} = $items;
+                }
+
+            }
+        }
+
     }
 
     /**
      * @param QueryFilter $filter
      */
-    public function apply(QueryFilter $filter) {
+    public function applyFilter(QueryFilter $filter) {
         Data::debug(get_class($this), "apply", $filter->property, $filter->operator, is_array($filter->value) ? 'array' : $filter->value);
 
         if($filter->isRelationFilter()) {
 
-            /** @var RelationDef[] $name2relation */
-            $name2relation = [];
-            /** @var RelationDef[] $relations */
-            $relations = $this->getRelations();
-            foreach($relations as $relation)
-                $name2relation[$relation->getSimpleName()] = $relation;
-
             $classes = explode('.', $filter->property);
             $field = array_pop($classes);
-
+            /** @var RelationDef $relation */
             $relations = [];
-            foreach($classes as $class) {
-                if(isset($name2relation[$class]))
-                    $relations[] = $name2relation[$class]->getName();
-                else
-                    Data::debug(get_class($this), "ERROR", "Unknown relation", $class);
+            foreach($this->getRelation($classes, true) as $relation) {
+                $relations[] = $relation->getName();
             }
 
             switch($filter->operator) {
@@ -101,7 +155,6 @@ trait ResourceModelTrait {
                         $this->likeRelated($relations, $field, $filter->value, 'both', null, true);
                     break;
 
-                    break;
                 case Operators::Not:
                     if(is_array($filter->value))
                         $this->whereNotInRelated($relations, $field, $filter->value);

@@ -95,3 +95,24 @@ This uses the RFS filter method
      *  , - represents or
      *  ( filter expression ) - overrides operator precedence OBS! Not supported
      *  [] - grouping fpr IN style, ex. tags:[first-tag,second-tag]
+     
+     
+### Ordering
+
+`ordering=PROPERTY:DIRECTION`  
+Multiple ordering can by applied by `,` separation.  
+Ex. `?ordering=title:asc,created:desc`
+
+Ordering by relations:  
+Ex. `?ordering=created_by.first_name:asc`   
+Use `.` separation for deep relations. OBS, relation names is always singular  
+
+Direction is optional.
+     
+     
+### Include
+
+`include=RELATION`  
+Ex. `?include=created_by`  
+Ex. `?include=created_by.role`     
+Use `.` separation for deep relations. OBS, relation names is always singular

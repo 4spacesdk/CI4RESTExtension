@@ -2,7 +2,9 @@
 
 use OrmExtension\Extensions\Entity;
 use RestExtension\Filter\QueryFilter;
-use RestExtension\Filter\QueryParser;
+use RestExtension\Includes\QueryInclude;
+use RestExtension\Ordering\QueryOrder;
+use RestExtension\QueryParser;
 
 /**
  * Created by PhpStorm.
@@ -20,9 +22,25 @@ interface ResourceBaseModelInterface {
     public function restGet($id, $queryParser);
 
     /**
+     * @param QueryInclude $include
+     */
+    public function applyIncludeOne(QueryInclude $include);
+
+    /**
+     * @param Entity $items
+     * @param QueryInclude $include
+     */
+    public function applyIncludeMany(Entity $items, QueryInclude $include);
+
+    /**
      * @param QueryFilter $filter
      */
-    public function apply(QueryFilter $filter);
+    public function applyFilter(QueryFilter $filter);
+
+    /**
+     * @param QueryOrder $order
+     */
+    public function applyOrder(QueryOrder $order);
 
     /**
      * @param Entity $item
