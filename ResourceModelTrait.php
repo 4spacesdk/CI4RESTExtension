@@ -3,6 +3,7 @@ use DebugTool\Data;
 use OrmExtension\DataMapper\RelationDef;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
+use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Filter\QueryParser;
 
@@ -88,14 +89,61 @@ trait ResourceModelTrait {
                     Data::debug(get_class($this), "ERROR", "Unknown relation", $class);
             }
 
-            $this->whereRelated($relations, "{$field} {$filter->operator}", $filter->value);
+            switch($filter->operator) {
+                case Operators::Search:
+
+                    if(is_array($filter->value)) {
+                        $this->groupStart();
+                        foreach($filter->value as $value)
+                            $this->orLikeRelated($relations, $field, $value, 'both', null, true);
+                        $this->groupEnd();
+                    } else
+                        $this->likeRelated($relations, $field, $filter->value, 'both', null, true);
+                    break;
+
+                    break;
+                case Operators::Not:
+                    if(is_array($filter->value))
+                        $this->whereNotInRelated($relations, $field, $filter->value);
+                    else
+                        $this->whereRelated($relations, "{$field} !=", $filter->value);
+                    break;
+                default:
+                    if(is_array($filter->value))
+                        $this->whereInRelated($relations, "{$field} {$filter->operator}", $filter->value);
+                    else
+                        $this->whereRelated($relations, "{$field} {$filter->operator}", $filter->value);
+                    break;
+            }
 
         } else {
 
-            if(is_array($filter->value))
-                $this->whereIn($filter->property, $filter->value);
-            else
-                $this->where("$filter->property $filter->operator", $filter->value);
+            switch($filter->operator) {
+
+                case Operators::Search:
+                    if(is_array($filter->value)) {
+                        $this->groupStart();
+                        foreach($filter->value as $value)
+                            $this->orLike($filter->property, $value, 'both', null, true);
+                        $this->groupEnd();
+                    } else
+                        $this->like($filter->property, $filter->value, 'both', null, true);
+                    break;
+
+                case Operators::Not:
+                    if(is_array($filter->value))
+                        $this->whereNotIn($filter->property, $filter->value);
+                    else
+                        $this->where("$filter->property !=", $filter->value);
+                    break;
+
+                default:
+                    if(is_array($filter->value))
+                        $this->whereIn($filter->property, $filter->value);
+                    else
+                        $this->where("$filter->property $filter->operator", $filter->value);
+                    break;
+            }
 
         }
 

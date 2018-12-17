@@ -13,6 +13,7 @@ class Operators {
     const GreaterThanOrEqual    = '>=';
     const LessThan              = '<';
     const LessThanOrEqual       = '<=';
+    const Search                = '~';
 
     public static function all() {
         return [
@@ -21,7 +22,8 @@ class Operators {
             self::LessThan,
             self::Equal,
             self::Not,
-            self::GreaterThan
+            self::GreaterThan,
+            self::Search
         ];
     }
 
