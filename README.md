@@ -88,6 +88,7 @@ This uses the RFS filter method
      *  >=  greater than or equals operator
      *  <   less than operator
      *  <=  less than or equals operator
+     *  ~   search, this will do an case insensitive like with % on both sides
      *
      * Combinations
      *  + - represents and OBS! Not supported
