@@ -43,7 +43,11 @@ trait ResourceModelTrait {
                 foreach($queryParser->getOrdering() as $order) $this->applyOrder($order);
 
                 /** @var Entity $items */
-                $items = $this->find();
+                $items = $this
+                    ->groupBy('id')
+                    ->find();
+
+                //Data::lastQuery();
 
                 if($items->exists()) {
                     if($id) {
