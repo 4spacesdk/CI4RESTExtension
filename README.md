@@ -94,7 +94,7 @@ This uses the RFS filter method
      *  + - represents and OBS! Not supported
      *  , - represents or
      *  ( filter expression ) - overrides operator precedence OBS! Not supported
-     *  [] - grouping fpr IN style, ex. tags:[first-tag,second-tag]
+     *  [] - grouping for IN style, ex. tags:[first-tag,second-tag]
      
      
 ### Ordering
