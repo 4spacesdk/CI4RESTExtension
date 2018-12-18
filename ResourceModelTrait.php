@@ -163,7 +163,7 @@ trait ResourceModelTrait {
                     break;
                 default:
                     if(is_array($filter->value))
-                        $this->whereInRelated($relations, "{$field} {$filter->operator}", $filter->value);
+                        $this->whereInRelated($relations, $field, $filter->value);
                     else
                         $this->whereRelated($relations, "{$field} {$filter->operator}", $filter->value);
                     break;
