@@ -47,4 +47,9 @@ interface ResourceBaseModelInterface {
      */
     public function applyRestGetOneRelations($item);
 
+    /**
+     * @return string[]
+     */
+    public function ignoredRestGetOnRelations();
+
 }

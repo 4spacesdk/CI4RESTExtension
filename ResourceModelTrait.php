@@ -35,7 +35,9 @@ trait ResourceModelTrait {
                 $this->preRestGet($queryParser, $id);
 
                 if($queryParser->isCount()) {
-                    return $this->countAllResults();
+                    $count = $this->distinct('id')->countAllResults();
+                    Data::lastQuery();
+                    return $count;
                 }
 
                 if($queryParser->hasLimit()) $this->limit($queryParser->getLimit());
@@ -47,7 +49,7 @@ trait ResourceModelTrait {
                     ->groupBy('id')
                     ->find();
 
-                //Data::lastQuery();
+                Data::lastQuery();
 
                 if($items->exists()) {
                     if($id) {
@@ -210,8 +212,11 @@ trait ResourceModelTrait {
      * @param Entity $item
      */
     public function applyRestGetOneRelations($item) {
+        $ignored = $this->ignoredRestGetOnRelations();
         /** @var RelationDef $relation */
         foreach($this->getRelations() as $relation) {
+            if(in_array($relation->getName(), $ignored)) continue;
+            Data::debug(get_class($this), "running", $relation->getName());
             switch($relation->getType()) {
                 case RelationDef::HasOne:
                     $relationName = $relation->getSimpleName();
@@ -235,6 +240,10 @@ trait ResourceModelTrait {
                     break;
             }
         }
+    }
+
+    public function ignoredRestGetOnRelations() {
+        return [];
     }
 
 }

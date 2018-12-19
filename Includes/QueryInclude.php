@@ -22,6 +22,7 @@ class QueryInclude {
             $item->queryParser = QueryParser::parse($parser);
         } else {
             $item->property = $line;
+            $item->queryParser = new QueryParser();
         }
         return $item;
     }
