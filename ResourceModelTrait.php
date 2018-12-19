@@ -216,7 +216,7 @@ trait ResourceModelTrait {
         /** @var RelationDef $relation */
         foreach($this->getRelations() as $relation) {
             if(in_array($relation->getName(), $ignored)) continue;
-            Data::debug(get_class($this), "running", $relation->getName());
+            //Data::debug(get_class($this), "running", $relation->getName(), plural($relation->getSimpleName()));
             switch($relation->getType()) {
                 case RelationDef::HasOne:
                     $relationName = $relation->getSimpleName();
