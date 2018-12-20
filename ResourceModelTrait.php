@@ -49,7 +49,7 @@ trait ResourceModelTrait {
                     ->groupBy('id')
                     ->find();
 
-                Data::lastQuery();
+                //Data::lastQuery();
 
                 if($items->exists()) {
                     if($id) {
