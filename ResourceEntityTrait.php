@@ -165,8 +165,8 @@ trait ResourceEntityTrait {
         }
 
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
-        $model = $item->getModel();
-        $model->applyRestGetOneRelations($item);
+        //$model = $item->getModel();
+        //$model->applyRestGetOneRelations($item);
 
         return $item;
     }
@@ -261,8 +261,8 @@ trait ResourceEntityTrait {
         }
 
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
-        $model = $item->getModel();
-        $model->applyRestGetOneRelations($item);
+        //$model = $item->getModel();
+        //$model->applyRestGetOneRelations($item);
 
         return $item;
     }
