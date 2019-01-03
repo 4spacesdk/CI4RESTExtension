@@ -46,7 +46,7 @@ trait ResourceEntityTrait {
                             /** @var Entity|ResourceEntityInterface $entityName */
                             $entityName = $relation->getEntityName();
                             $relationEntity = $entityName::post($data[$relationName]);
-                            $item->save($relationEntity);
+                            $item->save($relationEntity, $relation->getName());
                             $item->relationAdded($relationEntity);
 
                             $item->{$relationName} = $relationEntity;
@@ -61,7 +61,7 @@ trait ResourceEntityTrait {
                             $entityName = $relation->getEntityName();
                             foreach($data[$relationName] as $dataItem) {
                                 $relationEntity = $entityName::post($dataItem);
-                                $item->save($relationEntity);
+                                $item->save($relationEntity, $relation->getName());
                                 $item->relationAdded($relationEntity);
 
                                 if(!isset($item->{$relationName})) $item->{$relationName} = $relationEntity;
@@ -114,7 +114,7 @@ trait ResourceEntityTrait {
                             else
                                 $relationEntity = $entityName::post($dataItem);
 
-                            $item->save($relationEntity);
+                            $item->save($relationEntity, $relation->getName());
                             $item->relationAdded($relationEntity);
 
                             $item->{$relationName} = $relationEntity;
@@ -154,7 +154,7 @@ trait ResourceEntityTrait {
                                 $item->delete($oldRelation);
                             }
                             foreach($newRelations as $newRelation) {
-                                $item->save($newRelation);
+                                $item->save($newRelation, $relation->getName());
                                 $item->relationAdded($newRelation);
                             }
                         }
@@ -210,7 +210,7 @@ trait ResourceEntityTrait {
                             else
                                 $relationEntity = $entityName::post($dataItem);
 
-                            $item->save($relationEntity);
+                            $item->save($relationEntity, $relation->getName());
                             $item->relationAdded($relationEntity);
 
                             $item->{$relationName} = $relationEntity;
@@ -250,7 +250,7 @@ trait ResourceEntityTrait {
                                 $item->delete($oldRelation);
                             }
                             foreach($newRelations as $newRelation) {
-                                $item->save($newRelation);
+                                $item->save($newRelation, $relation->getName());
                                 $item->relationAdded($newRelation);
                             }
                         }
