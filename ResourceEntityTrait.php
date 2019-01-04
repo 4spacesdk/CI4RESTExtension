@@ -1,4 +1,5 @@
 <?php namespace RestExtension;
+use App\Entities\ProjectStatus;
 use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilderInterface;
@@ -135,6 +136,9 @@ trait ResourceEntityTrait {
                             foreach($oldRelations as $oldRelation)
                                 $oldIds[$oldRelation->id] = $oldRelation;
 
+                            $relationClass = $relation->getEntityName();
+                            $item->{$relationName} = new $relationClass();
+
                             $newRelations = [];
                             foreach($data[$relationName] as $dataItem) {
                                 if(isset($dataItem['id']) && $dataItem['id'] > 0)
@@ -147,6 +151,8 @@ trait ResourceEntityTrait {
                                     $newRelations[] = $relationEntity;
                                 } else
                                     unset($oldIds[$relationEntity->id]);
+
+                                $item->{$relationName}->add($relationEntity);
                             }
 
                             foreach($oldIds as $id => $oldRelation) {
@@ -231,6 +237,9 @@ trait ResourceEntityTrait {
                             foreach($oldRelations as $oldRelation)
                                 $oldIds[$oldRelation->id] = $oldRelation;
 
+                            $relationClass = $relation->getEntityName();
+                            $item->{$relationName} = new $relationClass();
+
                             $newRelations = [];
                             foreach($data[$relationName] as $dataItem) {
                                 if(isset($dataItem['id']) && $dataItem['id'] > 0)
@@ -243,6 +252,8 @@ trait ResourceEntityTrait {
                                     $newRelations[] = $relationEntity;
                                 } else
                                     unset($oldIds[$relationEntity->id]);
+
+                                $item->{$relationName}->add($relationEntity);
                             }
 
                             foreach($oldIds as $id => $oldRelation) {
