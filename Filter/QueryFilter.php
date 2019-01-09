@@ -32,6 +32,9 @@ class QueryFilter {
             $value = explode(',', substr($value, 1, -1));
         }
 
+        // Strings
+        $value = trim($value, "\"");
+
         $item->value = $value;
 
         return $item;
