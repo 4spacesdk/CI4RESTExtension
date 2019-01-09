@@ -43,12 +43,26 @@ trait ResourceControllerTrait {
 
         /** @var Model $model */
         $model = new $className();
+        /** @var Entity|ResourceEntityInterface $entityName */
         $entityName = $model->returnType;
 
-        /** @var Entity|ResourceEntityInterface $entityName */
-        $item = $entityName::post($this->request->getJSON(true));
+        $data = $this->request->getJSON(true);
 
-        $this->_setResource($item);
+        if(is_array($this->request->getJSON())) {
+
+            /** @var Entity $resources */
+            $resources = new $entityName();
+            foreach($data as $dataItem) {
+                $resources->add($entityName::post($dataItem));
+            }
+            $this->_setResources($resources);
+
+        } else {
+
+            $item = $entityName::post($data);
+            $this->_setResource($item);
+
+        }
 
         $this->success();
     }
@@ -58,12 +72,27 @@ trait ResourceControllerTrait {
 
         /** @var Model $model */
         $model = new $className();
+        /** @var Entity|ResourceEntityInterface $entityName */
         $entityName = $model->returnType;
 
-        /** @var Entity|ResourceEntityInterface $entityName */
-        $item = $entityName::put($id, $this->request->getJSON(true));
+        $data = $this->request->getJSON(true);
 
-        $this->_setResource($item);
+        if($id) {
+
+            $item = $entityName::put($id, $data);
+            $this->_setResource($item);
+
+        } else if(is_array($data)) {
+
+            /** @var Entity $resources */
+            $resources = new $entityName();
+            foreach($data as $dataItem) {
+                if(isset($dataItem['id']))
+                    $resources->add($entityName::put($dataItem['id'], $dataItem));
+            }
+            $this->_setResources($resources);
+
+        }
 
         $this->success();
     }
@@ -73,12 +102,29 @@ trait ResourceControllerTrait {
 
         /** @var Model $model */
         $model = new $className();
+        /** @var Entity|ResourceEntityInterface $entityName */
         $entityName = $model->returnType;
 
-        /** @var Entity|ResourceEntityInterface $entityName */
-        $item = $entityName::patch($id, $this->request->getJSON(true));
+        $data = $this->request->getJSON(true);
 
-        $this->_setResource($item);
+        if($id) {
+
+            $item = $entityName::patch($id, $data);
+            $this->_setResource($item);
+
+        } else if(is_array($data)) {
+
+            /** @var Entity $resources */
+            $resources = new $entityName();
+            foreach($data as $dataItem) {
+                if(isset($dataItem['id']) && $dataItem['id'] > 0)
+                    $resources->add($entityName::patch($dataItem['id'], $dataItem));
+                else
+                    $resources->add($entityName::post($dataItem));
+            }
+            $this->_setResources($resources);
+
+        }
 
         $this->success();
     }
