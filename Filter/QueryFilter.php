@@ -1,5 +1,7 @@
 <?php namespace RestExtension\Filter;
 
+use DebugTool\Data;
+
 /**
  * Created by PhpStorm.
  * User: martin
@@ -13,6 +15,7 @@
 class QueryFilter {
 
     public static function parse($line) {
+        Data::debug($line);
         $item = new QueryFilter();
 
         $item->property = substr($line, 0, strpos($line, ':'));
@@ -33,7 +36,11 @@ class QueryFilter {
         }
 
         // Strings
-        $value = trim($value, "\"");
+        if(is_array($value)) {
+            foreach($value as &$val)
+                $val = trim($val, "\"");
+        } else
+            $value = trim($value, "\"");
 
         $item->value = $value;
 

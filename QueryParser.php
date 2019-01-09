@@ -156,12 +156,14 @@ class QueryParser {
         $filters = [];
         $buffer = '';
         $inSquareBracket = false;
+        $inString = false;
         for($i = 0 ; $i < strlen($line) ; $i++) {
             $char = substr($line, $i, 1);
-            if(in_array($char, ['[', ']']))
-                $inSquareBracket = !$inSquareBracket;
 
-            if($char == ',' &! $inSquareBracket) {
+            if(in_array($char, ['[', ']'])) $inSquareBracket = !$inSquareBracket;
+            if(in_array($char, ['"', "'"])) $inString = !$inString;
+
+            if($char == ',' &! $inSquareBracket &! $inString) {
                 $filters[] = $buffer;
                 $buffer = '';
             } else
