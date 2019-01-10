@@ -1,6 +1,5 @@
 <?php namespace RestExtension;
 use CodeIgniter\HTTP\Request;
-use DebugTool\Data;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Includes\QueryInclude;
 use RestExtension\Ordering\QueryOrder;
