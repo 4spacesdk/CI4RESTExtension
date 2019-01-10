@@ -36,7 +36,7 @@ trait ResourceModelTrait {
 
                 if($queryParser->isCount()) {
                     $count = $this->distinct('id')->countAllResults();
-                    Data::lastQuery();
+                    //Data::lastQuery();
                     return $count;
                 }
 
