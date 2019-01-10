@@ -116,3 +116,30 @@ Direction is optional.
 Ex. `?include=created_by`  
 Ex. `?include=created_by.role`     
 Use `.` separation for deep relations. OBS, relation names is always singular
+
+
+### API Parser
+If you document your API endpoints like this
+```
+/**
+ * @route /loads/{loadId}/calculate
+ * @method get
+ * @custom true
+ * @param int $loadId parameterType=path
+ * @parameter int[] $user_ids parameterType=query required=true
+ * @parameter string $start parameterType=query required=true
+ * @parameter string $end parameterType=query required=true
+ */
+```
+RestExtension can generate Swagger documentation for you.
+```php
+$parser = ApiParser::run();
+$paths = $parser->generateSwagger();
+```
+Attach `$paths` to swagger paths.  
+
+#### Explanation
+* `@route` Is self explained.  
+* `@method` Is self explained.
+* `@custom` If not present, RestExtension will add the default parameters: filter, include, offset, limit, ordering
+* `@param` & `@parameter` Is the same. Starts with the type followed by the name. You can specify parameterType and requirement.  
