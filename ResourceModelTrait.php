@@ -31,6 +31,12 @@ trait ResourceModelTrait {
 
                 foreach($queryParser->getIncludes() as $include) $this->applyIncludeOne($include);
                 foreach($queryParser->getFilters() as $filter) $this->applyFilter($filter);
+                $searchFilters = $queryParser->getSearchFilters();
+                if(count($searchFilters)) {
+                    $this->groupStart();
+                    foreach($searchFilters as $filter) $this->applyFilter($filter);
+                    $this->groupEnd();
+                }
 
                 $this->preRestGet($queryParser, $id);
 
@@ -153,12 +159,12 @@ trait ResourceModelTrait {
                 case Operators::Search:
 
                     if(is_array($filter->value)) {
-                        $this->groupStart();
+                        $this->orGroupStart();
                         foreach($filter->value as $value)
                             $this->orLikeRelated($relations, $field, $value, 'both', null, true);
                         $this->groupEnd();
                     } else
-                        $this->likeRelated($relations, $field, $filter->value, 'both', null, true);
+                        $this->orLikeRelated($relations, $field, $filter->value, 'both', null, true);
                     break;
 
                 case Operators::Not:
@@ -181,12 +187,12 @@ trait ResourceModelTrait {
 
                 case Operators::Search:
                     if(is_array($filter->value)) {
-                        $this->groupStart();
+                        $this->orGroupStart();
                         foreach($filter->value as $value)
                             $this->orLike($filter->property, $value, 'both', null, true);
                         $this->groupEnd();
                     } else
-                        $this->like($filter->property, $filter->value, 'both', null, true);
+                        $this->orLike($filter->property, $filter->value, 'both', null, true);
                     break;
 
                 case Operators::Not:

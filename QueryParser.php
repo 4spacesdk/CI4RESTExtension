@@ -1,5 +1,6 @@
 <?php namespace RestExtension;
 use CodeIgniter\HTTP\Request;
+use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Includes\QueryInclude;
 use RestExtension\Ordering\QueryOrder;
@@ -12,6 +13,7 @@ use RestExtension\Ordering\QueryOrder;
  *
  * @property Request $request
  * @property QueryFilter[][] $filters
+ * @property QueryFilter[][] $searchFilters
  * @property QueryInclude[] $includes
  * @property QueryOrder[] $ordering
  * @property int $limit
@@ -102,6 +104,7 @@ class QueryParser {
 
     private $includes = [];
     private $filters = [];
+    private $searchFilters = [];
     private $ordering = [];
     private $limit = null;
     private $offset = null;
@@ -177,10 +180,20 @@ class QueryParser {
         }
     }
 
+    /**
+     * @param string $name
+     * @param Filter\QueryFilter $filter
+     */
     private function pushFilter($name, $filter) {
-        if(!isset($this->filters[$name]))
-            $this->filters[$name] = [];
-        $this->filters[$name][] = $filter;
+        switch($filter->operator) {
+            case Operators::Search:
+                if(!isset($this->searchFilters[$name])) $this->searchFilters[$name] = [];
+                $this->searchFilters[$name][] = $filter;
+                break;
+            default:
+                if(!isset($this->filters[$name])) $this->filters[$name] = [];
+                $this->filters[$name][] = $filter;
+        }
     }
 
     public function hasFilter($name): bool {
@@ -195,9 +208,23 @@ class QueryParser {
         return $this->filters[$name];
     }
 
+    /**
+     * @return QueryFilter[]
+     */
     public function getFilters() {
         $all = [];
         foreach($this->filters as $name => $filters)
+            foreach($filters as $filter)
+                $all[] = $filter;
+        return $all;
+    }
+
+    /**
+     * @return QueryFilter[]
+     */
+    public function getSearchFilters() {
+        $all = [];
+        foreach($this->searchFilters as $name => $filters)
             foreach($filters as $filter)
                 $all[] = $filter;
         return $all;
