@@ -66,9 +66,9 @@ trait ResourceModelTrait {
                     }
 
                     foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
-                }
 
-                $this->postRestGet($queryParser, $items);
+                    $this->postRestGet($queryParser, $items);
+                }
 
                 return $items;
 
