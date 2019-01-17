@@ -16,6 +16,7 @@ use OrmExtension\Extensions\Model;
 trait ResourceEntityTrait {
 
     public static function post($data) {
+        Data::debug(get_called_class(), 'post');
         $className = get_called_class();
 
         // OBS !! Is this okay? Client want to send relations as objects. But post should always create.
