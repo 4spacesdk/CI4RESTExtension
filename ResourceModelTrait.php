@@ -60,12 +60,12 @@ trait ResourceModelTrait {
                 if($items->exists()) {
                     if($id) {
                         $item = $items->first();
+                        foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
                         $this->applyRestGetOneRelations($item);
                     } else {
+                        foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
                         $this->appleRestGetManyRelations($items);
                     }
-
-                    foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
 
                     $this->postRestGet($queryParser, $items);
                 }
