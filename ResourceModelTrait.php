@@ -242,7 +242,8 @@ trait ResourceModelTrait {
                             $rel->find();
                         else
                             Data::debug(get_class($this), "ERROR", $relationName, 'not found for', get_class($item));
-                    }
+                    } else
+                        Data::debug(get_class($this), "ERROR", $relationName, 'already set (ignored)');
                     break;
             }
         }
