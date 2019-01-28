@@ -29,6 +29,8 @@ trait ResourceModelTrait {
 
                 if($id) $this->where('id', $id);
 
+                $this->preRestGet($queryParser, $id);
+
                 foreach($queryParser->getIncludes() as $include) $this->applyIncludeOne($include);
                 foreach($queryParser->getFilters() as $filter) $this->applyFilter($filter);
                 $searchFilters = $queryParser->getSearchFilters();
@@ -37,8 +39,6 @@ trait ResourceModelTrait {
                     foreach($searchFilters as $filter) $this->applyFilter($filter);
                     $this->groupEnd();
                 }
-
-                $this->preRestGet($queryParser, $id);
 
                 if($queryParser->isCount()) {
                     $count = $this->distinct('id')->countAllResults();

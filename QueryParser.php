@@ -196,6 +196,10 @@ class QueryParser {
         }
     }
 
+    public function delFilter($name) {
+        unset($this->filters[$name]);
+    }
+
     public function hasFilter($name): bool {
         return isset($this->filters[$name]);
     }
