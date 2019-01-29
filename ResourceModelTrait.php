@@ -121,7 +121,7 @@ trait ResourceModelTrait {
         $relations = $this->getRelation(explode('.', $include->property), true);
         foreach($relations as $relation) {
             if($relation->getType() == RelationDef::HasOne) continue;
-            $propertyName = $relation->getType() == RelationDef::HasMany ? plural($relation->getSimpleName()) : $relation->getSimpleName();
+            $propertyName = plural($relation->getSimpleName());
 
             $modelName = $relation->getClass();
             foreach($items as $item) {
