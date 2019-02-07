@@ -8,7 +8,7 @@
  *
  * @property string $property
  * @property string $operator
- * @property string|array $value
+ * @property string|array|null $value
  */
 class QueryFilter {
 
@@ -39,7 +39,10 @@ class QueryFilter {
         } else
             $value = trim($value, "\"");
 
-        $item->value = $value;
+        if($value == 'null')
+            $item->value = null;
+        else
+            $item->value = $value;
 
         return $item;
     }
