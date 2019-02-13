@@ -46,7 +46,7 @@ interface ResourceEntityInterface {
     public function populatePatch($data);
 
     /**
-     * @param ResourceEntityInterface|Entity
+     * @param ResourceEntityInterface|Entity $relation
      */
     public function relationAdded($relation);
 }
