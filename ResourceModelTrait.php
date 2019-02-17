@@ -88,7 +88,6 @@ trait ResourceModelTrait {
         $relations = $this->getRelation($classes, true);
         $relationNames = [];
         foreach($relations as $relation) {
-            if($relation->getType() != RelationDef::HasOne) return;
             $relationNames[] = $relation->getName();
         }
         if(count($relationNames) > 0)
