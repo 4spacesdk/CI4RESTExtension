@@ -159,6 +159,7 @@ trait ResourceEntityTrait {
                             foreach($oldIds as $id => $oldRelation) {
                                 $oldRelations->remove($oldRelation);
                                 $item->delete($oldRelation);
+                                $item->relationRemoved($oldRelation);
                             }
                             foreach($newRelations as $newRelation) {
                                 $item->save($newRelation, $relation->getName());
@@ -260,6 +261,7 @@ trait ResourceEntityTrait {
                             foreach($oldIds as $id => $oldRelation) {
                                 $oldRelations->remove($oldRelation);
                                 $item->delete($oldRelation);
+                                $item->relationRemoved($oldRelation);
                             }
                             foreach($newRelations as $newRelation) {
                                 $item->save($newRelation, $relation->getName());

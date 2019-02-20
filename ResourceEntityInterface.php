@@ -49,4 +49,9 @@ interface ResourceEntityInterface {
      * @param ResourceEntityInterface|Entity $relation
      */
     public function relationAdded($relation);
+
+    /**
+     * @param ResourceEntityInterface|Entity $relation
+     */
+    public function relationRemoved($relation);
 }
