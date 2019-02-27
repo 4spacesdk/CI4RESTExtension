@@ -1,5 +1,6 @@
 <?php namespace RestExtension;
 use App\Entities\ProjectStatus;
+use App\Extensions\MyEntity;
 use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilderInterface;
@@ -21,7 +22,9 @@ trait ResourceEntityTrait {
 
         // OBS !! Is this okay? Client want to send relations as objects. But post should always create.
         if(isset($data['id']) && $data['id'] > 0) {
-            return new $className($data);
+            /** @var MyEntity $entity */
+            $entity = new $className();
+            return $entity->find($data['id']); // Have to do a get, it might be saved later
         }
 
         /** @var ResourceEntityInterface|Entity $item */
@@ -48,6 +51,7 @@ trait ResourceEntityTrait {
                             /** @var Entity|ResourceEntityInterface $entityName */
                             $entityName = $relation->getEntityName();
                             $relationEntity = $entityName::post($data[$relationName]);
+
                             $item->save($relationEntity, $relation->getName());
                             $item->relationAdded($relationEntity);
 
