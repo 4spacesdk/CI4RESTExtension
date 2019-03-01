@@ -12,6 +12,7 @@ use OrmExtension\Extensions\Model;
  *
  * @property string $resource
  * @property Request $request
+ * @property QueryParser $queryParser
  */
 trait ResourceControllerTrait {
 
