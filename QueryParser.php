@@ -266,5 +266,21 @@ class QueryParser {
         return $this->ordering;
     }
 
+    public function hasInclude(string $name): bool {
+        foreach($this->includes as $include) {
+            if($include->property == $name)
+                return true;
+        }
+        return false;
+    }
+
+    public function getInclude(string $name): QueryInclude {
+        foreach($this->includes as $include) {
+            if($include->property == $name)
+                return $include;
+        }
+        return null;
+    }
+
 
 }
