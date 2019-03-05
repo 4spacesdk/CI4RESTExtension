@@ -282,5 +282,14 @@ class QueryParser {
         return null;
     }
 
+    public function delInclude(string $name) {
+        for($i = 0 ; $i < count($this->includes) ; $i++) {
+            if($this->includes[$i]->property == $name) {
+                unset($this->includes[$i]);
+                return;
+            }
+        }
+    }
+
 
 }
