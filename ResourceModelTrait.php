@@ -79,7 +79,7 @@ trait ResourceModelTrait {
     }
 
     public function applyOrder(QueryOrder $order) {
-        Data::debug(get_class($this), "apply order", $order->property);
+        Data::debug(get_class($this), "apply order", $order->property, $order->direction);
 
         $classes = explode('.', $order->property);
         $field = array_pop($classes);
