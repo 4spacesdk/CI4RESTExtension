@@ -70,10 +70,12 @@ trait ResourceEntityTrait {
                                 $item->save($relationEntity, $relation->getName());
                                 $item->relationAdded($relationEntity);
 
-                                if(!isset($item->{$relationName}))
-                                    $item->{$relationName} = $relationEntity;
-                                else
-                                    $item->{$relationName}->add($relationEntity);
+                                if(!isset($item->{$relationName})) {
+                                    $relationClass = $relation->getEntityName();
+                                    $item->{$relationName} = new $relationClass();
+                                }
+
+                                $item->{$relationName}->add($relationEntity);
                             }
                         }
 
