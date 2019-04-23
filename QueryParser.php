@@ -234,6 +234,23 @@ class QueryParser {
         return $all;
     }
 
+    public function delSearchFilter($name) {
+        unset($this->searchFilters[$name]);
+    }
+
+    public function hasSearchFilter($name): bool {
+        return isset($this->searchFilters[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return QueryFilter[]
+     */
+    public function getSearchFilter($name) {
+        return $this->searchFilters[$name];
+    }
+
+
     public function getOffset(): int {
         return $this->offset;
     }
