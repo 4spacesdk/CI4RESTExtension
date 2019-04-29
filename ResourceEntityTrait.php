@@ -24,7 +24,9 @@ trait ResourceEntityTrait {
         if(isset($data['id']) && $data['id'] > 0) {
             /** @var MyEntity $entity */
             $entity = new $className();
-            return $entity->find($data['id']); // Have to do a get, it might be saved later
+            $entity->find($data['id']); // Have to do a get, it might be saved later
+            $entity->fill($data);
+            return $entity;
         }
 
         /** @var ResourceEntityInterface|Entity $item */
