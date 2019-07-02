@@ -3,14 +3,108 @@ RESTExtension for CodeIgniter 4
 
 Should be used in coherence with [ORMExtension](https://github.com/4spacesdk/CI4OrmExtension).
 
+## Enable API Management 
+If used in coherence with [AuthExtension](https://github.com/4spacesdk/CI4AuthExtension) you can take advantage of more API Features like Access Log and Scope Authorization.
+#### Step 1) 
+Install [AuthExtension](https://github.com/4spacesdk/CI4AuthExtension).
+#### Step 2)
+Add Config file `RestExtension.php`.
+```php
+<?php namespace Config;
+
+use CodeIgniter\Config\BaseConfig;
+use CodeIgniter\HTTP\Request;
+
+class RestExtension extends BaseConfig {
+
+    /*
+     * Enabling this feature requires you to
+     * - Store routes in the database
+     * - Assign scopes to the routes
+     * This will allow RestExtension to authorize every request against OAuth2 Scopes
+     */
+    public $enableApiRouting        = FALSE;
+
+    /*
+     * Track every access to the API.
+     * Consider adding a CronJob to periodically cleanup this table
+     */
+    public $enableAccessLog         = FALSE;
+
+    /*
+     * Track blocked requests.
+     * Ex. if you use scopes to authorize
+     */
+    public $enableBlockedLog        = FALSE;
+
+    /*
+     * Track errors
+     */
+    public $enableErrorLog          = FALSE;
+
+    /*
+     * Hourly rate limit
+     * Requires enableAccessLog to be TRUE
+     */
+    public $defaultRateLimit        = 0;
+
+    /*
+     * Daily usage report
+     */
+    public $enableUsageReporting    = FALSE;
+
+    /**
+     * Apply function to authenticate $request.
+     * access_token is placed in either a header called Authorization or a GET-parameter called access_token
+     * @param Request $request
+     * @param string|null $scope
+     * @return string|bool
+     */
+    public function authorize(Request $request, string $scope = null) {
+
+        /**
+         * If AuthExtension is part of this project you could do something like
+         */
+        /*
+        return \AuthExtension\AuthExtension::authorize($scope);
+        */
+
+
+        /**
+         * If AuthExtension is part of another project (ex. Micro Service) you could do something like
+         */
+
+        /*
+        $url = \CodeIgniter\Config\Config::get('domains')->auth.'check?';
+        $url .= http_build_query(['scope' => $scope, 'access_token' => RestRequest::getInstance()->getAccessToken()]);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $json = json_decode(curl_exec($ch));
+        curl_close($ch);
+
+        return ($json && isset($json->client_id) ? $json->client_id : false);
+        */
+    }
+
+}
+```
+
+### Step 3)
+Add this line to `Config/Events.php` `Events::on('pre_system', [\RestExtension\Hooks::class, 'preSystem']);`. Must be places below `OrmExtension`.
+
+### Step 4)
+Add this line to your migration file `\RestExtension\Migration\Setup::migrateUp();` and run it.
+
 ## Query Parser
-Add this lines in your base controller `ApiController`:
+Add these lines to your base controller:
 ```php
 $this->queryParser = new QueryParser();
 $this->queryParser->parseRequest($this->request);
 ```
 If you use OrmExtension add this trait to your base model: `use OrmExtensionModelTrait;`. 
-This allow RestExtension to filter your resources based on your models and their relations.
+This will allow RestExtension to filter your resources based on your models and their relations.
 
 ### Examples
 `/milestones?filter=name:[Milepæl%202,Milepæl%201],project.id:9`   
@@ -21,7 +115,7 @@ Filtering projects by id greater than or equal to 10 and lower than or equal to 
 
 ### Filtering
 
-This uses the RFS filter method
+RESTExtension uses the RFS filter method
 
      * Example
      * GET /items?filter=price:>=10,price:<=100.
@@ -105,7 +199,7 @@ Ex. `?ordering=title:asc,created:desc`
 
 Ordering by relations:  
 Ex. `?ordering=created_by.first_name:asc`   
-Use `.` separation for deep relations. OBS, relation names is always singular  
+Use `.` separation for deep relations. NB, relation names is always singular  
 
 Direction is optional.
      
@@ -115,7 +209,7 @@ Direction is optional.
 `include=RELATION`  
 Ex. `?include=created_by`  
 Ex. `?include=created_by.role`     
-Use `.` separation for deep relations. OBS, relation names is always singular
+Use `.` separation for deep relations. NB, relation names is always singular
 
 
 ### API Parser

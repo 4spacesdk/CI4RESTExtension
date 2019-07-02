@@ -1,6 +1,4 @@
 <?php namespace RestExtension;
-use App\Entities\ProjectStatus;
-use App\Extensions\MyEntity;
 use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilderInterface;
@@ -20,9 +18,9 @@ trait ResourceEntityTrait {
         Data::debug(get_called_class(), 'post');
         $className = get_called_class();
 
-        // OBS !! Is this okay? Client want to send relations as objects. But post should always create.
+        // NB !! Is this okay? Client want to send relations as objects. But post should always create.
         if(isset($data['id']) && $data['id'] > 0) {
-            /** @var MyEntity $entity */
+            /** @var Entity $entity */
             $entity = new $className();
             $entity->find($data['id']); // Have to do a get, it might be saved later
             $entity->fill($data);
