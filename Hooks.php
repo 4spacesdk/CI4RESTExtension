@@ -149,12 +149,15 @@ class Hooks {
                     /*
                      * Authorized, go on
                      */
+                    $restRequest->clientId = $authResponse->client_id;
+                    $restRequest->userId = $authResponse->user_id;
                 }
             }
 
             if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
 
                 $apiAccessLog = new ApiAccessLog();
+                if($restRequest->userId) $apiAccessLog->user_id = $restRequest->userId;
                 if($restRequest->clientId) $apiAccessLog->client_id = $restRequest->clientId;
                 if($restRequest->apiRoute) $apiAccessLog->api_route_id = $restRequest->apiRoute->id;
                 $apiAccessLog->access_token = $restRequest->getAccessToken();
@@ -202,6 +205,7 @@ class Hooks {
             if(self::$config->enableErrorLog && self::$database->tableExists('api_error_logs')) {
 
                 $apiErrorLog = new ApiErrorLog();
+                if($restRequest->userId) $apiErrorLog->user_id = $restRequest->userId;
                 if($restRequest->clientId) $apiErrorLog->client_id = $restRequest->clientId;
                 if($restRequest->apiRoute) $apiErrorLog->api_route_id = $restRequest->apiRoute->id;
                 $apiErrorLog->access_token = $restRequest->getAccessToken();
@@ -218,6 +222,7 @@ class Hooks {
 
                 if(self::$config->enableBlockedLog && self::$database->tableExists('api_blocked_logs')) {
                     $apiBlockedLog = new ApiBlockedLog();
+                    if($restRequest->userId) $apiBlockedLog->user_id = $restRequest->userId;
                     if($restRequest->clientId) $apiBlockedLog->client_id = $restRequest->clientId;
                     if($restRequest->apiRoute) $apiBlockedLog->api_route_id = $restRequest->apiRoute->id;
                     $apiBlockedLog->access_token = $restRequest->getAccessToken();

@@ -11,6 +11,8 @@
  * @property string $tag
  * @property ParameterItem[] $parameters
  * @property string $requestEntity
+ * @property string $summary
+ * @property string $scope
  */
 class EndpointItem {
 
@@ -71,6 +73,12 @@ class EndpointItem {
                 case '@entity':
                     $item->requestEntity = $value;
                     break;
+                case '@summary':
+                    $item->summary = implode(' ', array_splice($parts, 1));
+                    break;
+                case '@scope':
+                    $item->scope = implode(' ', array_splice($parts, 1));
+                    break;
             }
         }
 
@@ -104,6 +112,16 @@ class EndpointItem {
                             '$ref' => '#/components/schemas/'.$this->requestEntity
                         ]
                     ]
+                ]
+            ];
+
+        if(isset($this->summary))
+            $item['summary'] = $this->summary;
+
+        if(isset($this->scope))
+            $item['security'] = [
+                [
+                    'OAuth2' => explode(' ', $this->scope)
                 ]
             ];
 

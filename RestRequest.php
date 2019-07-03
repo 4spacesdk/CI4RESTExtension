@@ -39,6 +39,11 @@ class RestRequest {
     /**
      * @var string
      */
+    public $userId;
+
+    /**
+     * @var string
+     */
     public $accessToken;
 
     /**
