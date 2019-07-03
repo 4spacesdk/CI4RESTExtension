@@ -11,7 +11,7 @@ use OrmExtension\Extensions\Entity;
  * @property string $grant_types
  * @property string $scope
  * @property string $user_id
- * @property int $rate_limits # Hourly rate limit
+ * @property int $rate_limit # Hourly rate limit
  *
  * Many
  * @property ApiAccessLog $api_access_logs

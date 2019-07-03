@@ -1,6 +1,6 @@
 <?php namespace RestExtension\Models;
 
-use OrmExtension\Extensions\Model;
+use RestExtension\Core\Model;
 
 /**
  * Class ApiAccessLogModel

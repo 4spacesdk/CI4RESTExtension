@@ -58,7 +58,6 @@ class RestRequest {
                 $this->accessToken = $request->getGet('access_token');
         }
         return $this->accessToken;
-
     }
 
 }

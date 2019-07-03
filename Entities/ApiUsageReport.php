@@ -6,8 +6,9 @@ use OrmExtension\Extensions\Entity;
  * Class ApiUsageReport
  * @package RestExtension\Entities
  * @property int $id
- *
- * Many
+ * @property string $client_id
+ * @property string $date
+ * @property int $usage
  */
 class ApiUsageReport extends Entity {
 

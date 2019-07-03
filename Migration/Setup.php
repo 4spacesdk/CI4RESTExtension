@@ -14,7 +14,7 @@ class Setup {
         $config = Config::get('RestExtension');
         if($config) {
 
-            Table::init('oauth_clients')->column('rate_limits', ColumnTypes::INT, $config->defaultRateLimit);
+            Table::init('oauth_clients')->column('rate_limit', ColumnTypes::INT, $config->defaultRateLimit);
 
             if($config->enableApiRouting)
                 Table::init('api_routes')
@@ -25,7 +25,8 @@ class Setup {
                     ->column('cacheable', ColumnTypes::BOOL_0)
                     ->column('version', ColumnTypes::VARCHAR_63)
                     ->column('scope', ColumnTypes::VARCHAR_2047)
-                    ->column('is_public', ColumnTypes::BOOL_0);
+                    ->column('is_public', ColumnTypes::BOOL_0)
+                    ->addIndex('method');
 
             if($config->enableAccessLog)
                 Table::init('api_access_logs')
@@ -37,7 +38,11 @@ class Setup {
                     ->column('uri', ColumnTypes::VARCHAR_1023)
                     ->column('date', ColumnTypes::DATETIME)
                     ->column('milliseconds', ColumnTypes::INT)
-                    ->column('ip_address', ColumnTypes::VARCHAR_27);
+                    ->column('ip_address', ColumnTypes::VARCHAR_27)
+                    ->addIndex('user_id')
+                    ->addIndex('client_id')
+                    ->addIndex('api_route_id')
+                    ->addIndex('date');
 
             if($config->enableBlockedLog)
                 Table::init('api_blocked_logs')
@@ -49,7 +54,11 @@ class Setup {
                     ->column('uri', ColumnTypes::VARCHAR_1023)
                     ->column('date', ColumnTypes::DATETIME)
                     ->column('reason', ColumnTypes::VARCHAR_255)
-                    ->column('ip_address', ColumnTypes::VARCHAR_27);
+                    ->column('ip_address', ColumnTypes::VARCHAR_27)
+                    ->addIndex('user_id')
+                    ->addIndex('client_id')
+                    ->addIndex('api_route_id')
+                    ->addIndex('date');
 
             if($config->enableErrorLog)
                 Table::init('api_error_logs')
@@ -67,21 +76,27 @@ class Setup {
                     ->column('post', ColumnTypes::TEXT)
                     ->column('patch', ColumnTypes::TEXT)
                     ->column('put', ColumnTypes::TEXT)
-                    ->column('headers', ColumnTypes::TEXT);
+                    ->column('headers', ColumnTypes::TEXT)
+                    ->addIndex('user_id')
+                    ->addIndex('client_id')
+                    ->addIndex('api_route_id')
+                    ->addIndex('date');
 
             if($config->enableUsageReporting)
                 Table::init('api_usage_reports')
                     ->create()
                     ->column('client_id', ColumnTypes::VARCHAR_127)
                     ->column('date', ColumnTypes::DATETIME)
-                    ->column('usage', ColumnTypes::INT);
+                    ->column('usage', ColumnTypes::INT)
+                    ->addIndex('client_id')
+                    ->addIndex('date');
         } else
             Table::init('oauth_clients')->column('rate_limits', ColumnTypes::INT);
     }
 
     public static function migrateDown() {
         Table::init('oauth_clients')
-            ->dropColumn('rate_limits')
+            ->dropColumn('rate_limit')
             ->dropColumn('deletion_id');
 
         Table::init('api_routes')->dropTable();

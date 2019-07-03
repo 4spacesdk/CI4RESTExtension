@@ -7,13 +7,17 @@ use Config\Database;
 use Config\OrmExtension;
 use Config\RestExtension;
 use Config\Services;
-use DebugTool\Data;
 use RestExtension\Entities\ApiAccessLog;
 use RestExtension\Entities\ApiBlockedLog;
 use RestExtension\Entities\ApiErrorLog;
 use RestExtension\Entities\ApiRoute;
+use RestExtension\Entities\ApiUsageReport;
+use RestExtension\Entities\OAuthClient;
 use RestExtension\Exceptions\UnauthorizedException;
+use RestExtension\Models\ApiAccessLogModel;
 use RestExtension\Models\ApiRouteModel;
+use RestExtension\Models\ApiUsageReportModel;
+use RestExtension\Models\OAuthClientModel;
 use Throwable;
 
 /**
@@ -151,9 +155,57 @@ class Hooks {
                      */
                     $restRequest->clientId = $authResponse->client_id;
                     $restRequest->userId = $authResponse->user_id;
+
+                    /*
+                     * API Rate Limit
+                     */
+                    if(self::$config->enableRateLimit && self::$database->tableExists('api_access_logs')) {
+                        /** @var OAuthClient $oauthClient */
+                        $oauthClient = (new OAuthClientModel())
+                            ->where('client_id', $authResponse->client_id)
+                            ->find();
+                        if($oauthClient->rate_limit > 0) {
+                            $lastHour = (new ApiAccessLogModel())
+                                ->where('client_id', $authResponse->client_id)
+                                ->where('date >', date('Y-m-d H:i:s', strtotime('-1 hour')))
+                                ->countAllResults();
+                            if($lastHour >= $oauthClient->rate_limit) {
+
+                                /*
+                                 * Unauthorized!
+                                 */
+                                throw new UnauthorizedException('API Rate limit exceeded');
+                            }
+
+                        }
+                    }
+
+                    /*
+                     * API Usage Reporting
+                     */
+                    if(self::$config->enableUsageReporting && self::$database->tableExists('api_usage_reports')) {
+
+                        /** @var ApiUsageReport $usageReport */
+                        $usageReport = (new ApiUsageReportModel())
+                            ->where('client_id', $authResponse->client_id)
+                            ->where('date', date('Y-m-d'))
+                            ->find();
+                        if(!$usageReport->exists()) {
+                            $usageReport->client_id = $authResponse->client_id;
+                            $usageReport->date = date('Y-m-d');
+                            $usageReport->usage = 0;
+                        }
+                        $usageReport->usage++;
+                        $usageReport->save();
+
+                    }
                 }
             }
 
+
+            /*
+             * API Access Log
+             */
             if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
 
                 $apiAccessLog = new ApiAccessLog();

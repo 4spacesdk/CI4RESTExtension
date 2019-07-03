@@ -43,6 +43,11 @@ class RestExtension extends BaseConfig {
     public $enableErrorLog          = FALSE;
 
     /*
+     * Enable rate limit
+     */
+    public $enableRateLimit         = TRUE;
+
+    /*
      * Hourly rate limit
      * Requires enableAccessLog to be TRUE
      */
