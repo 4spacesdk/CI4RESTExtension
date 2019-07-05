@@ -9,7 +9,10 @@ use ReflectionMethod;
  * Time: 08.33
  *
  * @property string $name
+ * @property string $nameLoweCase
  * @property string $path
+ * @property string $resourceNameLowerCase
+ * @property string $resourceNameUpperCase
  * @property EndpointItem[] $endpoints
  */
 class ApiItem {
@@ -25,6 +28,9 @@ class ApiItem {
 
         $rc = new \ReflectionClass("\App\Controllers\\{$api}");
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
+        $item->nameLoweCase = lcfirst($item->name);
+        $item->resourceNameUpperCase = singular($item->name);
+        $item->resourceNameLowerCase = lcfirst($item->resourceNameUpperCase);
         $item->path = "/".strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $item->name));
 
         $item->endpoints = [];

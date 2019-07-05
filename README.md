@@ -93,6 +93,16 @@ class RestExtension extends BaseConfig {
         */
     }
 
+    /*
+     * Provide Route for Typescript model exporter
+     */
+    public $typescriptModelExporterRoute    = 'export/models';
+
+    /*
+     * Provide Route for Typescript API exporter
+     */
+    public $typescriptAPIExporterRoute    = 'export/api';
+
 }
 ```
 

@@ -7,6 +7,8 @@ use Config\Database;
 use Config\OrmExtension;
 use Config\RestExtension;
 use Config\Services;
+use OrmExtension\ModelParser\ModelParser;
+use RestExtension\ApiParser\ApiParser;
 use RestExtension\Entities\ApiAccessLog;
 use RestExtension\Entities\ApiBlockedLog;
 use RestExtension\Entities\ApiErrorLog;
@@ -83,6 +85,8 @@ class Hooks {
          */
         if(self::$config) {
 
+            $routes = Services::routes(true);
+
             if(self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
                 $routes = Services::routes(true);
                 /** @var ApiRoute $apiRoutes */
@@ -90,6 +94,51 @@ class Hooks {
                 foreach($apiRoutes as $route) {
                     $routes->{$route->method}($route->from, $route->to);
                 }
+            }
+
+            /*
+             * Export TypeScript Models
+             */
+            if(self::$config->typescriptModelExporterRoute && Services::request()->getIPAddress() == '127.0.0.1') {
+                $routes->get(self::$config->typescriptModelExporterRoute, function() {
+                    $parser = ModelParser::run();
+                    $parser->generateTypeScript();
+
+                    // Zip models folder
+                    shell_exec('cd ' . WRITEPATH . 'tmp/ && zip -r models.zip models');
+                    $path = WRITEPATH . 'tmp/models.zip';
+
+                    header("Content-type: application/zip");
+                    header("Content-Disposition: attachment; filename=$path");
+                    header("Content-length: " . filesize($path));
+                    header("Pragma: no-cache");
+                    header("Expires: 0");
+                    readfile("$path");
+
+                    exit(0);
+                });
+            }
+
+            /*
+             * Export TypeScript API Class
+             */
+            if(self::$config->typescriptAPIExporterRoute && Services::request()->getIPAddress() == '127.0.0.1') {
+                $routes->get(self::$config->typescriptAPIExporterRoute, function($debug = 1) {
+                    $parser = ApiParser::run();
+                    $parser->generateTypeScript($debug);
+
+                    // Zip models folder
+                    $path = WRITEPATH . 'tmp/Api.ts';
+
+                    header("Content-type: application/x-typescript");
+                    header("Content-Disposition: attachment; filename=$path");
+                    header("Content-length: " . filesize($path));
+                    header("Pragma: no-cache");
+                    header("Expires: 0");
+                    readfile("$path");
+
+                    exit(0);
+                });
             }
             
         }

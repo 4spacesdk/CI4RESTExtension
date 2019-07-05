@@ -1,4 +1,5 @@
 <?php namespace RestExtension\ApiParser;
+use Config\Services;
 use DebugTool\Data;
 
 /**
@@ -34,6 +35,34 @@ class ApiParser {
             }
         }
         return $json;
+    }
+
+    public function generateTypeScript($debug) {
+        if(!file_exists(WRITEPATH.'tmp')) mkdir(WRITEPATH.'tmp', 0777, true);
+
+        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+
+        $resources = [];
+        foreach($this->paths as $path) {
+            $endpoints = [];
+            foreach($path->endpoints as $endpoint) {
+                $className = $path->name.ucfirst($endpoint->method);
+                $endpoints[$className] = $renderer
+                    ->setData(['endpoint' => $endpoint], 'raw')
+                    ->render('Endpoint', ['debug' => false], null);
+            }
+
+            $resources[] = $renderer
+                ->setData(['path' => $path, 'endpoints' => $endpoints], 'raw')
+                ->render('Resource', ['debug' => false], null);
+        }
+
+        $content = $renderer->setData(['resources' => $resources], 'raw')->render('API', ['debug' => false], null);
+        if($debug) {
+            echo str_replace(" ", '&nbsp;', str_replace("\n", '<br>', $content));
+            exit(0);
+        } else
+            file_put_contents(WRITEPATH.'tmp/Api.ts', $content);
     }
 
 
