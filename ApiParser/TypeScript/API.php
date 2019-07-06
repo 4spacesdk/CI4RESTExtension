@@ -2,8 +2,7 @@
 /** @var array $resources */
 ?>
 import {BaseApi} from '@app/core/http/Api/BaseApi';
-import {Observable, Subscription} from 'rxjs';
-import {PartialObserver} from 'rxjs/src/internal/types';
+import {Subscription} from 'rxjs';
 
 export class Api {
 
