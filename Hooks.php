@@ -123,7 +123,7 @@ class Hooks {
              * Export TypeScript API Class
              */
             if(self::$config->typescriptAPIExporterRoute && Services::request()->getIPAddress() == '127.0.0.1') {
-                $routes->get(self::$config->typescriptAPIExporterRoute, function($debug = 1) {
+                $routes->get(self::$config->typescriptAPIExporterRoute, function($debug = 0) {
                     $parser = ApiParser::run();
                     $parser->generateTypeScript($debug);
 

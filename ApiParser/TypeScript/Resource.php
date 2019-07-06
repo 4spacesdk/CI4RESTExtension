@@ -2,11 +2,17 @@
 /** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var array $endpoints */
 ?>
+import {<?=$path->resourceNameUpperCase?>} from '@app/core/models';
+class <?=$path->name?> {
 
-    class <?=$path->name?> extends BaseApi {
-<?php foreach($endpoints as $className => $content) { ?>
-        public static <?=lcfirst($className)?>(): <?=$className?> {
-            return new <?=$className?>();
-        }
-<?php } ?>
+<?php foreach($endpoints as [$funcName, $className, $argsWithType, $argsWithOutType, $content]) { ?>
+    public <?=lcfirst($funcName)?>(<?=$argsWithType?>): <?=$className?> {
+        return new <?=$className?>(<?=$argsWithOutType?>);
     }
+
+<?php } ?>
+}
+<?php foreach($endpoints as [$funcName, $className, $argsWithType, $argsWithOutType, $content]) { ?>
+
+<?=$content?>
+<?php } ?>

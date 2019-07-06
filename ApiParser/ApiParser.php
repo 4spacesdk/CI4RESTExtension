@@ -20,7 +20,9 @@ class ApiParser {
         $parser = new ApiParser();
         $apis = [];
         foreach(ApiParser::loadApi() as $api) {
-            $apis[] = ApiParser::parseApiItem($api);
+            $apiItem = ApiParser::parseApiItem($api);
+            if(count($apiItem->endpoints))
+                $apis[] = $apiItem;
         }
         Data::debug("Found ".count($apis)." apis");
         $parser->paths = $apis;
@@ -46,20 +48,44 @@ class ApiParser {
         foreach($this->paths as $path) {
             $endpoints = [];
             foreach($path->endpoints as $endpoint) {
-                $className = $path->name.ucfirst($endpoint->method);
-                $endpoints[$className] = $renderer
-                    ->setData(['endpoint' => $endpoint], 'raw')
-                    ->render('Endpoint', ['debug' => false], null);
+                $parts = explode('/', trim($endpoint->path, '/'));
+
+                // Name
+                $customName = array_shift($parts);
+                $name = $endpoint->tag;
+                if($endpoint->custom) $name .= ucfirst($customName);
+
+                // Path parameters
+                $with = [];
+                foreach($endpoint->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
+                    $with[] = ucfirst($pathArgument);
+                $by = count($with) ? 'By'.implode('By', $with) : '';
+
+                // Func & Class name
+                $funcName = lcfirst($endpoint->method).$by;
+                if($endpoint->custom)
+                    $funcName = $customName.ucfirst($funcName);
+                $className = ucfirst($name).ucfirst($endpoint->method).$by;
+
+                // Function Arguments
+                $argsWithType = $endpoint->getTypeScriptPathArgumentsWithTypes();
+                $argsWithOutType = $endpoint->getTypeScriptPathArgumentsWithOutTypes();
+
+                $endpoints[] = [$funcName, $className, implode(', ', $argsWithType), implode(', ', $argsWithOutType), $renderer
+                        ->setData(['endpoint' => $endpoint, 'className' => $className, 'apiItem' => $path], 'raw')
+                        ->render('Endpoint', ['debug' => false], null),
+                ];
             }
 
-            $resources[] = $renderer
+            $resources[$path->name] = $renderer
                 ->setData(['path' => $path, 'endpoints' => $endpoints], 'raw')
                 ->render('Resource', ['debug' => false], null);
         }
 
         $content = $renderer->setData(['resources' => $resources], 'raw')->render('API', ['debug' => false], null);
         if($debug) {
-            echo str_replace(" ", '&nbsp;', str_replace("\n", '<br>', $content));
+            header('Content-Type', 'text/plain');
+            echo $content;
             exit(0);
         } else
             file_put_contents(WRITEPATH.'tmp/Api.ts', $content);

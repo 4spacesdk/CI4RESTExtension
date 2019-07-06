@@ -59,8 +59,10 @@ class EndpointItem {
                     break;
                 case '@param':
                     $param = ParameterItem::parse(substr($line, strlen('@param ')));
-                    if($param)
+                    if($param) {
+                        $param->parameterType = 'path';
                         $item->parameters[] = $param;
+                    }
                     break;
                 case '@parameter':
                     $param = ParameterItem::parse(substr($line, strlen('@parameter ')));
@@ -126,6 +128,58 @@ class EndpointItem {
             ];
 
         return $item;
+    }
+
+    public function getTypeScriptPathArgumentsWithTypes(): array {
+        $argsWithType = [];
+        foreach($this->parameters as $parameter) {
+            if($parameter->parameterType == 'path') {
+                $required = $parameter->required ? '' : '?';
+                $argsWithType[] = "{$parameter->name}{$required}: {$parameter->getTypeScriptType()}";
+            }
+        }
+        return $argsWithType;
+    }
+
+    public function getTypeScriptPathArgumentsWithOutTypes(): array {
+        $argsWithOutType = [];
+        foreach($this->parameters as $parameter) {
+            if($parameter->parameterType == 'path') {
+                $argsWithOutType[] = $parameter->name;
+            }
+        }
+        return $argsWithOutType;
+    }
+
+    public function getTypeScriptUrl(): string {
+        $params = $this->getTypeScriptPathArgumentsWithOutTypes();
+        $url = $this->path;
+        foreach($params as $param) {
+            $url = str_replace("{{$param}}", "\${{$param}}", $url);
+        }
+        return $url;
+    }
+
+    /**
+     * @return ParameterItem[]
+     */
+    public function getTypeScriptQueryParameters(): array {
+        $ignore = ['filter', 'include', 'ordering', 'limit', 'offset', 'count'];
+        $parameters = [];
+        foreach($this->parameters as $parameter) {
+            if($parameter->parameterType == 'query' && !in_array($parameter->name, $ignore)) {
+                $parameters[] = $parameter;
+            }
+        }
+        return $parameters;
+    }
+
+    public function hasParameter($name): bool {
+        foreach($this->parameters as $parameter) {
+            if($parameter->name == $name)
+                return true;
+        }
+        return false;
     }
 
 }

@@ -12,13 +12,15 @@
  * @property string $parameterType
  * @property string $default
  * @property string $example
+ * @property bool $isArrayType
  */
 class ParameterItem {
 
-    public function __construct($name = '', $parameterType = 'query', $type = '', $required = false) {
+    public function __construct($name = '', $parameterType = 'query', $type = '', $required = true) {
         $this->name = $name;
         $this->parameterType = $parameterType;
         $this->type = $type;
+        $this->isArrayType = strpos($type, '[]') !== false;
         $this->required = $required;
     }
 
@@ -32,6 +34,7 @@ class ParameterItem {
         $name = array_shift($parts);
 
         $item->type = $type;
+        $item->isArrayType = strpos($type, '[]') !== false;
         $item->name = substr($name, 1);
 
         foreach($parts as $arg) {
@@ -86,6 +89,26 @@ class ParameterItem {
         if(isset($this->example)) $item['schema']['example'] = $this->example;
 
         return $item;
+    }
+
+    public function getTypeScriptType() {
+        switch($this->type) {
+            case 'int':
+            case 'integer':
+            case 'double':
+                return 'number';
+            case 'string|double':
+                return'string';
+            case 'boolean':
+            case 'bool':
+                return 'boolean';
+            case 'string':
+                return 'string';
+            case 'int[]':
+                return 'number[]';
+            default:
+                return $this->type;
+        }
     }
 
 }
