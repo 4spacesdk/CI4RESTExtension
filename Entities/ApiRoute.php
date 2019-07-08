@@ -21,11 +21,12 @@ use RestExtension\Models\ApiRouteModel;
  */
 class ApiRoute extends Entity {
 
-    public static function quick($from, $toController, $toMethod, $method = 'get') {
+    public static function quick($from, $toController, $toMethod, $method = 'get', $scope = '') {
         $route = new ApiRoute();
         $route->method = $method;
         $route->from = $from;
         $route->to = "${toController}::{$toMethod}";
+        $route->scope = $scope;
         $route->saveUnique();
     }
 
@@ -42,17 +43,17 @@ class ApiRoute extends Entity {
         $this->save();
     }
 
-    public static function addResourceController($class) {
+    public static function addResourceController($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
-        ApiRoute::quick($resource, $class, 'get', 'get');
-        ApiRoute::quick("$resource/([0-9]+)", $class, "get/$1", 'get');
-        ApiRoute::quick($resource, $class, 'post', 'post');
-        ApiRoute::quick("$resource/([0-9]+)", $class, "put/$1", 'put');
-        ApiRoute::quick($resource, $class, 'put', 'put');
-        ApiRoute::quick("$resource/([0-9]+)", $class, "patch/$1", 'patch');
-        ApiRoute::quick($resource, $class, 'patch', 'patch');
-        ApiRoute::quick("$resource/([0-9]+)", $class, "delete/$1", 'delete');
+        ApiRoute::quick($resource, $class, 'get', 'get', $scope);
+        ApiRoute::quick("$resource/([0-9]+)", $class, "get/$1", 'get', $scope);
+        ApiRoute::quick($resource, $class, 'post', 'post', $scope);
+        ApiRoute::quick("$resource/([0-9]+)", $class, "put/$1", 'put', $scope);
+        ApiRoute::quick($resource, $class, 'put', 'put', $scope);
+        ApiRoute::quick("$resource/([0-9]+)", $class, "patch/$1", 'patch', $scope);
+        ApiRoute::quick($resource, $class, 'patch', 'patch', $scope);
+        ApiRoute::quick("$resource/([0-9]+)", $class, "delete/$1", 'delete', $scope);
     }
 
     /**
