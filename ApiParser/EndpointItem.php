@@ -13,6 +13,7 @@
  * @property string $requestEntity
  * @property string $summary
  * @property string $scope
+ * @property bool $ignore
  */
 class EndpointItem {
 
@@ -35,15 +36,19 @@ class EndpointItem {
 
     /**
      * @param \ReflectionMethod $method
+     * @param $comments
      * @return EndpointItem|bool
      */
-    public static function parse($method) {
-        $comments = EndpointItem::validate($method);
-        if(!$comments) return false;
+    public static function parse($method, $comments = null) {
+        if(!$comments) $comments = $comments = explode("\n", $method->getDocComment());
 
         $item = new EndpointItem();
 
         foreach($comments as $comment) {
+
+            if(strpos($comment, "@ignore") !== false)
+                $item->ignore = true;
+
             $line = substr($comment, 7);
             $parts = explode(' ', $line);
             if(count($parts) < 2) continue;
@@ -120,12 +125,15 @@ class EndpointItem {
         if(isset($this->summary))
             $item['summary'] = $this->summary;
 
-        if(isset($this->scope))
+        if(isset($this->scope)) {
             $item['security'] = [
                 [
                     'OAuth2' => explode(' ', $this->scope)
                 ]
             ];
+            if(!isset($item['summary'])) $item['summary'] = '';
+            $item['summary'] .= ' Scope: '.$this->scope;
+        }
 
         return $item;
     }

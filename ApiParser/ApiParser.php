@@ -13,16 +13,22 @@ use DebugTool\Data;
 class ApiParser {
 
     /**
+     * @param string $scope
      * @return ApiParser
      * @throws \ReflectionException
      */
-    public static function run() {
+    public static function run($scope = null) {
+        \DebugTool\Data::debug($scope);
         $parser = new ApiParser();
         $apis = [];
         foreach(ApiParser::loadApi() as $api) {
             $apiItem = ApiParser::parseApiItem($api);
-            if(count($apiItem->endpoints))
-                $apis[] = $apiItem;
+            if(count($apiItem->endpoints) == 0)
+                continue;
+            if($scope && isset($apiItem->scope) && strpos($apiItem->scope, $scope) === false) {
+                continue;
+            }
+            $apis[] = $apiItem;
         }
         Data::debug("Found ".count($apis)." apis");
         $parser->paths = $apis;
