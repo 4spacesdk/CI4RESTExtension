@@ -18,7 +18,6 @@ class ApiParser {
      * @throws \ReflectionException
      */
     public static function run($scope = null) {
-        \DebugTool\Data::debug($scope);
         $parser = new ApiParser();
         $apis = [];
         foreach(ApiParser::loadApi() as $api) {
