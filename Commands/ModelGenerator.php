@@ -12,7 +12,7 @@ class ModelGenerator extends BaseCommand {
     public $group           = 'RestExtension';
     public $name            = 'model:create';
     public $description     = 'Generate new Model with Entity and Table added to latest migration file';
-    protected $usage        = 'rest:model [ModelName] [Options]';
+    protected $usage        = 'model:create [ModelName] [Options]';
     protected $arguments    = [
         'ModelName' => 'The Model Class Name, ex. User'
     ];
@@ -162,14 +162,20 @@ EOD;
         $file = file_get_contents($path);
 
         $template = <<<EOD
-    Table::init('{$table}')
+        
+        Table::init('{$table}')
             ->create();
-            
     }
 EOD;
-
         $file = substr_replace($file, $template, strpos($file, '}'), 1);
 
+        $template = <<<EOD
+        
+        Table::init('{$table}')
+            ->dropTable();
+    }
+EOD;
+        $file = substr_replace($file, $template, strpos($file, '}', strpos($file, '}') + 1), 1);
         file_put_contents($path, $file);
     }
 

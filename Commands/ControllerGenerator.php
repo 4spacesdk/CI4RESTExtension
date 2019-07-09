@@ -12,7 +12,7 @@ class ControllerGenerator extends BaseCommand {
     public $group           = 'RestExtension';
     public $name            = 'controller:create';
     public $description     = 'Generate new Controller with ApiRoutes added to latest migration file';
-    protected $usage        = 'rest:controller [ControllerName] [Options]';
+    protected $usage        = 'controller:create [ControllerName] [Options]';
     protected $arguments    = [
         'ModelName' => 'The Controller Class Name, ex. Users'
     ];
