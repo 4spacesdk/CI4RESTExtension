@@ -105,7 +105,7 @@ class Hooks {
                     $parser->generateTypeScript();
 
                     // Zip models folder
-                    shell_exec('cd ' . WRITEPATH . 'tmp/ && zip -r models.zip models');
+                    shell_exec('cd "' . WRITEPATH . 'tmp/" && zip -r models.zip models');
                     $path = WRITEPATH . 'tmp/models.zip';
 
                     header("Content-type: application/zip");
