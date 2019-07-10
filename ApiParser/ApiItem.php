@@ -65,6 +65,7 @@ class ApiItem {
             $Resources = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1); // Remove namespace
             $resources = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resources)); // Camel to snake
             $Resource = singular($Resources);
+            $ResourceArray = $Resource.'[]';
 
             $getEndpoint = new EndpointItem();
             $getEndpoint->method = 'get';
@@ -76,10 +77,12 @@ class ApiItem {
             $getEndpoint->parameters[] = $offsetParam;
             $getEndpoint->parameters[] = $limitParam;
             $getEndpoint->parameters[] = $countParam;
+            $getEndpoint->responseSchema = $ResourceArray;
             if(isset($name2Method['get'])) {
                 $endpoint = EndpointItem::parse($name2Method['get']);
                 if(isset($endpoint->scope)) $getEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $getEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $getEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($getEndpoint->scope)) $getEndpoint->scope = $item->scope;
             if(!isset($getEndpoint->ignore)) $item->endpoints[] = $getEndpoint;
@@ -90,10 +93,12 @@ class ApiItem {
             $getByIdEndpoint->path = "/{$resources}/{id}";
             $getByIdEndpoint->tag = $Resources;
             $getByIdEndpoint->parameters[] = $includeParam;
+            $getByIdEndpoint->responseSchema = $Resource;
             if(isset($name2Method['get'])) {
                 $endpoint = EndpointItem::parse($name2Method['get']);
                 if(isset($endpoint->scope)) $getByIdEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $getByIdEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $getByIdEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($getByIdEndpoint->scope)) $getByIdEndpoint->scope = $item->scope;
             if(!isset($getByIdEndpoint->ignore)) $item->endpoints[] = $getByIdEndpoint;
@@ -103,10 +108,12 @@ class ApiItem {
             $postEndpoint->path = "/{$resources}";
             $postEndpoint->tag = $Resources;
             $postEndpoint->requestEntity = $Resource;
+            $postEndpoint->responseSchema = $Resource;
             if(isset($name2Method['post'])) {
                 $endpoint = EndpointItem::parse($name2Method['post']);
                 if(isset($endpoint->scope)) $postEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $postEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $postEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($postEndpoint->scope)) $postEndpoint->scope = $item->scope;
             if(!isset($postEndpoint->ignore)) $item->endpoints[] = $postEndpoint;
@@ -117,10 +124,12 @@ class ApiItem {
             $putByIdEndpoint->path = "/{$resources}/{id}";
             $putByIdEndpoint->tag = $Resources;
             $putByIdEndpoint->requestEntity = $Resource;
+            $putByIdEndpoint->responseSchema = $Resource;
             if(isset($name2Method['put'])) {
                 $endpoint = EndpointItem::parse($name2Method['put']);
                 if(isset($endpoint->scope)) $putByIdEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $putByIdEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $putByIdEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($putByIdEndpoint->scope)) $putByIdEndpoint->scope = $item->scope;
             if(!isset($putByIdEndpoint->ignore)) $item->endpoints[] = $putByIdEndpoint;
@@ -130,10 +139,12 @@ class ApiItem {
             $putEndpoint->path = "/{$resources}";
             $putEndpoint->tag = $Resources;
             $putEndpoint->requestEntity = $Resource;
+            $putEndpoint->responseSchema = $ResourceArray;
             if(isset($name2Method['put'])) {
                 $endpoint = EndpointItem::parse($name2Method['put']);
                 if(isset($endpoint->scope)) $putEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $putEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $putEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($putEndpoint->scope)) $putEndpoint->scope = $item->scope;
             if(!isset($putEndpoint->ignore)) $item->endpoints[] = $putEndpoint;
@@ -144,10 +155,12 @@ class ApiItem {
             $patchByIdendpoint->path = "/{$resources}/{id}";
             $patchByIdendpoint->tag = $Resources;
             $patchByIdendpoint->requestEntity = $Resource;
+            $patchByIdendpoint->responseSchema = $Resource;
             if(isset($name2Method['patch'])) {
                 $endpoint = EndpointItem::parse($name2Method['patch']);
                 if(isset($endpoint->scope)) $patchByIdendpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $patchByIdendpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $patchByIdendpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($patchByIdendpoint->scope)) $patchByIdendpoint->scope = $item->scope;
             if(!isset($patchByIdendpoint->ignore)) $item->endpoints[] = $patchByIdendpoint;
@@ -157,10 +170,12 @@ class ApiItem {
             $patchEndpoint->path = "/{$resources}";
             $patchEndpoint->tag = $Resources;
             $patchEndpoint->requestEntity = $Resource;
+            $patchEndpoint->responseSchema = $ResourceArray;
             if(isset($name2Method['patch'])) {
                 $endpoint = EndpointItem::parse($name2Method['patch']);
                 if(isset($endpoint->scope)) $patchEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $patchEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $patchEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($patchEndpoint->scope)) $patchEndpoint->scope = $item->scope;
             if(!isset($patchEndpoint->ignore)) $item->endpoints[] = $patchEndpoint;
@@ -170,10 +185,12 @@ class ApiItem {
             $deleteEndpoint->method = 'delete';
             $deleteEndpoint->path = "/{$resources}/{id}";
             $deleteEndpoint->tag = $Resources;
+            $deleteEndpoint->responseSchema = $Resource;
             if(isset($name2Method['delete'])) {
                 $endpoint = EndpointItem::parse($name2Method['delete']);
                 if(isset($endpoint->scope)) $deleteEndpoint->scope = $endpoint->scope;
                 if(isset($endpoint->ignore)) $deleteEndpoint->ignore = $endpoint->ignore;
+                if(isset($endpoint->summary)) $deleteEndpoint->summary = $endpoint->summary;
             }
             if(isset($item->scope) && !isset($deleteEndpoint->scope)) $deleteEndpoint->scope = $item->scope;
             if(!isset($deleteEndpoint->ignore)) $item->endpoints[] = $deleteEndpoint;

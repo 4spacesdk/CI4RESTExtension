@@ -14,6 +14,7 @@
  * @property string $summary
  * @property string $scope
  * @property bool $ignore
+ * @property string $responseSchema
  */
 class EndpointItem {
 
@@ -77,6 +78,7 @@ class EndpointItem {
                 case '@custom':
                     $item->custom = true;
                     break;
+                case '@requestSchema':
                 case '@entity':
                     $item->requestEntity = $value;
                     break;
@@ -85,6 +87,9 @@ class EndpointItem {
                     break;
                 case '@scope':
                     $item->scope = implode(' ', array_splice($parts, 1));
+                    break;
+                case '@responseSchema':
+                    $item->responseSchema = $value;
                     break;
             }
         }
@@ -103,10 +108,39 @@ class EndpointItem {
             ],
             "responses" => [
                 "200" => [
-                    "description" => ""
+                    "description" => "Success"
                 ]
             ]
         ];
+        if(isset($this->responseSchema)) {
+            if(strpos($this->responseSchema, '[]') !== false) {
+                $resources = [
+                    'resources' => [
+                        'type' => 'array',
+                        'items' => [
+                            '$ref' => '#/components/schemas/' . substr($this->responseSchema, 0, -2)
+                        ]
+                    ]
+                ];
+            } else {
+                $resources = [
+                    'resource' => [
+                        '$ref' => '#/components/schemas/' . $this->responseSchema
+                    ]
+                ];
+            }
+            $item['responses']['200']['content'] = [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => array_merge(['status' => [
+                            'type' => 'string',
+                            'description' => 'OK'
+                        ]], $resources)
+                    ]
+                ]
+            ];
+        }
         $item['parameters'] = [];
         foreach($this->parameters as $parameter)
             $item['parameters'][] = $parameter->toSwagger();
@@ -131,8 +165,8 @@ class EndpointItem {
                     'OAuth2' => explode(' ', $this->scope)
                 ]
             ];
-            if(!isset($item['summary'])) $item['summary'] = '';
-            $item['summary'] .= ' Scope: '.$this->scope;
+            //if(!isset($item['summary'])) $item['summary'] = '';
+            //$item['summary'] .= ' Scope: '.$this->scope;
         }
 
         return $item;

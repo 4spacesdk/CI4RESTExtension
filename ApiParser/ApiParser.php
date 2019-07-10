@@ -9,6 +9,7 @@ use DebugTool\Data;
  * Time: 08.33
  *
  * @property ApiItem[] $paths
+ * @property string[] $schemaReferences
  */
 class ApiParser {
 
@@ -20,14 +21,32 @@ class ApiParser {
     public static function run($scope = null) {
         $parser = new ApiParser();
         $apis = [];
+        $parser->schemaReferences = [];
         foreach(ApiParser::loadApi() as $api) {
             $apiItem = ApiParser::parseApiItem($api);
+
+            if($scope) {
+                $apiItem->endpoints = array_filter($apiItem->endpoints, function(EndpointItem $endpoint) use($scope) {
+                    return !isset($endpoint->scope) || strpos($endpoint->scope, $scope) !== false;
+                });
+            }
+
             if(count($apiItem->endpoints) == 0)
                 continue;
-            if($scope && isset($apiItem->scope) && strpos($apiItem->scope, $scope) === false) {
-                continue;
-            }
+
             $apis[] = $apiItem;
+
+            foreach($apiItem->endpoints as $endpoint) {
+                if(isset($endpoint->requestEntity)) {
+                    if(!in_array($endpoint->requestEntity, $parser->schemaReferences))
+                        $parser->schemaReferences[] = $endpoint->requestEntity;
+                }
+                if(isset($endpoint->responseSchema)) {
+                    $schemaReference = trim($endpoint->responseSchema, '[]');
+                    if(!in_array($schemaReference, $parser->schemaReferences))
+                        $parser->schemaReferences[] = $schemaReference;
+                }
+            }
         }
         Data::debug("Found ".count($apis)." apis");
         $parser->paths = $apis;
