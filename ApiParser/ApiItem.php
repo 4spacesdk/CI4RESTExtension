@@ -89,6 +89,7 @@ class ApiItem {
             $getByIdEndpoint->method = 'get';
             $getByIdEndpoint->path = "/{$resources}/{id}";
             $getByIdEndpoint->tag = $Resources;
+            $getByIdEndpoint->parameters[] = $includeParam;
             if(isset($name2Method['get'])) {
                 $endpoint = EndpointItem::parse($name2Method['get']);
                 if(isset($endpoint->scope)) $getByIdEndpoint->scope = $endpoint->scope;

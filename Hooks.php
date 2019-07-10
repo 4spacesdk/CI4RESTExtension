@@ -337,9 +337,10 @@ class Hooks {
                 $response = Services::response();
                 $response->setStatusCode('401');
                 $response->setJSON([
-                    'status' => 'ERROR',
-                    'code' => 401,
-                    'error' => 'Unauthorized'
+                    'status'    => 'ERROR',
+                    'code'      => 401,
+                    'error'     => 'Unauthorized',
+                    'reason'    => $exception->getMessage()
                 ]);
                 $response->send();
                 return;
