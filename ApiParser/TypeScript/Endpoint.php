@@ -7,6 +7,7 @@ class <?=$className?> extends BaseApi<<?=$apiItem->resourceNameUpperCase?>> {
 
     protected method = '<?=$endpoint->method?>';
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';
+    protected summary = '<?=isset($endpoint->summary)?$endpoint->summary:''?>';
 
     public constructor(<?=implode(', ', $endpoint->getTypeScriptPathArgumentsWithTypes())?>) {
         super();
