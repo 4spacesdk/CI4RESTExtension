@@ -75,7 +75,8 @@ class ApiParser {
                 $parts = explode('/', trim($endpoint->path, '/'));
 
                 // Name
-                $customName = array_shift($parts);
+                array_shift($parts);
+                $customName = $endpoint->methodName ?? '';
                 $name = $endpoint->tag;
                 if($endpoint->custom) $name .= ucfirst($customName);
 

@@ -7,6 +7,7 @@
  * Time: 12.20
  *
  * @property string $path
+ * @property string $methodName
  * @property string $method
  * @property string $tag
  * @property ParameterItem[] $parameters
@@ -44,6 +45,7 @@ class EndpointItem {
         if(!$comments) $comments = $comments = explode("\n", $method->getDocComment());
 
         $item = new EndpointItem();
+        $item->methodName = $method->name;
 
         foreach($comments as $comment) {
 
