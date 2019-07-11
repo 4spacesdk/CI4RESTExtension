@@ -7,6 +7,7 @@
  */
 class ErrorCodes {
 
-    const InsufficientAccess = 'InsufficientAccess';
+    const InsufficientAccess    = 'InsufficientAccess';
+    const ResourceNotFound      = 'ResourceNotFound';
 
 }

@@ -141,8 +141,10 @@ trait ResourceControllerTrait {
         $item = $model->find();
 
         if($item->exists()) {
-            if(!$model->isRestDeleteAllowed($item))
+            if(!$model->isRestDeleteAllowed($item)) {
                 $this->error(ErrorCodes::InsufficientAccess, 403);
+                return;
+            }
             $item->delete();
         }
 
