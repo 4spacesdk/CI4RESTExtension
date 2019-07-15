@@ -140,7 +140,7 @@ class Hooks {
                     exit(0);
                 });
             }
-            
+
         }
 
         /*
@@ -252,7 +252,6 @@ class Hooks {
                 }
             }
 
-
             /*
              * API Access Log
              */
@@ -291,8 +290,10 @@ class Hooks {
 
             if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
                 $apiAccessLog = RestRequest::getInstance()->apiAccessLog;
-                $apiAccessLog->milliseconds = timer()->getElapsedTime('RestExtension::timer') * 1000;
-                $apiAccessLog->save();
+                if($apiAccessLog) {
+                    $apiAccessLog->milliseconds = timer()->getElapsedTime('RestExtension::timer') * 1000;
+                    $apiAccessLog->save();
+                }
             }
 
         }

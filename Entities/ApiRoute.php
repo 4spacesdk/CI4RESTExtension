@@ -31,7 +31,8 @@ class ApiRoute extends Entity {
     }
 
     public function saveUnique() {
-        $this->from = trim($this->from, '/');
+        if(strlen($this->from) > 1)
+            $this->from = trim($this->from, '/');
 
         /** @var ApiRoute $route */
         $route = (new ApiRouteModel())
