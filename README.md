@@ -65,14 +65,14 @@ class RestExtension extends BaseConfig {
      * access_token is placed in either a header called Authorization or a GET-parameter called access_token
      * @param Request $request
      * @param string $scope
-     * @return array|AuthorizeResponse
+     * @return object
      */
     public function authorize(Request $request, $scope = null) {
 
         /**
          * If AuthExtension is part of this project you could do something like
          */
-        return \AuthExtension\AuthExtension::authorize($scope);
+        return (object)\AuthExtension\AuthExtension::authorize($scope);
 
 
         /**
