@@ -14,6 +14,7 @@ Add Config file `RestExtension.php`.
 
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\HTTP\Request;
+use RestExtension\AuthorizeResponse;
 
 class RestExtension extends BaseConfig {
 
@@ -58,39 +59,35 @@ class RestExtension extends BaseConfig {
      */
     public $enableUsageReporting    = FALSE;
 
+
     /**
      * Apply function to authenticate $request.
      * access_token is placed in either a header called Authorization or a GET-parameter called access_token
      * @param Request $request
-     * @param string|null $scope
-     * @return string|bool
+     * @param string $scope
+     * @return array|AuthorizeResponse
      */
-    public function authorize(Request $request, string $scope = null) {
+    public function authorize(Request $request, $scope = null) {
 
         /**
          * If AuthExtension is part of this project you could do something like
          */
-        /*
         return \AuthExtension\AuthExtension::authorize($scope);
-        */
 
 
         /**
          * If AuthExtension is part of another project (ex. Micro Service) you could do something like
          */
 
-        /*
-        $url = \CodeIgniter\Config\Config::get('domains')->auth.'check?';
-        $url .= http_build_query(['scope' => $scope, 'access_token' => RestRequest::getInstance()->getAccessToken()]);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $json = json_decode(curl_exec($ch));
-        curl_close($ch);
-
-        return ($json && isset($json->client_id) ? $json->client_id : false);
-        */
+//        $url = \CodeIgniter\Config\Config::get('domains')->auth.'/check?';
+//        $url .= http_build_query(['scope' => $scope, 'access_token' => RestRequest::getInstance()->getAccessToken()]);
+//
+//        $ch = curl_init();
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_URL, $url);
+//        $json = json_decode(curl_exec($ch));
+//        curl_close($ch);
+//        return $json;
     }
 
     /*
