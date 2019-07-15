@@ -222,7 +222,7 @@ class ApiItem {
                     $endpoint->parameters[] = $countParam;
                 }
 
-                if($item->scope && !isset($endpoint->scope))
+                if(isset($item->scope) && !isset($endpoint->scope))
                     $endpoint->scope = $item->scope;
 
                 $item->endpoints[] = $endpoint;
