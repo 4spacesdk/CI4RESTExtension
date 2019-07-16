@@ -186,14 +186,14 @@ class Hooks {
                 $restRequest->apiRoute = $apiRoute;
 
                 /*
+                 * Authorize
+                 */
+                $authResponse = self::$config->authorize($request, $restRequest->apiRoute->scope);
+
+                /*
                  * Public API route can skip authorization
                  */
                 if(!$apiRoute->is_public) {
-
-                    /*
-                     * Authorize
-                     */
-                    $authResponse = self::$config->authorize($request, $restRequest->apiRoute->scope);
 
                     if(!$authResponse->authorized) {
 
@@ -202,6 +202,9 @@ class Hooks {
                          */
                         throw new UnauthorizedException($authResponse->reason);
                     }
+                }
+
+                if($authResponse) {
 
                     /*
                      * Authorized, go on
