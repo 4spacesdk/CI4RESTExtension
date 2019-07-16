@@ -173,8 +173,11 @@ class Hooks {
                 $routeFrom = Services::router()->getMatchedRoute()[0];
                 /** @var ApiRoute $apiRoute */
                 $apiRoute = (new ApiRouteModel())
-                    ->where('from', $routeFrom)
-                    ->orWhere('from', '/'.$routeFrom)
+                    ->groupStart()
+                        ->where('from', $routeFrom)
+                        ->orWhere('from', '/'.$routeFrom)
+                    ->groupEnd()
+                    ->where('method', $request->getMethod())
                     ->find();
                 if(!$apiRoute->exists() && !$request->isCLI()) {
                     throw new \Exception("RestExtension: Route ($routeFrom) not found. Api Routes have to be store in the ".
