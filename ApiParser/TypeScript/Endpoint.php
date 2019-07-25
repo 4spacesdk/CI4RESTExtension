@@ -134,6 +134,10 @@ class <?=$className?> extends BaseApi<<?=$apiItem->resourceNameUpperCase?>> {
     public find(next?: (value: <?=$apiItem->resourceNameUpperCase?>[]) => void): Subscription {
         return super.executeFind(next);
     }
+
+    public getClient(): Observable<any | <?=$apiItem->resourceNameUpperCase?>[] | any[]> {
+        return super.executeClientGet();
+    }
 <?php } else if($endpoint->method == 'delete') { ?>
 
     public delete(next?: (value: <?=$apiItem->resourceNameUpperCase?>) => void): Subscription {
