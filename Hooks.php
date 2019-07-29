@@ -195,7 +195,7 @@ class Hooks {
                  */
                 if(!$apiRoute->is_public) {
 
-                    if(!$authResponse->authorized) {
+                    if(!isset($authResponse->authorized) || $authResponse->authorized == false) {
 
                         /*
                          * Unauthorized!
