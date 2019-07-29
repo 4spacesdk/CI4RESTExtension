@@ -17,6 +17,7 @@
  * @property string $scope
  * @property bool $ignore
  * @property string $responseSchema
+ * @property string $security
  */
 class EndpointItem {
 
@@ -24,6 +25,7 @@ class EndpointItem {
     public $parameters = [];
     public $custom = false;
     public $requestBodyType = 'application/json';
+    public $security = 'OAuth2';
 
     /**
      * @param \ReflectionMethod $line
@@ -98,6 +100,9 @@ class EndpointItem {
                 case '@requestBodyType':
                     $item->requestBodyType = $value;
                     break;
+                case '@security':
+                    $item->security = $value;
+                    break;
             }
         }
 
@@ -169,7 +174,7 @@ class EndpointItem {
         if(isset($this->scope)) {
             $item['security'] = [
                 [
-                    'OAuth2' => explode(' ', $this->scope)
+                    $this->security => explode(' ', $this->scope)
                 ]
             ];
             //if(!isset($item['summary'])) $item['summary'] = '';
