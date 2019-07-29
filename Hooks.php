@@ -204,7 +204,7 @@ class Hooks {
                     }
                 }
 
-                if($authResponse) {
+                if($authResponse && isset($authResponse->client_id)) {
 
                     /*
                      * Authorized, go on
