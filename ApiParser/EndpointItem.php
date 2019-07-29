@@ -12,6 +12,7 @@
  * @property string $tag
  * @property ParameterItem[] $parameters
  * @property string $requestEntity
+ * @property string $requestBodyType
  * @property string $summary
  * @property string $scope
  * @property bool $ignore
@@ -22,6 +23,7 @@ class EndpointItem {
     public $method = 'get';
     public $parameters = [];
     public $custom = false;
+    public $requestBodyType = 'application/json';
 
     /**
      * @param \ReflectionMethod $line
@@ -93,6 +95,9 @@ class EndpointItem {
                 case '@responseSchema':
                     $item->responseSchema = $value;
                     break;
+                case '@requestBodyType':
+                    $item->requestBodyType = $value;
+                    break;
             }
         }
 
@@ -150,7 +155,7 @@ class EndpointItem {
         if(isset($this->requestEntity))
             $item['requestBody'] = [
                 'content' => [
-                    'application/json' => [
+                    $this->requestBodyType => [
                         'schema' => [
                             '$ref' => '#/components/schemas/'.$this->requestEntity
                         ]
