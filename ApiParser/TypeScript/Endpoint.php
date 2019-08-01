@@ -15,8 +15,8 @@ class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem-
         this.uri = `<?=$endpoint->getTypeScriptUrl()?>`;
     }
 
-    protected convertToResource(data: any): <?=$apiItem->resourceNameUpperCase?> {
-        return new <?=$apiItem->resourceNameUpperCase?>(data);
+    protected convertToResource(data: any): <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?> {
+        return new <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>(data);
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
@@ -128,21 +128,21 @@ class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem-
 <?php } ?>
 <?php if($endpoint->method == 'get') { ?>
 
-    public find(next?: (value: <?=$apiItem->resourceNameUpperCase?>[]) => void): Subscription {
+    public find(next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>[]) => void): Subscription {
         return super.executeFind(next);
     }
 
-    public getClient(): Observable<any | <?=$apiItem->resourceNameUpperCase?>[] | any[]> {
+    public getClient(): Observable<any | <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>[] | any[]> {
         return super.executeClientGet();
     }
 <?php } else if($endpoint->method == 'delete') { ?>
 
-    public delete(next?: (value: <?=$apiItem->resourceNameUpperCase?>) => void): Subscription {
+    public delete(next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>) => void): Subscription {
         return super.executeDelete(next);
     }
 <?php } else { ?>
 
-    public save(data: any, next?: (value: <?=$apiItem->resourceNameUpperCase?>) => void): Subscription {
+    public save(data: any, next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>) => void): Subscription {
         return super.executeSave(data, next);
     }
 <?php } ?>
