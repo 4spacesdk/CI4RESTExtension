@@ -2,7 +2,9 @@
 /** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var array $endpoints */
 ?>
+<?php if(class_exists($path->resourceNameUpperCase)) { ?>
 import {<?=$path->resourceNameUpperCase?>} from '@app/core/models';
+<? } ?>
 class <?=$path->name?> {
 
 <?php foreach($endpoints as [$funcName, $className, $argsWithType, $argsWithOutType, $content]) { ?>
