@@ -78,20 +78,19 @@ trait ResourceControllerTrait {
 
         $data = $this->request->getJSON(true);
 
-        if($id) {
-
-            $item = $entityName::put($id, $data);
-            $this->_setResource($item);
-
-        } else if(is_array($data)) {
+        if(is_array($this->request->getJSON())) {
 
             /** @var Entity $resources */
             $resources = new $entityName();
             foreach($data as $dataItem) {
-                if(isset($dataItem['id']))
-                    $resources->add($entityName::put($dataItem['id'], $dataItem));
+                $resources->add($entityName::put(isset($dataItem['id']) ? $dataItem['id'] : 0, $dataItem));
             }
             $this->_setResources($resources);
+
+        } else {
+
+            $item = $entityName::put($id, $data);
+            $this->_setResource($item);
 
         }
 
