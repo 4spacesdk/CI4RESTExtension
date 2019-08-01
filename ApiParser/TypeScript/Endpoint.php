@@ -1,9 +1,10 @@
 <?php
+/** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var \RestExtension\ApiParser\EndpointItem $endpoint */
 /** @var string $className */
 /** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
-class <?=$className?> extends BaseApi<<?=$apiItem->resourceNameUpperCase?>> {
+class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>> {
 
     protected method = '<?=$endpoint->method?>';
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';

@@ -98,7 +98,13 @@ class ApiParser {
                 $argsWithOutType = $endpoint->getTypeScriptPathArgumentsWithOutTypes();
 
                 $endpoints[] = [$funcName, $className, implode(', ', $argsWithType), implode(', ', $argsWithOutType), $renderer
-                        ->setData(['endpoint' => $endpoint, 'className' => $className, 'apiItem' => $path], 'raw')
+                        ->setData(
+                            [
+                                'path'      => $path,
+                                'endpoint'  => $endpoint,
+                                'className' => $className,
+                                'apiItem'   => $path
+                            ], 'raw')
                         ->render('Endpoint', ['debug' => false], null),
                 ];
             }
