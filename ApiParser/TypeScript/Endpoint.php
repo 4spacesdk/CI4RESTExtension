@@ -20,11 +20,7 @@ class <?=$className?> extends BaseApi<<?=$apiItem->resourceNameUpperCase?>> {
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
     public <?=$parameter->name?>(value: <?=$parameter->getTypeScriptType()?>): <?=$className?> {
-<?php if($parameter->isArrayType) { ?>
-        this.filter().whereIn('<?=$parameter->name?>', value);
-<?php } else { ?>
-        this.filter().where('<?=$parameter->name?>', value);
-<?php } ?>
+        this.addQueryParameter('<?=$parameter->name?>', value);
         return this;
     }
 <?php } ?>

@@ -15,6 +15,7 @@ use ReflectionMethod;
  * @property string $resourceNameUpperCase
  * @property string $scope
  * @property EndpointItem[] $endpoints
+ * @property bool $isResourceController
  */
 class ApiItem {
 
@@ -61,7 +62,8 @@ class ApiItem {
         }
 
         // Resource methods
-        if($rc->getParentClass()->getName() == ResourceController::class) {
+        $item->isResourceController = $rc->getParentClass()->getName() == ResourceController::class;
+        if($item->isResourceController) {
             $Resources = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1); // Remove namespace
             $resources = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resources)); // Camel to snake
             $Resource = singular($Resources);

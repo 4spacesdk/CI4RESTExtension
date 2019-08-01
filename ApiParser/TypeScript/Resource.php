@@ -2,7 +2,7 @@
 /** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var array $endpoints */
 ?>
-<?php if(class_exists($path->resourceNameUpperCase)) { ?>
+<?php if($path->isResourceController) { ?>
 import {<?=$path->resourceNameUpperCase?>} from '@app/core/models';
 <? } ?>
 class <?=$path->name?> {
