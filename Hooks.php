@@ -15,6 +15,7 @@ use RestExtension\Entities\ApiErrorLog;
 use RestExtension\Entities\ApiRoute;
 use RestExtension\Entities\ApiUsageReport;
 use RestExtension\Entities\OAuthClient;
+use RestExtension\Exceptions\RestException;
 use RestExtension\Exceptions\UnauthorizedException;
 use RestExtension\Models\ApiAccessLogModel;
 use RestExtension\Models\ApiRouteModel;
@@ -342,16 +343,21 @@ class Hooks {
                     $apiBlockedLog->save();
                 }
 
+            }
+
+            if($exception instanceof RestException) {
+
                 $response = Services::response();
-                $response->setStatusCode('401');
+                $response->setStatusCode($exception->getCode());
                 $response->setJSON([
                     'status'    => 'ERROR',
-                    'code'      => 401,
-                    'error'     => 'Unauthorized',
+                    'code'      => $exception->getCode(),
+                    'error'     => get_class($exception),
                     'reason'    => $exception->getMessage()
                 ]);
                 $response->send();
                 return;
+
             }
 
         }

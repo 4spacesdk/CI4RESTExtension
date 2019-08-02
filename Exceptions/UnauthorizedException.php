@@ -1,6 +1,6 @@
 <?php namespace RestExtension\Exceptions;
 
-class UnauthorizedException extends \Exception {
+class UnauthorizedException extends RestException {
 
     protected $code = 401;
     protected $message = 'Unauthorized';
