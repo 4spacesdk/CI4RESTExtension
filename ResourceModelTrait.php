@@ -119,20 +119,36 @@ trait ResourceModelTrait {
         /** @var RelationDef[] $relations */
         $relations = $this->getRelation(explode('.', $include->property), true);
         foreach($relations as $relation) {
-            if($relation->getType() == RelationDef::HasOne) continue;
-            $propertyName = plural($relation->getSimpleName());
+            if($relation->getType() == RelationDef::HasOne && count($include->queryParser->getIncludes())) {
+                $propertyName = $relation->getSimpleName();
 
-            $modelName = $relation->getClass();
-            foreach($items as $item) {
-                $model = new $modelName();
+                $modelName = $relation->getClass();
+                foreach($items as $item) {
+                    if(isset($item->{$propertyName})) {
+                        $model = new $modelName();
+                        if($model instanceof ResourceBaseModelInterface) {
+                            $queryParser = clone $include->queryParser;
+                            $queryParser->parseFilter("id:".$item->{$propertyName}->id);
+                            $item->{$propertyName} = $model->restGet(null, $queryParser)->first();
+                        }
+                    }
 
-                if($model instanceof ResourceBaseModelInterface) {
-                    $queryParser = clone $include->queryParser;
-                    $queryParser->parseFilter("{$relation->getSimpleOtherField()}.id:{$item->id}");
-                    $items = $model->restGet(null, $queryParser);
-                    $item->{$propertyName} = $items;
                 }
+            } else {
+                $propertyName = plural($relation->getSimpleName());
 
+                $modelName = $relation->getClass();
+                foreach($items as $item) {
+                    $model = new $modelName();
+
+                    if($model instanceof ResourceBaseModelInterface) {
+                        $queryParser = clone $include->queryParser;
+                        $queryParser->parseFilter("{$relation->getSimpleOtherField()}.id:{$item->id}");
+                        $items = $model->restGet(null, $queryParser);
+                        $item->{$propertyName} = $items;
+                    }
+
+                }
             }
         }
 
