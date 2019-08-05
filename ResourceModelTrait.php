@@ -134,7 +134,7 @@ trait ResourceModelTrait {
                     }
 
                 }
-            } else {
+            } else if($relation->getType() == RelationDef::HasMany) {
                 $propertyName = plural($relation->getSimpleName());
 
                 $modelName = $relation->getClass();
