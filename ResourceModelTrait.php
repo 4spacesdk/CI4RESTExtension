@@ -31,7 +31,9 @@ trait ResourceModelTrait {
 
                 $this->preRestGet($queryParser, $id);
 
-                foreach($queryParser->getIncludes() as $include) $this->applyIncludeOne($include);
+                foreach($queryParser->getIncludes() as $include) {
+                    if(!$include->ignoreAuto) $this->applyIncludeOne($include);
+                }
                 foreach($queryParser->getFilters() as $filter) $this->applyFilter($filter);
                 $searchFilters = $queryParser->getSearchFilters();
                 if(count($searchFilters)) {
@@ -60,10 +62,14 @@ trait ResourceModelTrait {
                 if($items->exists()) {
                     if($id) {
                         $item = $items->first();
-                        foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
+                        foreach($queryParser->getIncludes() as $include) {
+                            if(!$include->ignoreAuto) $this->applyIncludeMany($items, $include);
+                        }
                         $this->applyRestGetOneRelations($item);
                     } else {
-                        foreach($queryParser->getIncludes() as $include) $this->applyIncludeMany($items, $include);
+                        foreach($queryParser->getIncludes() as $include) {
+                            if(!$include->ignoreAuto) $this->applyIncludeMany($items, $include);
+                        }
                         $this->appleRestGetManyRelations($items);
                     }
 

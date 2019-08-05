@@ -13,6 +13,8 @@ use RestExtension\QueryParser;
  */
 class QueryInclude {
 
+    public $ignoreAuto = false;
+
     public static function parse($line) {
         $item = new QueryInclude();
 
