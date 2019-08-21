@@ -77,14 +77,14 @@ class Hooks {
         self::$config = Config::get('RestExtension');
 
         /*
-         * Setup Database connection
-         */
-        self::$database = Database::connect(self::$config->databaseGroupName ?? 'default');
-
-        /*
          * Api Routing
          */
         if(self::$config) {
+
+            /*
+             * Setup Database connection
+             */
+            self::$database = Database::connect(self::$config->databaseGroupName ?? 'default');
 
             $routes = Services::routes(true);
 
