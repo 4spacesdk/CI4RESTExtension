@@ -26,8 +26,8 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
     /**
      * @return Model|\OrmExtension\DataMapper\QueryBuilderInterface|Model
      */
-    public function getModel() {
-        return parent::getModel();
+    public function _getModel() {
+        return parent::_getModel();
     }
 
     /**

@@ -30,7 +30,7 @@ trait ResourceEntityTrait {
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
-        $model = $item->getModel();
+        $model = $item->_getModel();
 
         $item->populatePatch($data);
         if(!$model->isRestCreationAllowed($item)) {
@@ -93,7 +93,7 @@ trait ResourceEntityTrait {
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
-        $model = $item->getModel();
+        $model = $item->_getModel();
 
         $item = $model
             ->where('id', $id)
@@ -193,7 +193,7 @@ trait ResourceEntityTrait {
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
-        $model = $item->getModel();
+        $model = $item->_getModel();
 
         $item = $model
             ->where('id', $id)
@@ -295,7 +295,7 @@ trait ResourceEntityTrait {
     public function populatePut($data) {
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
-            $model = $this->getModel();
+            $model = $this->_getModel();
 
             $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
             $fieldName2Type = [];
@@ -327,7 +327,7 @@ trait ResourceEntityTrait {
         $hasChange = false;
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
-            $model = $this->getModel();
+            $model = $this->_getModel();
 
             $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
             $fieldName2Type = [];
