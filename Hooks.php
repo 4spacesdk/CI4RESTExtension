@@ -197,7 +197,7 @@ class Hooks {
                 if(!$apiRoute->is_public) {
 
                     if(!isset($authResponse->authorized) || $authResponse->authorized == false) {
-
+                        \DebugTool\Data::debug($authResponse);
                         /*
                          * Unauthorized!
                          */
