@@ -16,7 +16,7 @@ class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem-
     }
 
     protected convertToResource(data: any): <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?> {
-        return new <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>(data);
+        return <?=$path->isResourceController ? "new {$apiItem->resourceNameUpperCase}(data)" : 'data'?>;
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
