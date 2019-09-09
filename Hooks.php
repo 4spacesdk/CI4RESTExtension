@@ -128,7 +128,7 @@ class Hooks {
                     $parser = ApiParser::run();
                     $parser->generateTypeScript($debug);
 
-                    // Zip models folder
+                    // Zip api folder
                     $path = WRITEPATH . 'tmp/Api.ts';
 
                     header("Content-type: application/x-typescript");

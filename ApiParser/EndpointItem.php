@@ -1,5 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 
+use RestExtension\ApiParser\TypeScript\InterfaceItem;
+
 /**
  * Created by PhpStorm.
  * User: martin
@@ -18,6 +20,8 @@
  * @property bool $ignore
  * @property string $responseSchema
  * @property string $security
+ * @property InterfaceItem $responseInterfaceItem
+ * @property InterfaceItem $requestInterfaceItem
  */
 class EndpointItem {
 
@@ -85,6 +89,10 @@ class EndpointItem {
                     $item->custom = true;
                     break;
                 case '@requestSchema':
+                    try {
+                        $item->requestInterfaceItem = InterfaceItem::parse($value);
+                    } catch(\ReflectionException $e) {
+                    }
                 case '@entity':
                     $item->requestEntity = $value;
                     break;
@@ -96,6 +104,10 @@ class EndpointItem {
                     break;
                 case '@responseSchema':
                     $item->responseSchema = $value;
+                    try {
+                        $item->responseInterfaceItem = InterfaceItem::parse($value);
+                    } catch(\ReflectionException $e) {
+                    }
                     break;
                 case '@requestBodyType':
                     $item->requestBodyType = $value;
@@ -111,6 +123,19 @@ class EndpointItem {
         $item->tag = $Resource;
 
         return $item;
+    }
+
+    public function getResponseInterfaceItem() {
+        if(isset($this->responseInterfaceItem))
+            return $this->responseInterfaceItem;
+        else if(isset($this->responseSchema)) {
+            try {
+                $this->responseInterfaceItem = InterfaceItem::parse($this->responseSchema);
+                return $this->responseInterfaceItem;
+            } catch(\ReflectionException $e) {
+            }
+        }
+        return null;
     }
 
     public function toSwagger() {

@@ -160,22 +160,22 @@ class ApiItem {
             if(isset($item->scope) && !isset($putEndpoint->scope)) $putEndpoint->scope = $item->scope;
             if(!isset($putEndpoint->ignore)) $item->endpoints[] = $putEndpoint;
 
-            $patchByIdendpoint = new EndpointItem();
-            $patchByIdendpoint->parameters[] = $idParam;
-            $patchByIdendpoint->method = 'patch';
-            $patchByIdendpoint->path = "/{$resources}/{id}";
-            $patchByIdendpoint->tag = $Resources;
-            $patchByIdendpoint->requestEntity = $Resource;
-            $patchByIdendpoint->responseSchema = $Resource;
+            $patchByIdEndpoint = new EndpointItem();
+            $patchByIdEndpoint->parameters[] = $idParam;
+            $patchByIdEndpoint->method = 'patch';
+            $patchByIdEndpoint->path = "/{$resources}/{id}";
+            $patchByIdEndpoint->tag = $Resources;
+            $patchByIdEndpoint->requestEntity = $Resource;
+            $patchByIdEndpoint->responseSchema = $Resource;
             if(isset($name2Method['patch'])) {
                 $endpoint = EndpointItem::parse($name2Method['patch']);
                 foreach($overrides as $override) {
                     if(isset($endpoint->{$override}))
-                        $patchByIdendpoint->{$override} = $endpoint->{$override};
+                        $patchByIdEndpoint->{$override} = $endpoint->{$override};
                 }
             }
-            if(isset($item->scope) && !isset($patchByIdendpoint->scope)) $patchByIdendpoint->scope = $item->scope;
-            if(!isset($patchByIdendpoint->ignore)) $item->endpoints[] = $patchByIdendpoint;
+            if(isset($item->scope) && !isset($patchByIdEndpoint->scope)) $patchByIdEndpoint->scope = $item->scope;
+            if(!isset($patchByIdEndpoint->ignore)) $item->endpoints[] = $patchByIdEndpoint;
 
             $patchEndpoint = new EndpointItem();
             $patchEndpoint->method = 'patch';
@@ -226,6 +226,9 @@ class ApiItem {
 
                 if(isset($item->scope) && !isset($endpoint->scope))
                     $endpoint->scope = $item->scope;
+
+                if(!isset($endpoint->responseSchema) && $item->resourceNameUpperCase)
+                    $endpoint->responseSchema = $item->resourceNameUpperCase;
 
                 $item->endpoints[] = $endpoint;
             }

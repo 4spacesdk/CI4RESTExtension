@@ -100,6 +100,11 @@ class RestExtension extends BaseConfig {
      */
     public $typescriptAPIExporterRoute    = 'export/api';
 
+    /*
+     * Provide Namespace for Api request and response Interfaces
+     */
+    public $apiInterfaceNamespace           = 'App\Interfaces';
+
 }
 ```
 

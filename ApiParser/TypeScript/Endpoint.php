@@ -4,7 +4,16 @@
 /** @var string $className */
 /** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
-class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>> {
+
+<? if($endpoint->getResponseInterfaceItem()) { ?>
+export interface <?=$endpoint->responseInterfaceItem->name?> {
+<?php foreach($endpoint->responseInterfaceItem->properties as $property) : ?>
+    <?=$property->name?>?: <?=$property->type?><?=$property->isSimpleType?'':'Interface'?><?=$property->isMany?"[]":""?>;
+<?php endforeach ?>
+}
+<? } ?>
+
+class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
     protected method = '<?=$endpoint->method?>';
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';
@@ -15,8 +24,12 @@ class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem-
         this.uri = `<?=$endpoint->getTypeScriptUrl()?>`;
     }
 
-    protected convertToResource(data: any): <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?> {
-        return <?=$path->isResourceController ? "new {$apiItem->resourceNameUpperCase}(data)" : 'data'?>;
+    protected convertToResource(data: any): <?=$endpoint->responseSchema ?? 'any'?> {
+<?if(isset($endpoint->responseSchema) && class_exists($endpoint->responseSchema)) { ?>
+        return new <?="{$endpoint->responseSchema}(data)"?>;
+<? } else { ?>
+        return data;
+<? } ?>
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
@@ -128,21 +141,21 @@ class <?=$className?> extends BaseApi<<?=$path->isResourceController ? $apiItem-
 <?php } ?>
 <?php if($endpoint->method == 'get') { ?>
 
-    public find(next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>[]) => void): Subscription {
+    public find(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>[]) => void): Subscription {
         return super.executeFind(next);
     }
 
-    public getClient(): Observable<any | <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>[] | any[]> {
+    public getClient(): Observable<any | <?=$endpoint->responseSchema ?? 'any'?>[] | any[]> {
         return super.executeClientGet();
     }
 <?php } else if($endpoint->method == 'delete') { ?>
 
-    public delete(next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>) => void): Subscription {
+    public delete(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
         return super.executeDelete(next);
     }
 <?php } else { ?>
 
-    public save(data: any, next?: (value: <?=$path->isResourceController ? $apiItem->resourceNameUpperCase : 'any'?>) => void): Subscription {
+    public save(data: any, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
         return super.executeSave(data, next);
     }
 <?php } ?>
