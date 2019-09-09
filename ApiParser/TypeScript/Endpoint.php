@@ -16,7 +16,7 @@ class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
     }
 
     protected convertToResource(data: any): <?=$endpoint->responseSchema ?? 'any'?> {
-<?if(isset($endpoint->responseSchema) && class_exists($endpoint->responseSchema)) { ?>
+<?if($endpoint->isResponseSchemaAModel()) { ?>
         return new <?="{$endpoint->responseSchema}(data)"?>;
 <? } else { ?>
         return data;

@@ -1,5 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 
+use Config\OrmExtension;
+
 /**
  * Created by PhpStorm.
  * User: martin
@@ -267,6 +269,14 @@ class EndpointItem {
     public function hasParameter($name): bool {
         foreach($this->parameters as $parameter) {
             if($parameter->name == $name)
+                return true;
+        }
+        return false;
+    }
+
+    public function isResponseSchemaAModel(): bool {
+        foreach(OrmExtension::$entityNamespace as $namespace) {
+            if(class_exists($namespace.$this->responseSchema))
                 return true;
         }
         return false;
