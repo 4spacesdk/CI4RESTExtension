@@ -4,15 +4,6 @@
 /** @var string $className */
 /** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
-
-<? if($endpoint->getResponseInterfaceItem()) { ?>
-export interface <?=$endpoint->responseInterfaceItem->name?> {
-<?php foreach($endpoint->responseInterfaceItem->properties as $property) : ?>
-    <?=$property->name?>?: <?=$property->type?><?=$property->isSimpleType?'':'Interface'?><?=$property->isMany?"[]":""?>;
-<?php endforeach ?>
-}
-<? } ?>
-
 class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
     protected method = '<?=$endpoint->method?>';

@@ -1,8 +1,7 @@
-<?php namespace RestExtension\ApiParser\TypeScript;
+<?php namespace RestExtension\ApiParser;
 
 use CodeIgniter\Config\Config;
-use OrmExtension\ModelParser\ModelItem;
-use OrmExtension\ModelParser\PropertyItem;
+use Config\Services;
 
 /**
  * Class InterfaceItem
@@ -17,11 +16,11 @@ class InterfaceItem {
 
     /**
      * @param $path
-     * @return ModelItem
+     * @return InterfaceItem
      * @throws \ReflectionException
      */
     public static function parse($path) {
-        $item = new ModelItem();
+        $item = new InterfaceItem();
         $item->path = $path;
 
         $namespace = Config::get('RestExtension')->apiInterfaceNamespace;
@@ -51,6 +50,13 @@ class InterfaceItem {
             $item['properties'][$property->name] = $property->toSwagger();
         }
         return $item;
+    }
+
+    public function toTypeScript() {
+        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+        return $renderer
+            ->setData(['interfaceItem' =>  $this], 'raw')
+            ->render('Interface', ['debug' => false], null);
     }
 
 }

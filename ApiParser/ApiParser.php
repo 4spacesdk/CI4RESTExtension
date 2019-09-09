@@ -10,6 +10,7 @@ use DebugTool\Data;
  *
  * @property ApiItem[] $paths
  * @property string[] $schemaReferences
+ * @property InterfaceItem[] $interfaces
  */
 class ApiParser {
 
@@ -20,6 +21,16 @@ class ApiParser {
      */
     public static function run($scope = null) {
         $parser = new ApiParser();
+
+        $interfaces = [];
+        foreach(ApiParser::loadInterfaces() as $interface) {
+            $interfaceItem = InterfaceItem::parse(substr($interface, 0, -4));
+            if($interfaceItem) {
+                $interfaces[] = $interfaceItem;
+            }
+        }
+        $parser->interfaces = $interfaces;
+
         $apis = [];
         $parser->schemaReferences = [];
         foreach(ApiParser::loadApi() as $api) {
@@ -114,7 +125,10 @@ class ApiParser {
                 ->render('Resource', ['debug' => false], null);
         }
 
-        $content = $renderer->setData(['resources' => $resources], 'raw')->render('API', ['debug' => false], null);
+        $content = $renderer->setData([
+            'resources' => $resources,
+            'interfaces' => $this->interfaces
+        ], 'raw')->render('API', ['debug' => false], null);
         if($debug) {
             header('Content-Type', 'text/plain');
             echo $content;
@@ -142,6 +156,19 @@ class ApiParser {
             }
         }
         $apiIgnore = ['_template.php', 'Home.php'];
+        $apis = array_diff($apis, $apiIgnore);
+        return $apis;
+    }
+
+    private static function loadInterfaces() {
+        $files = scandir(APPPATH . 'Interfaces');
+        $apis = [];
+        foreach($files as $file) {
+            if($file[0] != '_' && substr($file, -3) == 'php') {
+                $apis[] = $file;
+            }
+        }
+        $apiIgnore = [];
         $apis = array_diff($apis, $apiIgnore);
         return $apis;
     }

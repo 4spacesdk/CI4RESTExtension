@@ -1,7 +1,5 @@
 <?php namespace RestExtension\ApiParser;
 
-use RestExtension\ApiParser\TypeScript\InterfaceItem;
-
 /**
  * Created by PhpStorm.
  * User: martin
@@ -132,6 +130,19 @@ class EndpointItem {
             try {
                 $this->responseInterfaceItem = InterfaceItem::parse($this->responseSchema);
                 return $this->responseInterfaceItem;
+            } catch(\ReflectionException $e) {
+            }
+        }
+        return null;
+    }
+
+    public function getRequestInterfaceItem() {
+        if(isset($this->requestInterfaceItem))
+            return $this->requestInterfaceItem;
+        else if(isset($this->requestEntity)) {
+            try {
+                $this->requestInterfaceItem = InterfaceItem::parse($this->requestEntity);
+                return $this->requestInterfaceItem;
             } catch(\ReflectionException $e) {
             }
         }

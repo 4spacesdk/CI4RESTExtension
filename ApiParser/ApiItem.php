@@ -83,7 +83,7 @@ class ApiItem {
             $getEndpoint->parameters[] = $offsetParam;
             $getEndpoint->parameters[] = $limitParam;
             $getEndpoint->parameters[] = $countParam;
-            $getEndpoint->responseSchema = $ResourceArray;
+            $getEndpoint->responseSchema = $Resource;
             if(isset($name2Method['get'])) {
                 $endpoint = EndpointItem::parse($name2Method['get']);
                 foreach($overrides as $override) {
