@@ -146,7 +146,7 @@ class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
     }
 <?php } else { ?>
 
-    public save(data: any, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
+    public save(data: <?=$endpoint->requestEntity ?? 'any'?>, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
         return super.executeSave(data, next);
     }
 <?php } ?>
