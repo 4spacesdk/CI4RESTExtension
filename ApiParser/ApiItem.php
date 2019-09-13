@@ -16,6 +16,7 @@ use ReflectionMethod;
  * @property string $scope
  * @property EndpointItem[] $endpoints
  * @property bool $isResourceController
+ * @property string[] $imports
  */
 class ApiItem {
 
@@ -209,7 +210,7 @@ class ApiItem {
             if(isset($item->scope) && !isset($deleteEndpoint->scope)) $deleteEndpoint->scope = $item->scope;
             if(!isset($deleteEndpoint->ignore)) $item->endpoints[] = $deleteEndpoint;
         }
-        
+
         foreach($methods as $method) {
 
             $validate = EndpointItem::validate($method);
@@ -234,7 +235,14 @@ class ApiItem {
             }
         }
 
+        if($item->isResourceController)
+            $item->addImport($item->resourceNameUpperCase);
+
         return $item;
+    }
+
+    public function addImport($import) {
+        $this->imports[$import] = $import;
     }
 
 }

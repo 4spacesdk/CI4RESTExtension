@@ -4,6 +4,9 @@
 /** @var string $className */
 /** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
+<?if($endpoint->isResponseSchemaAModel()) {
+$apiItem->addImport($endpoint->responseSchema);
+} ?>
 class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
     protected method = '<?=$endpoint->method?>';

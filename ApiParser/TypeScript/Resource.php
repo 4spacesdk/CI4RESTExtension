@@ -2,8 +2,8 @@
 /** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var array $endpoints */
 ?>
-<?php if($path->isResourceController) { ?>
-import {<?=$path->resourceNameUpperCase?>} from '@app/core/models';
+<?php foreach($path->imports as $import) { ?>
+import {<?=$import?>} from '@app/core/models';
 <? } ?>
 class <?=$path->name?> {
 
