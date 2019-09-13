@@ -109,14 +109,14 @@ class ApiParser {
                 $argsWithOutType = $endpoint->getTypeScriptPathArgumentsWithOutTypes();
 
                 $endpoints[] = [$funcName, $className, implode(', ', $argsWithType), implode(', ', $argsWithOutType), $renderer
-                        ->setData(
-                            [
-                                'path'      => $path,
-                                'endpoint'  => $endpoint,
-                                'className' => $className,
-                                'apiItem'   => $path
-                            ], 'raw')
-                        ->render('Endpoint', ['debug' => false], null),
+                    ->setData(
+                        [
+                            'path'      => $path,
+                            'endpoint'  => $endpoint,
+                            'className' => $className,
+                            'apiItem'   => $path
+                        ], 'raw')
+                    ->render('Endpoint', ['debug' => false], null),
                 ];
             }
 
@@ -161,6 +161,8 @@ class ApiParser {
     }
 
     private static function loadInterfaces() {
+        if(!is_dir(APPPATH. 'Interfaces')) return [];
+
         $files = scandir(APPPATH . 'Interfaces');
         $apis = [];
         foreach($files as $file) {
