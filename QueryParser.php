@@ -302,7 +302,7 @@ class QueryParser {
     public function delInclude(string $name) {
         for($i = 0 ; $i < count($this->includes) ; $i++) {
             if($this->includes[$i]->property == $name) {
-                unset($this->includes[$i]);
+                $this->includes = array_splice($this->includes, $i, 1);
                 return;
             }
         }
