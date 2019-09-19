@@ -23,6 +23,8 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
 
     use ResourceEntityTrait;
 
+    public $resourcePath;
+
     /**
      * @return Model|\OrmExtension\DataMapper\QueryBuilderInterface|Model
      */
@@ -51,5 +53,15 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
      */
     public function relationRemoved($relation) {
 
+    }
+
+    public function getResourcePath() {
+        if(!$this->resourcePath) {
+            $resource = plural(substr(strrchr(get_class($this), '\\'), 1));
+            $resourcePath = "\App\Controllers\\{$resource}";
+            if(class_exists($resourcePath))
+                $this->resourcePath = $resource;
+        }
+        return $this->resourcePath;
     }
 }

@@ -1,6 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 
 use Config\OrmExtension;
+use Config\Services;
 
 /**
  * Created by PhpStorm.
@@ -22,6 +23,7 @@ use Config\OrmExtension;
  * @property string $security
  * @property InterfaceItem $responseInterfaceItem
  * @property InterfaceItem $requestInterfaceItem
+ * @property boolean $isRestPatchEndpoint
  */
 class EndpointItem {
 
@@ -30,6 +32,7 @@ class EndpointItem {
     public $custom = false;
     public $requestBodyType = 'application/json';
     public $security = 'OAuth2';
+    public $isRestPatchEndpoint = false;
 
     /**
      * @param \ReflectionMethod $line
@@ -222,6 +225,13 @@ class EndpointItem {
         return $item;
     }
 
+    public function generateTypeScript(): string {
+        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+        return $renderer
+            ->setData(['endpoint'  => $this], 'raw')
+            ->render('Endpoint', ['debug' => false], null);
+    }
+
     public function getTypeScriptPathArgumentsWithTypes(): array {
         $argsWithType = [];
         foreach($this->parameters as $parameter) {
@@ -264,6 +274,42 @@ class EndpointItem {
             }
         }
         return $parameters;
+    }
+
+    public function getTypeScriptFunctionName(): string {
+        // Append path arguments to function name, to ensure uniqueness
+        $with = [];
+        foreach($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
+            $with[] = ucfirst($pathArgument);
+        $by = count($with) ? 'By'.implode('By', $with) : '';
+        $funcName = lcfirst($this->method).$by;
+
+        if($this->custom) {
+            $customName = $this->methodName ?? '';
+            $customName = str_replace(['_get', '_put', '_delete', '_patch'], '', $customName);
+
+            $funcName = $customName.ucfirst($funcName);
+        }
+
+        return $funcName;
+    }
+
+    public function getTypeScriptClassName(): string {
+        // Append path arguments to class name, to ensure uniqueness
+        $with = [];
+        foreach($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
+            $with[] = ucfirst($pathArgument);
+        $by = count($with) ? 'By'.implode('By', $with) : '';
+
+        $name = $this->tag;
+        if($this->custom) {
+            $customName = $this->methodName ?? '';
+            $customName = str_replace(['_get', '_put', '_delete', '_patch'], '', $customName);
+            $name .= ucfirst($customName);
+        }
+
+        $className = ucfirst($name).ucfirst($this->method).$by;
+        return $className;
     }
 
     public function hasParameter($name): bool {

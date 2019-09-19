@@ -1,13 +1,7 @@
 <?php
-/** @var \RestExtension\ApiParser\ApiItem $path */
 /** @var \RestExtension\ApiParser\EndpointItem $endpoint */
-/** @var string $className */
-/** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
-<?if($endpoint->isResponseSchemaAModel()) {
-$apiItem->addImport($endpoint->responseSchema);
-} ?>
-class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
+class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
     protected method = '<?=$endpoint->method?>';
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';
@@ -27,102 +21,102 @@ class <?=$className?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
-    public <?=$parameter->name?>(value: <?=$parameter->getTypeScriptType()?>): <?=$className?> {
+    public <?=$parameter->name?>(value: <?=$parameter->getTypeScriptType()?>): <?=$endpoint->getTypeScriptClassName()?> {
         this.addQueryParameter('<?=$parameter->name?>', value);
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('filter')) { ?>
 
-    public where(name: string, value: any): <?=$className?> {
+    public where(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().where(name, value);
         return this;
     }
 
-    public whereEquals(name: string, value: any): <?=$className?> {
+    public whereEquals(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereEquals(name, value);
         return this;
     }
 
-    public whereIn(name: string, value: any[]): <?=$className?> {
+    public whereIn(name: string, value: any[]): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereIn(name, value);
         return this;
     }
 
-    public whereInArray(name: string, value: any[]): <?=$className?> {
+    public whereInArray(name: string, value: any[]): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereInArray(name, value);
         return this;
     }
 
-    public whereNot(name: string, value: any): <?=$className?> {
+    public whereNot(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereNot(name, value);
         return this;
     }
 
-    public whereNotIn(name: string, value: any[]): <?=$className?> {
+    public whereNotIn(name: string, value: any[]): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereNotIn(name, value);
         return this;
     }
 
-    public whereGreaterThan(name: string, value: any): <?=$className?> {
+    public whereGreaterThan(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereGreaterThan(name, value);
         return this;
     }
 
-    public whereGreaterThanOrEqual(name: string, value: any): <?=$className?> {
+    public whereGreaterThanOrEqual(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereGreaterThanOrEqual(name, value);
         return this;
     }
 
-    public whereLessThan(name: string, value: any): <?=$className?> {
+    public whereLessThan(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereLessThan(name, value);
         return this;
     }
 
-    public whereLessThanOrEqual(name: string, value: any): <?=$className?> {
+    public whereLessThanOrEqual(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().whereLessThanOrEqual(name, value);
         return this;
     }
 
-    public search(name: string, value: any): <?=$className?> {
+    public search(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().search(name, value);
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('include')) { ?>
 
-    public include(name: string): <?=$className?> {
+    public include(name: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.getInclude().include(name);
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('ordering')) { ?>
 
-    public orderBy(name: string, direction: string): <?=$className?> {
+    public orderBy(name: string, direction: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.ordering().orderBy(name, direction);
         return this;
     }
 
-    public orderAsc(name: string): <?=$className?> {
+    public orderAsc(name: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.ordering().orderAsc(name);
         return this;
     }
 
-    public orderDesc(name: string): <?=$className?> {
+    public orderDesc(name: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.ordering().orderDesc(name);
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('limit')) { ?>
 
-    public limit(value: number): <?=$className?> {
+    public limit(value: number): <?=$endpoint->getTypeScriptClassName()?> {
         super.limitValue = value;
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('offset')) { ?>
 
-    public offset(value: number): <?=$className?> {
+    public offset(value: number): <?=$endpoint->getTypeScriptClassName()?> {
         super.offsetValue = value;
         return this;
     }

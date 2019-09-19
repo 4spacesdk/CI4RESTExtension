@@ -1,5 +1,6 @@
 <?php namespace RestExtension\ApiParser;
 use App\Core\ResourceController;
+use Config\Services;
 use ReflectionMethod;
 
 /**
@@ -19,6 +20,8 @@ use ReflectionMethod;
  * @property string[] $imports
  */
 class ApiItem {
+
+    public $imports = [];
 
     /**
      * @param $api
@@ -168,6 +171,7 @@ class ApiItem {
             $patchByIdEndpoint->tag = $Resources;
             $patchByIdEndpoint->requestEntity = $Resource;
             $patchByIdEndpoint->responseSchema = $Resource;
+            $patchByIdEndpoint->isRestPatchEndpoint = true;
             if(isset($name2Method['patch'])) {
                 $endpoint = EndpointItem::parse($name2Method['patch']);
                 foreach($overrides as $override) {
@@ -239,6 +243,20 @@ class ApiItem {
             $item->addImport($item->resourceNameUpperCase);
 
         return $item;
+    }
+
+    public function generateTypeScript(): string {
+        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+        return $renderer
+            ->setData(['path' => $this, 'endpoints' => $this->endpoints], 'raw')
+            ->render('Resource', ['debug' => false], null);
+    }
+
+    public function generateTypeScriptModelFunctions(): string {
+        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+        return $renderer
+            ->setData(['apiItem' => $this], 'raw')
+            ->render('ModelFunctions', ['debug' => false], null);
     }
 
     public function addImport($import) {

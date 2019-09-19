@@ -79,54 +79,19 @@ class ApiParser {
 
         $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
 
-        $resources = [];
+        $imports = [];
         foreach($this->paths as $path) {
-            $endpoints = [];
             foreach($path->endpoints as $endpoint) {
-                $parts = explode('/', trim($endpoint->path, '/'));
-
-                // Name
-                array_shift($parts);
-                $customName = $endpoint->methodName ?? '';
-                $customName = str_replace(['_get', '_put', '_delete', '_patch'], '', $customName);
-                $name = $endpoint->tag;
-                if($endpoint->custom) $name .= ucfirst($customName);
-
-                // Path parameters
-                $with = [];
-                foreach($endpoint->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
-                    $with[] = ucfirst($pathArgument);
-                $by = count($with) ? 'By'.implode('By', $with) : '';
-
-                // Func & Class name
-                $funcName = lcfirst($endpoint->method).$by;
-                if($endpoint->custom)
-                    $funcName = $customName.ucfirst($funcName);
-                $className = ucfirst($name).ucfirst($endpoint->method).$by;
-
-                // Function Arguments
-                $argsWithType = $endpoint->getTypeScriptPathArgumentsWithTypes();
-                $argsWithOutType = $endpoint->getTypeScriptPathArgumentsWithOutTypes();
-
-                $endpoints[] = [$funcName, $className, implode(', ', $argsWithType), implode(', ', $argsWithOutType), $renderer
-                    ->setData(
-                        [
-                            'path'      => $path,
-                            'endpoint'  => $endpoint,
-                            'className' => $className,
-                            'apiItem'   => $path
-                        ], 'raw')
-                    ->render('Endpoint', ['debug' => false], null),
-                ];
+                if($endpoint->isResponseSchemaAModel())
+                    $path->addImport($endpoint->responseSchema);
             }
 
-            $resources[$path->name] = $renderer
-                ->setData(['path' => $path, 'endpoints' => $endpoints], 'raw')
-                ->render('Resource', ['debug' => false], null);
+            $imports = array_merge($imports, $path->imports);
         }
 
         $content = $renderer->setData([
-            'resources' => $resources,
+            'imports' => $imports,
+            'resources' => $this->paths,
             'interfaces' => $this->interfaces
         ], 'raw')->render('API', ['debug' => false], null);
         if($debug) {
