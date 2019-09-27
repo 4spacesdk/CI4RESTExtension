@@ -110,14 +110,14 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
 <?if($endpoint->hasParameter('limit')) { ?>
 
     public limit(value: number): <?=$endpoint->getTypeScriptClassName()?> {
-        super.limitValue = value;
+        this.limitValue = value;
         return this;
     }
 <?php } ?>
 <?if($endpoint->hasParameter('offset')) { ?>
 
     public offset(value: number): <?=$endpoint->getTypeScriptClassName()?> {
-        super.offsetValue = value;
+        this.offsetValue = value;
         return this;
     }
 <?php } ?>
