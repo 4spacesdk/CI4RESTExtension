@@ -13,11 +13,11 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
     }
 
     protected convertToResource(data: any): <?=$endpoint->responseSchema ?? 'any'?> {
-<?if($endpoint->isResponseSchemaAModel()) { ?>
+<?php if($endpoint->isResponseSchemaAModel()) { ?>
         return new <?="{$endpoint->responseSchema}(data)"?>;
-<? } else { ?>
+<?php  } else { ?>
         return data;
-<? } ?>
+<?php  } ?>
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
@@ -26,7 +26,7 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('filter')) { ?>
+<?php if($endpoint->hasParameter('filter')) { ?>
 
     public where(name: string, value: any): <?=$endpoint->getTypeScriptClassName()?> {
         this.filter().where(name, value);
@@ -83,14 +83,14 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('include')) { ?>
+<?php if($endpoint->hasParameter('include')) { ?>
 
     public include(name: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.getInclude().include(name);
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('ordering')) { ?>
+<?php if($endpoint->hasParameter('ordering')) { ?>
 
     public orderBy(name: string, direction: string): <?=$endpoint->getTypeScriptClassName()?> {
         this.ordering().orderBy(name, direction);
@@ -107,21 +107,21 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('limit')) { ?>
+<?php if($endpoint->hasParameter('limit')) { ?>
 
     public limit(value: number): <?=$endpoint->getTypeScriptClassName()?> {
         this.limitValue = value;
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('offset')) { ?>
+<?php if($endpoint->hasParameter('offset')) { ?>
 
     public offset(value: number): <?=$endpoint->getTypeScriptClassName()?> {
         this.offsetValue = value;
         return this;
     }
 <?php } ?>
-<?if($endpoint->hasParameter('count')) { ?>
+<?php if($endpoint->hasParameter('count')) { ?>
 
     public count(next?: (value: number) => void): Subscription {
         return this.executeCount(next);

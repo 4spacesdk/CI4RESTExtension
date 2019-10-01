@@ -105,6 +105,16 @@ class RestExtension extends BaseConfig {
      */
     public $apiInterfaceNamespace           = 'App\Interfaces';
 
+    /*
+     * Provide destination for TypeScript Models to be placed when executed as Command
+     */
+    public $typescriptModelExporterDestination  = '~/Desktop/ModelExporter';
+
+    /*
+     * Provide destination for TypeScript API to be placed when executed as Command
+     */
+    public $typescriptAPIExporterDestination    = '~/Desktop/APIExporter';
+
 }
 ```
 

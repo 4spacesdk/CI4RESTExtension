@@ -7,11 +7,11 @@ import {BaseApi} from '@app/core/http/Api/BaseApi';
 import { Observable, Subscription } from 'rxjs';
 <?php foreach($imports as $import) { ?>
 import {<?=$import?>} from '@app/core/models';
-<? } ?>
+<?php } ?>
 <?php foreach($interfaces as $interface) { ?>
 
 <?=$interface->toTypeScript()?>
-<? } ?>
+<?php } ?>
 
 export class Api {
 

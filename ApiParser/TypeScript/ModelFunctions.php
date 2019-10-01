@@ -2,7 +2,7 @@
 /** @var \RestExtension\ApiParser\ApiItem $apiItem */
 ?>
 <?php foreach($apiItem->endpoints as $endpoint) { ?>
-<?if($endpoint->isRestPatchEndpoint) { ?>
+<?php if($endpoint->isRestPatchEndpoint) { ?>
 
     public patch(fields: string[] = [], callback?: () => void) {
         let data: any = this;
@@ -17,5 +17,5 @@
             }
         });
     }
-<? } ?>
-<? } ?>
+<?php } ?>
+<?php } ?>
