@@ -48,8 +48,8 @@ class ApiExporter extends BaseCommand {
         }
 
         // Overwrite Api.ts
-        shell_exec("rm -rf {$to}/Api.ts");
-        shell_exec("mv {$from} {$to}/Api.ts");
+        shell_exec("rm -rf \"{$to}/Api.ts\"");
+        shell_exec("mv \"{$from}\" \"{$to}/Api.ts\"");
     }
 
 }
