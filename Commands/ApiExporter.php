@@ -39,7 +39,9 @@ class ApiExporter extends BaseCommand {
         $config = Config::get('RestExtension');
 
         $from = WRITEPATH . 'tmp/Api.ts';
+        $from = str_replace(' ', '\ ', $from);
         $to = $config->typescriptAPIExporterDestination;
+        $to = str_replace(' ', '\ ', $to);
 
         // Create destination direction if not already exists
         clearstatcache();
@@ -48,8 +50,8 @@ class ApiExporter extends BaseCommand {
         }
 
         // Overwrite Api.ts
-        shell_exec("rm -rf \"{$to}/Api.ts\"");
-        shell_exec("mv \"{$from}\" \"{$to}/Api.ts\"");
+        shell_exec("rm -rf {$to}/Api.ts");
+        shell_exec("mv {$from} {$to}/Api.ts");
     }
 
 }

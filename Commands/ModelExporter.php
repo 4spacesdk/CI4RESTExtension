@@ -38,24 +38,26 @@ class ModelExporter extends BaseCommand {
         $config = Config::get('RestExtension');
 
         $from = WRITEPATH . 'tmp/models';
+        $from = str_replace(' ', '\ ', $from);
         $to = $config->typescriptModelExporterDestination;
+        $to = str_replace(' ', '\ ', $to);
 
         // Create destination direction if not already exists
         if(!is_dir($to)) mkdir($to, 0777, true);
 
         // Clear Definition folder
-        shell_exec("rm -rf \"{$to}/definitions\"");
-        shell_exec("mv \"{$from}/definitions\" \"{$to}\"");
+        shell_exec("rm -rf {$to}/definitions");
+        shell_exec("mv {$from}/definitions {$to}");
 
         // Overwrite index file
-        shell_exec("rm -rf \"{$to}/index.ts\"");
-        shell_exec("mv \"{$from}/index.ts\" \"{$to}\"");
+        shell_exec("rm -rf {$to}/index.ts");
+        shell_exec("mv {$from}/index.ts {$to}");
 
         // Add new models to model list
-        shell_exec("cp -n \"{$from}/*.ts\" \"{$to}/\"");
+        shell_exec("cp -n {$from}/*.ts {$to}/");
 
         // Cleanup
-        shell_exec("rm -rf \"{$from}\"");
+        shell_exec("rm -rf {$from}");
     }
 
 }
