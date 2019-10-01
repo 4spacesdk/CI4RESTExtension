@@ -232,7 +232,7 @@ class ApiItem {
                 if(isset($item->scope) && !isset($endpoint->scope))
                     $endpoint->scope = $item->scope;
 
-                if(!isset($endpoint->responseSchema) && $item->resourceNameUpperCase)
+                if(!isset($endpoint->responseSchema) && $item->resourceNameUpperCase && $item->isResourceController)
                     $endpoint->responseSchema = $item->resourceNameUpperCase;
 
                 $item->endpoints[] = $endpoint;
