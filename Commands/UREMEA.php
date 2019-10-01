@@ -14,9 +14,9 @@ use RestExtension\ApiParser\ApiParser;
 class UREMEA extends BaseCommand {
 
     public $group           = 'RestExtension';
-    public $name            = 'uremea';
+    public $name            = 'deliverit:uremea';
     public $description     = 'UREMEA';
-    protected $usage        = 'UREMEA';
+    protected $usage        = 'deliverit:UREMEA';
     protected $arguments    = [
 
     ];
