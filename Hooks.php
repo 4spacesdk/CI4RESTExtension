@@ -7,6 +7,7 @@ use Config\Database;
 use Config\OrmExtension;
 use Config\RestExtension;
 use Config\Services;
+use DebugTool\Data;
 use OrmExtension\ModelParser\ModelParser;
 use RestExtension\ApiParser\ApiParser;
 use RestExtension\Entities\ApiAccessLog;
@@ -353,7 +354,8 @@ class Hooks {
                     'status'    => 'ERROR',
                     'code'      => $exception->getCode(),
                     'error'     => get_class($exception),
-                    'reason'    => $exception->getMessage()
+                    'reason'    => $exception->getMessage(),
+                    'debug'     => Data::getDebugger()
                 ]);
                 $response->send();
                 return;
