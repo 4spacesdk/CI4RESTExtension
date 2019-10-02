@@ -321,6 +321,7 @@ class EndpointItem {
     }
 
     public function isResponseSchemaAModel(): bool {
+        if(!isset($this->responseSchema)) return false;
         foreach(OrmExtension::$entityNamespace as $namespace) {
             if(class_exists($namespace.$this->responseSchema))
                 return true;
