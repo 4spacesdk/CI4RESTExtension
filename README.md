@@ -79,7 +79,7 @@ class RestExtension extends BaseConfig {
          * If AuthExtension is part of another project (ex. Micro Service) you could do something like
          */
 
-//        $url = \CodeIgniter\Config\Config::get('domains')->auth.'/check?';
+//        $url = \CodeIgniter\Config\Config::get('Domains')->auth.'/check?';
 //        $url .= http_build_query(['scope' => $scope, 'access_token' => RestRequest::getInstance()->getAccessToken()]);
 //
 //        $ch = curl_init();
