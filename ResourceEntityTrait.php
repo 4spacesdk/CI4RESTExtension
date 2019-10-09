@@ -324,7 +324,6 @@ trait ResourceEntityTrait {
      * @return bool
      */
     public function populatePatch($data) {
-        $hasChange = false;
         if($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->_getModel();
@@ -339,17 +338,27 @@ trait ResourceEntityTrait {
             foreach($data as $field => $value) {
                 if(in_array($field, $fields)) {
                     switch($fieldName2Type[$field]) {
+                        case 'int':
+                            $this->{$field} = (int)$value;
+                            break;
+                        case 'float':
+                        case 'double':
+                        case 'decimal':
+                            $this->{$field} = (double)$value;
+                            break;
+                        case 'tinyint':
+                            $this->{$field} = (bool)$value;
+                            break;
                         case 'datetime':
                             $this->{$field} = $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
                             break;
                         default:
                             $this->{$field} = $value;
                     }
-                    $hasChange = true;
                 }
             }
         }
-        return $hasChange;
+        return $this->hasChanged();
     }
 
 }
