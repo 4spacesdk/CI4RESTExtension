@@ -329,4 +329,13 @@ class EndpointItem {
         return false;
     }
 
+    public function isRequestSchemaAModel(): bool {
+        if(!isset($this->requestEntity)) return false;
+        foreach(OrmExtension::$entityNamespace as $namespace) {
+            if(class_exists($namespace.$this->requestEntity))
+                return true;
+        }
+        return false;
+    }
+
 }
