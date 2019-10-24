@@ -23,18 +23,23 @@ class InterfaceItem {
         $item = new InterfaceItem();
         $item->path = $path;
 
-        $namespace = Config::get('RestExtension')->apiInterfaceNamespace;
+        $config = Config::get('RestExtension');
+        $namespace = $config->apiInterfaceNamespace ?? '';
         $class = "$namespace\\{$path}";
 
-        $rc = new \ReflectionClass($class);
-        $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
+        try {
+            $rc = new \ReflectionClass($class);
+            $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
 
-        $comments = $rc->getDocComment();
-        $lines = explode("\n", $comments);
-        foreach($lines as $line) {
-            $property = PropertyItem::parse($line);
-            if($property)
-                $item->properties[] = $property;
+            $comments = $rc->getDocComment();
+            $lines = explode("\n", $comments);
+            foreach($lines as $line) {
+                $property = PropertyItem::parse($line);
+                if($property)
+                    $item->properties[] = $property;
+            }
+        } catch(\Exception $e) {
+
         }
 
         return $item;
