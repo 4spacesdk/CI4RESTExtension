@@ -111,4 +111,27 @@ class ParameterItem {
         }
     }
 
+    public function getXamarinType() {
+        switch($this->type) {
+            case 'int':
+            case 'integer':
+                return 'int';
+            case 'double':
+                return 'double';
+            case 'string|double':
+                return'string';
+            case 'boolean':
+            case 'bool':
+                return 'bool';
+            case 'string':
+                return 'string';
+            case 'int[]':
+                return 'int[]';
+            case 'double[]':
+                return 'double[]';
+            default:
+                return $this->type;
+        }
+    }
+
 }

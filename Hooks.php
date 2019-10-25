@@ -143,6 +143,55 @@ class Hooks {
                 });
             }
 
+            /*
+             * Export Xamarin Models
+             */
+            if(self::$config->xamarinModelExporterRoute
+                && Services::request()->getIPAddress() == '127.0.0.1') {
+                $routes->get(self::$config->xamarinModelExporterRoute, function($debug = false) {
+                    $parser = ModelParser::run();
+                    $parser->generateXamarin($debug);
+
+                    if($debug) return;
+
+                    // Zip models folder
+                    shell_exec('cd "' . WRITEPATH . 'tmp/xamarin/" && zip -r models.zip models');
+                    $path = WRITEPATH . 'tmp/xamarin/models.zip';
+
+                    header("Content-type: application/zip");
+                    header("Content-Disposition: attachment; filename=$path");
+                    header("Content-length: " . filesize($path));
+                    header("Pragma: no-cache");
+                    header("Expires: 0");
+                    readfile("$path");
+
+                    exit(0);
+                });
+            }
+
+            /*
+             * Export Xamarin API Class
+             */
+            if(self::$config->xamarinAPIExporterRoute && self::$config->xamarinAPINamespace
+                && Services::request()->getIPAddress() == '127.0.0.1') {
+                $routes->get(self::$config->xamarinAPIExporterRoute, function($debug = false) {
+                    $parser = ApiParser::run();
+                    $parser->generateXamarin($debug);
+
+                    // Zip api folder
+                    $path = WRITEPATH . 'tmp/Api.cs';
+
+                    header("Content-type: application/x-typescript");
+                    header("Content-Disposition: attachment; filename=$path");
+                    header("Content-length: " . filesize($path));
+                    header("Pragma: no-cache");
+                    header("Expires: 0");
+                    readfile("$path");
+
+                    exit(0);
+                });
+            }
+
         }
 
         /*

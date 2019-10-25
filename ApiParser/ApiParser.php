@@ -102,6 +102,34 @@ class ApiParser {
             file_put_contents(WRITEPATH.'tmp/Api.ts', $content);
     }
 
+    public function generateXamarin($debug) {
+        if(!file_exists(WRITEPATH.'tmp')) mkdir(WRITEPATH.'tmp', 0777, true);
+
+        $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
+
+        $imports = [];
+        foreach($this->paths as $path) {
+            foreach($path->endpoints as $endpoint) {
+                if($endpoint->isResponseSchemaAModel()) $path->addImport($endpoint->responseSchema);
+                if($endpoint->isRequestSchemaAModel()) $path->addImport($endpoint->requestEntity);
+            }
+
+            $imports = array_merge($imports, $path->imports);
+        }
+
+        $content = $renderer->setData([
+            'imports' => $imports,
+            'resources' => $this->paths,
+            'interfaces' => $this->interfaces
+        ], 'raw')->render('API', ['debug' => false], null);
+        if($debug) {
+            header('Content-Type', 'text/plain');
+            echo $content;
+            exit(0);
+        } else
+            file_put_contents(WRITEPATH.'tmp/Api.cs', $content);
+    }
+
 
     /**
      * @param $api

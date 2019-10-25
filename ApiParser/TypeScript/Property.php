@@ -1,4 +1,4 @@
 <?php
 /** @var \RestExtension\ApiParser\PropertyItem $property */
 ?>
-<?=$property->name?>?: <?=$property->type?><?=$property->isMany?"[]":""?>;
+<?=$property->name?>?: <?=$property->typeScriptType?><?=$property->isMany?"[]":""?>;

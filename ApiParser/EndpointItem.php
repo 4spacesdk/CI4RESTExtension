@@ -232,12 +232,30 @@ class EndpointItem {
             ->render('Endpoint', ['debug' => false], null);
     }
 
+    public function generateXamarin(): string {
+        $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
+        return $renderer
+            ->setData(['endpoint'  => $this], 'raw')
+            ->render('Endpoint', ['debug' => false], null);
+    }
+
     public function getTypeScriptPathArgumentsWithTypes(): array {
         $argsWithType = [];
         foreach($this->parameters as $parameter) {
             if($parameter->parameterType == 'path') {
                 $required = $parameter->required ? '' : '?';
                 $argsWithType[] = "{$parameter->name}{$required}: {$parameter->getTypeScriptType()}";
+            }
+        }
+        return $argsWithType;
+    }
+
+    public function getXamarinPathArgumentsWithTypes(): array {
+        $argsWithType = [];
+        foreach($this->parameters as $parameter) {
+            if($parameter->parameterType == 'path') {
+                $required = $parameter->required ? '' : '?';
+                $argsWithType[] = "{$parameter->getXamarinType()} {$parameter->name}{$required}";
             }
         }
         return $argsWithType;
@@ -258,6 +276,17 @@ class EndpointItem {
         $url = $this->path;
         foreach($params as $param) {
             $url = str_replace("{{$param}}", "\${{$param}}", $url);
+        }
+        return $url;
+    }
+
+    public function getXamarinUrl(): string {
+        $params = $this->getTypeScriptPathArgumentsWithOutTypes();
+        $url = $this->path;
+        $counter = 0;
+        foreach($params as $param) {
+            $url = str_replace("{{$param}}", "{{$counter}}", $url);
+            $counter++;
         }
         return $url;
     }
