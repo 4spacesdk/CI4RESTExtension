@@ -1,7 +1,7 @@
 <?php
 /** @var \RestExtension\ApiParser\EndpointItem $endpoint */
 ?>
-    public class <?=$endpoint->getTypeScriptClassName()?> : BaseApi<<?=$endpoint->responseSchema ?? 'Object'?>>
+    public class <?=$endpoint->getTypeScriptClassName()?> : BaseApi<<?=$endpoint->responseSchema ?? 'Empty'?>>
     {
         public <?=$endpoint->getTypeScriptClassName()?>(<?=implode(', ', $endpoint->getXamarinPathArgumentsWithTypes())?>)
         {
