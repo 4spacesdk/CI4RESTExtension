@@ -98,7 +98,22 @@ class RestExtension extends BaseConfig {
     /*
      * Provide Route for Typescript API exporter
      */
-    public $typescriptAPIExporterRoute    = 'export/api';
+    public $typescriptAPIExporterRoute      = 'export/api';
+
+    /*
+     * Provide Route for Xamarin model exporter
+     */
+    public $xamarinModelExporterRoute       = 'xamarin/models';
+
+    /*
+     * Provide Namespace for Xamarin API
+     */
+    public $xamarinAPINamespace             = 'App.Http';
+
+    /*
+     * Provide Route for Xamarin API exporter
+     */
+    public $xamarinAPIExporterRoute         = 'xamarin/api';
 
     /*
      * Provide Namespace for Api request and response Interfaces
