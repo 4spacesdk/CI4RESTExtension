@@ -16,6 +16,7 @@ use RestExtension\Entities\ApiErrorLog;
 use RestExtension\Entities\ApiRoute;
 use RestExtension\Entities\ApiUsageReport;
 use RestExtension\Entities\OAuthClient;
+use RestExtension\Exceptions\RateLimitExceededException;
 use RestExtension\Exceptions\RestException;
 use RestExtension\Exceptions\UnauthorizedException;
 use RestExtension\Models\ApiAccessLogModel;
@@ -281,7 +282,7 @@ class Hooks {
                                 /*
                                  * Unauthorized!
                                  */
-                                throw new UnauthorizedException('API Rate limit exceeded');
+                                throw new RateLimitExceededException('API Rate limit exceeded');
                             }
 
                         }
