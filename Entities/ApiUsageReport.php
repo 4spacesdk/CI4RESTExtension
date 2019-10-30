@@ -12,4 +12,11 @@ use OrmExtension\Extensions\Entity;
  */
 class ApiUsageReport extends Entity {
 
+    /**
+     * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|ApiUsageReport[]
+     */
+    public function getIterator() {
+        return parent::getIterator();
+    }
+
 }

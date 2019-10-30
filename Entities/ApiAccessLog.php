@@ -16,4 +16,11 @@ use OrmExtension\Extensions\Entity;
  */
 class ApiAccessLog extends Entity {
 
+    /**
+     * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|ApiAccessLog[]
+     */
+    public function getIterator() {
+        return parent::getIterator();
+    }
+
 }

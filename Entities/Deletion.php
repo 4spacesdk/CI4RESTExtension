@@ -8,4 +8,11 @@ use OrmExtension\Extensions\Entity;
  */
 class Deletion extends Entity {
 
+    /**
+     * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|Deletion[]
+     */
+    public function getIterator() {
+        return parent::getIterator();
+    }
+
 }

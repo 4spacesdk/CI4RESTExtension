@@ -22,4 +22,11 @@ use OrmExtension\Extensions\Entity;
  */
 class ApiErrorLog extends Entity {
 
+    /**
+     * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|ApiErrorLog[]
+     */
+    public function getIterator() {
+        return parent::getIterator();
+    }
+
 }

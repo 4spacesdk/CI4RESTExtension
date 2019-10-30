@@ -379,7 +379,7 @@ class Hooks {
                 $apiErrorLog->save();
             }
 
-            if($exception instanceof UnauthorizedException) {
+            if($exception instanceof UnauthorizedException || $exception instanceof RateLimitExceededException) {
 
                 if(self::$config->enableBlockedLog && self::$database->tableExists('api_blocked_logs')) {
                     $apiBlockedLog = new ApiBlockedLog();

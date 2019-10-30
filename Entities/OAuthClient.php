@@ -21,4 +21,11 @@ use OrmExtension\Extensions\Entity;
  */
 class OAuthClient extends Entity {
 
+    /**
+     * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|OAuthClient[]
+     */
+    public function getIterator() {
+        return parent::getIterator();
+    }
+
 }
