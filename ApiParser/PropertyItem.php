@@ -50,6 +50,8 @@ class PropertyItem {
     }
 
     public function setType($type) {
+        $this->isSimpleType = true;
+
         switch($type) {
             case 'int':
             case 'double':

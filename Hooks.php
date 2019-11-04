@@ -103,9 +103,11 @@ class Hooks {
              * Export TypeScript Models
              */
             if(self::$config->typescriptModelExporterRoute && Services::request()->getIPAddress() == '127.0.0.1') {
-                $routes->get(self::$config->typescriptModelExporterRoute, function() {
+                $routes->get(self::$config->typescriptModelExporterRoute, function($debug = false) {
                     $parser = ModelParser::run();
-                    $parser->generateTypeScript();
+                    $parser->generateTypeScript($debug);
+
+                    if($debug) return;
 
                     // Zip models folder
                     shell_exec('cd "' . WRITEPATH . 'tmp/" && zip -r models.zip models');
