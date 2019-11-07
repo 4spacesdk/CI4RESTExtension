@@ -4,6 +4,7 @@ use Config\Services;
 /**
  * @class PropertyItem
  * @property string $name
+ * @property string $rawType
  * @property string $typeScriptType
  * @property string $xamarinType
  * @property string $comment
@@ -52,6 +53,8 @@ class PropertyItem {
     public function setType($type) {
         $this->isSimpleType = true;
 
+        $this->rawType = $type;
+
         switch($type) {
             case 'int':
             case 'double':
@@ -93,10 +96,28 @@ class PropertyItem {
     public function toSwagger() {
         $item = [];
 
+        $type = $this->rawType;
+        switch($this->rawType) {
+            case 'int[]':
+                $type = 'integer[]';
+                break;
+            case 'int':
+                $type = 'integer';
+                break;
+            case 'bool':
+                $type = 'boolean';
+                break;
+        }
+
         if($this->isSimpleType)
-            $item['type'] = $this->typeScriptType;
+            $item['type'] = $type;
         else
-            $item['type'] = "{$this->typeScriptType}"; //"#/components/schemas/{$this->type}";
+            $item['type'] = "{$type}"; //"#/components/schemas/{$this->type}";
+
+        if(strpos($type, '[]') !== false) {
+            $item['items'] = ['type' => substr($item['type'], 0, -2)];
+            $item['type'] = 'array';
+        }
 
         return $item;
     }
