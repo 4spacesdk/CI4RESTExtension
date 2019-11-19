@@ -123,13 +123,13 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
 <?php } ?>
 <?php if($endpoint->hasParameter('count')) { ?>
 
-    public count(next?: (value: number) => void): Subscription {
+    public count(next?: (value: number) => void): RXJSSubscription {
         return this.executeCount(next);
     }
 <?php } ?>
 <?php if($endpoint->method == 'get') { ?>
 
-    public find(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>[]) => void): Subscription {
+    public find(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>[]) => void): RXJSSubscription {
         return super.executeFind(next);
     }
 
@@ -138,12 +138,12 @@ class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->res
     }
 <?php } else if($endpoint->method == 'delete') { ?>
 
-    public delete(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
+    public delete(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): RXJSSubscription {
         return super.executeDelete(next);
     }
 <?php } else { ?>
 
-    public save(data: <?=$endpoint->requestEntity ?? 'any'?>, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): Subscription {
+    public save(data: <?=$endpoint->requestEntity ?? 'any'?>, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): RXJSSubscription {
         return super.executeSave(data, next);
     }
 <?php } ?>

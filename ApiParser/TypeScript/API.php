@@ -4,7 +4,7 @@
 /** @var \RestExtension\ApiParser\InterfaceItem[] $interfaces */
 ?>
 import {BaseApi} from '@app/core/http/Api/BaseApi';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription as RXJSSubscription } from 'rxjs';
 <?php foreach($imports as $import) { ?>
 import {<?=$import?>} from '@app/core/models';
 <?php } ?>
