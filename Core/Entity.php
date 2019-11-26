@@ -72,7 +72,7 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
         $isNew = $this->exists() == false;
         parent::save($related, $relatedField);
 
-        if(is_null($related)) {
+        if(is_null($related) && $this->getResourcePath()) {
             /** @var RestExtension $restConfig */
             $restConfig = Config::get('RestExtension');
             if(isset($restConfig->enableZMQEntityPush) && $restConfig->enableZMQEntityPush) {

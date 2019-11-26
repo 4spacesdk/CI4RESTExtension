@@ -10,9 +10,9 @@ use RestExtension\Core\Entity;
  */
 class ZMQProxy {
 
-    const ZMQ_ACTION_CREATE = 'create';
-    const ZMQ_ACTION_UPDATE = 'update';
-    const ZMQ_ACTION_DELETE = 'delete';
+    const ZMQ_ACTION_CREATE = 'created';
+    const ZMQ_ACTION_UPDATE = 'updated';
+    const ZMQ_ACTION_DELETE = 'deleted';
 
     /** @var ZMQProxy */
     private static $instance;
