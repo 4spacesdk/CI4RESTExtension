@@ -2,7 +2,6 @@
 
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
-use OrmExtension\Extensions\Entity;
 use RestExtension\ResourceBaseModelInterface;
 use RestExtension\ResourceModelTrait;
 use RestExtension\RestRequest;

@@ -3,6 +3,7 @@
 ?>
 class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
+    public topic = '<?=$endpoint->getTopicName()?>';
     protected method = '<?=$endpoint->method?>';
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';
     protected summary = '<?=isset($endpoint->summary)?$endpoint->summary:''?>';

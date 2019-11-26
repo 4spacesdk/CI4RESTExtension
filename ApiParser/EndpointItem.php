@@ -341,6 +341,14 @@ class EndpointItem {
         return $className;
     }
 
+    public function getTopicName(): string {
+        if(strpos($this->responseSchema, '[]') !== false) {
+            return "Resources.".plural(substr($this->responseSchema, 0, -2));
+        } else {
+            return "Resources.".plural($this->responseSchema);
+        }
+    }
+
     public function hasParameter($name): bool {
         foreach($this->parameters as $parameter) {
             if($parameter->name == $name)

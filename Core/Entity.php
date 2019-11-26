@@ -1,9 +1,12 @@
 <?php namespace RestExtension\Core;
 
+use CodeIgniter\Config\Config;
+use Config\RestExtension;
 use OrmExtension\Extensions\Model;
 use RestExtension\Entities\User;
 use RestExtension\ResourceEntityInterface;
 use RestExtension\ResourceEntityTrait;
+use RestExtension\ZMQ\ZMQProxy;
 
 /**
  * Created by PhpStorm.
@@ -63,5 +66,31 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
                 $this->resourcePath = $resource;
         }
         return $this->resourcePath;
+    }
+
+    public function save($related = null, $relatedField = null) {
+        $isNew = $this->exists() == false;
+        parent::save($related, $relatedField);
+
+        if(is_null($related)) {
+            /** @var RestExtension $restConfig */
+            $restConfig = Config::get('RestExtension');
+            if(isset($restConfig->enableZMQEntityPush) && $restConfig->enableZMQEntityPush) {
+                $action = $isNew ? ZMQProxy::ZMQ_ACTION_CREATE : ZMQProxy::ZMQ_ACTION_UPDATE;
+                ZMQProxy::getInstance()->send($this->getResourcePath(), $action, $this);
+            }
+        }
+    }
+
+    public function delete($related = null) {
+        parent::delete($related);
+
+        if(is_null($related)) {
+            /** @var RestExtension $restConfig */
+            $restConfig = Config::get('RestExtension');
+            if(isset($restConfig->enableZMQEntityPush) && $restConfig->enableZMQEntityPush) {
+                ZMQProxy::getInstance()->send($this->getResourcePath(), ZMQProxy::ZMQ_ACTION_DELETE, $this);
+            }
+        }
     }
 }
