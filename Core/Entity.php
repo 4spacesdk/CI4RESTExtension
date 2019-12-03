@@ -6,7 +6,7 @@ use OrmExtension\Extensions\Model;
 use RestExtension\Entities\User;
 use RestExtension\ResourceEntityInterface;
 use RestExtension\ResourceEntityTrait;
-use RestExtension\ZMQ\ZMQProxy;
+use RestExtension\ZMQProxy;
 
 /**
  * Created by PhpStorm.
