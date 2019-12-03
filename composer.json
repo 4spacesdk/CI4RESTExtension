@@ -13,7 +13,7 @@
     "4spacesdk/ci4debugtool": ">=1.0.0"
   },
   "suggest": {
-
+    "4spacesdk/ci4restextension-zmq": "For pushing changes to ZMQ"
   },
   "autoload": {
     "psr-4": {
