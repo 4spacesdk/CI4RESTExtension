@@ -342,11 +342,14 @@ class EndpointItem {
     }
 
     public function getTopicName(): string {
-        if(strpos($this->responseSchema, '[]') !== false) {
-            return "Resources.".plural(substr($this->responseSchema, 0, -2));
-        } else {
-            return "Resources.".plural($this->responseSchema);
-        }
+        if(isset($this->responseSchema)) {
+            if(strpos($this->responseSchema, '[]') !== false) {
+                return "Resources." . plural(substr($this->responseSchema, 0, -2));
+            } else {
+                return "Resources." . plural($this->responseSchema);
+            }
+        } else
+            return "UnknownResource";
     }
 
     public function hasParameter($name): bool {
