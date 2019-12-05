@@ -46,6 +46,13 @@ class ApiItem {
             if($pos !== false) {
                 $item->scope = trim(substr($docComment, $pos + strlen($search)));
             }
+
+            $search = '@resource';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $item->resourceNameUpperCase = trim(substr($docComment, $pos + strlen($search)));
+                $item->resourceNameLowerCase = lcfirst($item->resourceNameUpperCase);
+            }
         }
 
         $item->endpoints = [];
