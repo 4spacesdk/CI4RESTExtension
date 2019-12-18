@@ -1,7 +1,7 @@
 <?php
 /** @var \RestExtension\ApiParser\EndpointItem $endpoint */
 ?>
-class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
+export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
     public topic = '<?=$endpoint->getTopicName()?>';
     protected method = '<?=$endpoint->method?>';
