@@ -259,7 +259,7 @@ class Hooks {
                         /*
                          * Unauthorized!
                          */
-                        throw new UnauthorizedException($authResponse->reason);
+                        throw new UnauthorizedException(isset($authResponse->reason) ? $authResponse->reason : 'Could not contact Auth');
                     }
                 }
 
