@@ -99,13 +99,10 @@ class Hooks {
                 }
             }
 
-            $isLocalIP = in_array(Services::request()->getIPAddress(), ['127.0.0.1', '::1']);
-
             /*
              * Export TypeScript Models
              */
-            if(isset(self::$config->typescriptModelExporterRoute) && self::$config->typescriptModelExporterRoute
-                && $isLocalIP) {
+            if(isset(self::$config->typescriptModelExporterRoute) && self::$config->typescriptModelExporterRoute) {
                 $routes->get(self::$config->typescriptModelExporterRoute, function($debug = false) {
                     $parser = ModelParser::run();
                     $parser->generateTypeScript($debug);
@@ -130,8 +127,7 @@ class Hooks {
             /*
              * Export TypeScript API Class
              */
-            if(isset(self::$config->typescriptAPIExporterRoute) && self::$config->typescriptAPIExporterRoute
-                && $isLocalIP) {
+            if(isset(self::$config->typescriptAPIExporterRoute) && self::$config->typescriptAPIExporterRoute) {
                 $routes->get(self::$config->typescriptAPIExporterRoute, function($debug = 0) {
                     $parser = ApiParser::run();
                     $parser->generateTypeScript($debug);
@@ -153,8 +149,7 @@ class Hooks {
             /*
              * Export Xamarin Models
              */
-            if(isset(self::$config->xamarinModelExporterRoute) && self::$config->xamarinModelExporterRoute
-                && $isLocalIP) {
+            if(isset(self::$config->xamarinModelExporterRoute) && self::$config->xamarinModelExporterRoute) {
                 $routes->get(self::$config->xamarinModelExporterRoute, function($debug = false) {
                     $parser = ModelParser::run();
                     $parser->generateXamarin($debug);
@@ -180,8 +175,7 @@ class Hooks {
              * Export Xamarin API Class
              */
             if(isset(self::$config->xamarinAPIExporterRoute) && self::$config->xamarinAPIExporterRoute
-                && isset(self::$config->xamarinAPINamespace) && self::$config->xamarinAPINamespace
-                && $isLocalIP) {
+                && isset(self::$config->xamarinAPINamespace) && self::$config->xamarinAPINamespace) {
                 $routes->get(self::$config->xamarinAPIExporterRoute, function($debug = false) {
                     $parser = ApiParser::run();
                     $parser->generateXamarin($debug);
@@ -233,8 +227,8 @@ class Hooks {
                 /** @var ApiRoute $apiRoute */
                 $apiRoute = (new ApiRouteModel())
                     ->groupStart()
-                        ->where('from', $routeFrom)
-                        ->orWhere('from', '/'.$routeFrom)
+                    ->where('from', $routeFrom)
+                    ->orWhere('from', '/'.$routeFrom)
                     ->groupEnd()
                     ->where('method', $request->getMethod())
                     ->find();
@@ -259,7 +253,7 @@ class Hooks {
                         /*
                          * Unauthorized!
                          */
-                        throw new UnauthorizedException(isset($authResponse->reason) ? $authResponse->reason : 'Could not contact Auth');
+                        throw new UnauthorizedException($authResponse->reason);
                     }
                 }
 

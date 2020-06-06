@@ -78,7 +78,6 @@ class ApiItem {
             $Resources = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1); // Remove namespace
             $resources = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resources)); // Camel to snake
             $Resource = singular($Resources);
-            $ResourceArray = $Resource.'[]';
 
             $overrides = [
                 'scope', 'ignore', 'summary', 'requestEntity', 'responseSchema'
@@ -160,7 +159,7 @@ class ApiItem {
             $putEndpoint->path = "/{$resources}";
             $putEndpoint->tag = $Resources;
             $putEndpoint->requestEntity = $Resource;
-            $putEndpoint->responseSchema = $ResourceArray;
+            $putEndpoint->responseSchema = $Resource;
             if(isset($name2Method['put'])) {
                 $endpoint = EndpointItem::parse($name2Method['put']);
                 foreach($overrides as $override) {
@@ -194,7 +193,7 @@ class ApiItem {
             $patchEndpoint->path = "/{$resources}";
             $patchEndpoint->tag = $Resources;
             $patchEndpoint->requestEntity = $Resource;
-            $patchEndpoint->responseSchema = $ResourceArray;
+            $patchEndpoint->responseSchema = $Resource;
             if(isset($name2Method['patch'])) {
                 $endpoint = EndpointItem::parse($name2Method['patch']);
                 foreach($overrides as $override) {
