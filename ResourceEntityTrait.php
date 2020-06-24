@@ -41,13 +41,14 @@ trait ResourceEntityTrait {
 
         // Create relations
         if(is_array($data)) {
+            $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var Entity|ResourceEntityInterface $entityName */
                             $entityName = $relation->getEntityName();
                             $relationEntity = $entityName::post($data[$relationName]);
@@ -62,7 +63,7 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
                             foreach($data[$relationName] as $dataItem) {
@@ -107,13 +108,14 @@ trait ResourceEntityTrait {
 
         // Update relations
         if(is_array($data)) {
+            $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
 
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
@@ -134,7 +136,7 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
@@ -204,18 +206,20 @@ trait ResourceEntityTrait {
                 return $item;
             }
             $item->save();
-        } else
+        } else {
             Data::debug(get_class($item), "Nothing to patch, skipping save");
+        }
 
         // Update relations
         if(is_array($data)) {
+            $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
             foreach($relations as $relation) {
                 switch($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
 
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
@@ -236,7 +240,7 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName])) {
+                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
