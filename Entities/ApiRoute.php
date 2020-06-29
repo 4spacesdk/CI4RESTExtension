@@ -21,13 +21,25 @@ use RestExtension\Models\ApiRouteModel;
  */
 class ApiRoute extends Entity {
 
-    public static function quick($from, $toController, $toMethod, $method = 'get', $scope = '') {
+    public static function quick($from, $toController, $toMethod, $method = 'get', $scope = ''): ApiRoute {
         $route = new ApiRoute();
         $route->method = $method;
         $route->from = $from;
         $route->to = "${toController}::{$toMethod}";
         $route->scope = $scope;
         $route->saveUnique();
+        return $route;
+    }
+
+    public static function public($from, $toController, $toMethod, $method = 'get', $scope = ''): ApiRoute {
+        $route = new ApiRoute();
+        $route->method = $method;
+        $route->from = $from;
+        $route->to = "${toController}::{$toMethod}";
+        $route->scope = $scope;
+        $route->is_public = true;
+        $route->saveUnique();
+        return $route;
     }
 
     public function saveUnique() {
