@@ -215,15 +215,22 @@ class Hooks {
             /*
              * CLI is trusted
              */
-            if($request->isCLI())
+            if($request->isCLI()) {
                 return;
+            }
 
             if(self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
 
                 /*
                  * Search for api route based on CI's matched route
                  */
-                $routeFrom = Services::router()->getMatchedRoute()[0];
+                $route = Services::router()->getMatchedRoute();
+                if (!$route) {
+                    $url = Services::request()->uri;
+                    throw new \Exception("RestExtension: Route ($url) not found. Api Routes have to be store in the ".
+                        "database to check against scopes.");
+                }
+                $routeFrom = $route[0];
                 /** @var ApiRoute $apiRoute */
                 $apiRoute = (new ApiRouteModel())
                     ->groupStart()
