@@ -147,6 +147,28 @@ class Hooks {
             }
 
             /*
+             * Export Vue API Class
+             */
+            if(isset(self::$config->vueAPIExporterRoute) && self::$config->vueAPIExporterRoute) {
+                $routes->get(self::$config->vueAPIExporterRoute, function($debug = 0) {
+                    $parser = ApiParser::run();
+                    $parser->generateVue($debug);
+
+                    // Zip api folder
+                    $path = WRITEPATH . 'tmp/Api.ts';
+
+                    header("Content-type: application/x-typescript");
+                    header("Content-Disposition: attachment; filename=$path");
+                    header("Content-length: " . filesize($path));
+                    header("Pragma: no-cache");
+                    header("Expires: 0");
+                    readfile("$path");
+
+                    exit(0);
+                });
+            }
+
+            /*
              * Export Xamarin Models
              */
             if(isset(self::$config->xamarinModelExporterRoute) && self::$config->xamarinModelExporterRoute) {

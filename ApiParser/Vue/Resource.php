@@ -1,0 +1,18 @@
+<?php
+/** @var \RestExtension\ApiParser\ApiItem $path */
+/** @var \RestExtension\ApiParser\EndpointItem[] $endpoints */
+?>
+<?php foreach($endpoints as $endpoint) { ?>
+
+<?=$endpoint->generateVue();?>
+<?php } ?>
+
+class <?=$path->name?> {
+
+<?php foreach($endpoints as $endpoint) { ?>
+    public <?=lcfirst($endpoint->getTypeScriptFunctionName())?>(<?=implode(', ', $endpoint->getTypeScriptPathArgumentsWithTypes())?>): <?=$endpoint->getTypeScriptClassName()?> {
+        return new <?=$endpoint->getTypeScriptClassName()?>(<?=implode(', ', $endpoint->getTypeScriptPathArgumentsWithOutTypes())?>);
+    }
+
+<?php } ?>
+}

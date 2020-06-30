@@ -98,7 +98,12 @@ class RestExtension extends BaseConfig {
     /*
      * Provide Route for Typescript API exporter
      */
-    public $typescriptAPIExporterRoute      = 'export/api';
+    public $typescriptAPIExporterRoute      = 'export/api/ts';
+
+    /*
+     * Provide Route for Typescript API exporter
+     */
+    public $vueAPIExporterRoute             = 'export/api/vue';
 
     /*
      * Provide Route for Xamarin model exporter
