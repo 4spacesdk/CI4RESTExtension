@@ -334,30 +334,37 @@ trait ResourceEntityTrait {
 
             $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
             $fieldName2Type = [];
-            foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+            foreach ($fieldData as $field) {
+                $fieldName2Type[$field->name] = $field;
+            }
 
             $fields = array_keys($data);
             $fields = array_intersect($fields, $model->getTableFields());
             $fields = array_diff($fields, $this->getPopulateIgnore());
-            foreach($data as $field => $value) {
-                if(in_array($field, $fields)) {
-                    switch($fieldName2Type[$field]) {
-                        case 'int':
-                            $this->{$field} = (int)$value;
-                            break;
-                        case 'float':
-                        case 'double':
-                        case 'decimal':
-                            $this->{$field} = (double)$value;
-                            break;
-                        case 'tinyint':
-                            $this->{$field} = (bool)$value;
-                            break;
-                        case 'datetime':
-                            $this->{$field} = $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
-                            break;
-                        default:
-                            $this->{$field} = $value;
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fields)) {
+                    $fieldData = $fieldName2Type[$field];
+                    if ($fieldData->nullable && is_null($value)) {
+                        $this->{$field} = null;
+                    } else {
+                        switch ($fieldName2Type[$field]->type) {
+                            case 'int':
+                                $this->{$field} = (int)$value;
+                                break;
+                            case 'float':
+                            case 'double':
+                            case 'decimal':
+                                $this->{$field} = (double)$value;
+                                break;
+                            case 'tinyint':
+                                $this->{$field} = (bool)$value;
+                                break;
+                            case 'datetime':
+                                $this->{$field} = $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
+                                break;
+                            default:
+                                $this->{$field} = $value;
+                        }
                     }
                 }
             }
