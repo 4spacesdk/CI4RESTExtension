@@ -12,6 +12,8 @@
  */
 class QueryFilter {
 
+    public $ignoreAuto = false;
+
     public static function parse($line) {
         $item = new QueryFilter();
 

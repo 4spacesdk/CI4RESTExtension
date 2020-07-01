@@ -11,6 +11,8 @@
  */
 class QueryOrder {
 
+    public $ignoreAuto = false;
+
     public static function parse($line) {
         $parts = explode(':', $line);
 

@@ -32,25 +32,42 @@ trait ResourceModelTrait {
                 $this->preRestGet($queryParser, $id);
 
                 foreach($queryParser->getIncludes() as $include) {
-                    if(!$include->ignoreAuto) $this->applyIncludeOne($include);
+                    if(!$include->ignoreAuto) {
+                        $this->applyIncludeOne($include);
+                    }
                 }
-                foreach($queryParser->getFilters() as $filter) $this->applyFilter($filter);
+                foreach($queryParser->getFilters() as $filter) {
+                    if(!$filter->ignoreAuto) {
+                        $this->applyFilter($filter);
+                    }
+                }
                 $searchFilters = $queryParser->getSearchFilters();
                 if(count($searchFilters)) {
                     $this->groupStart();
-                    foreach($searchFilters as $filter) $this->applyFilter($filter);
+                    foreach($searchFilters as $filter) {
+                        if(!$filter->ignoreAuto) {
+                            $this->applyFilter($filter);
+                        }
+                    }
                     $this->groupEnd();
                 }
 
                 if($queryParser->isCount()) {
                     $count = $this->distinct('id')->countAllResults();
-                    //Data::lastQuery();
                     return $count;
                 }
 
-                if($queryParser->hasLimit()) $this->limit($queryParser->getLimit());
-                if($queryParser->hasOffset()) $this->offset($queryParser->getOffset());
-                foreach($queryParser->getOrdering() as $order) $this->applyOrder($order);
+                if($queryParser->hasLimit()) {
+                    $this->limit($queryParser->getLimit());
+                }
+                if($queryParser->hasOffset()) {
+                    $this->offset($queryParser->getOffset());
+                }
+                foreach($queryParser->getOrdering() as $order) {
+                    if(!$order->ignoreAuto) {
+                        $this->applyOrder($order);
+                    }
+                }
 
                 /** @var Entity $items */
                 $items = $this
