@@ -1,4 +1,5 @@
 <?php namespace RestExtension;
+use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\Request;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
@@ -113,16 +114,18 @@ class QueryParser {
     public function parseRequest(Request $request) {
         $this->request = $request;
 
-        $includes = $request->getGet('include');
-        if($includes) $this->parseInclude($request->getGet('include'));
-        $filter = $request->getGet('filter');
-        if($filter) $this->parseFilter($request->getGet('filter'));
-        $ordering = $request->getGet('ordering');
-        if($ordering) $this->parseOrdering($request->getGet('ordering'));
+        if ($request instanceof IncomingRequest) {
+            $includes = $request->getGet('include');
+            if($includes) $this->parseInclude($request->getGet('include'));
+            $filter = $request->getGet('filter');
+            if($filter) $this->parseFilter($request->getGet('filter'));
+            $ordering = $request->getGet('ordering');
+            if($ordering) $this->parseOrdering($request->getGet('ordering'));
 
-        $this->limit = $request->getGet('limit');
-        $this->offset = $request->getGet('offset');
-        $this->count = $request->getGet('count');
+            $this->limit = $request->getGet('limit');
+            $this->offset = $request->getGet('offset');
+            $this->count = $request->getGet('count');
+        }
     }
 
     public static function parse($line) {
@@ -291,7 +294,7 @@ class QueryParser {
         return false;
     }
 
-    public function getInclude(string $name): QueryInclude {
+    public function getInclude(string $name): ?QueryInclude {
         foreach($this->includes as $include) {
             if($include->property == $name)
                 return $include;
