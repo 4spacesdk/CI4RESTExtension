@@ -15,14 +15,12 @@ use RestExtension\Entities\ApiBlockedLog;
 use RestExtension\Entities\ApiErrorLog;
 use RestExtension\Entities\ApiRoute;
 use RestExtension\Entities\ApiUsageReport;
-use RestExtension\Entities\OAuthClient;
 use RestExtension\Exceptions\RateLimitExceededException;
 use RestExtension\Exceptions\RestException;
 use RestExtension\Exceptions\UnauthorizedException;
 use RestExtension\Models\ApiAccessLogModel;
 use RestExtension\Models\ApiRouteModel;
 use RestExtension\Models\ApiUsageReportModel;
-use RestExtension\Models\OAuthClientModel;
 use Throwable;
 
 /**
@@ -293,21 +291,18 @@ class Hooks {
                      */
                     $restRequest->clientId = $authResponse->client_id;
                     $restRequest->userId = $authResponse->user_id;
+                    $restRequest->userData = $authResponse->user_data;
 
                     /*
                      * API Rate Limit
                      */
                     if(self::$config->enableRateLimit && self::$database->tableExists('api_access_logs')) {
-                        /** @var OAuthClient $oauthClient */
-                        $oauthClient = (new OAuthClientModel())
-                            ->where('client_id', $authResponse->client_id)
-                            ->find();
-                        if($oauthClient->rate_limit > 0) {
+                        if(self::$config->defaultRateLimit > 0) {
                             $lastHour = (new ApiAccessLogModel())
                                 ->where('client_id', $authResponse->client_id)
                                 ->where('date >', date('Y-m-d H:i:s', strtotime('-1 hour')))
                                 ->countAllResults();
-                            if($lastHour >= $oauthClient->rate_limit) {
+                            if($lastHour >= self::$config->defaultRateLimit) {
 
                                 /*
                                  * Unauthorized!
@@ -346,9 +341,15 @@ class Hooks {
             if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
 
                 $apiAccessLog = new ApiAccessLog();
-                if($restRequest->userId) $apiAccessLog->user_id = $restRequest->userId;
-                if($restRequest->clientId) $apiAccessLog->client_id = $restRequest->clientId;
-                if($restRequest->apiRoute) $apiAccessLog->api_route_id = $restRequest->apiRoute->id;
+                if($restRequest->userId) {
+                    $apiAccessLog->user_id = $restRequest->userId;
+                }
+                if($restRequest->clientId) {
+                    $apiAccessLog->client_id = $restRequest->clientId;
+                }
+                if($restRequest->apiRoute) {
+                    $apiAccessLog->api_route_id = $restRequest->apiRoute->id;
+                }
                 $apiAccessLog->access_token = $restRequest->getAccessToken();
                 $apiAccessLog->uri = current_url();
                 $apiAccessLog->date = date('Y-m-d H:i:s');

@@ -9,7 +9,6 @@ use RestExtension\Core\Model;
 class ApiUsageReportModel extends Model {
     
     public $hasOne = [
-        OAuthClientModel::class
     ];
     
     public $hasMany = [

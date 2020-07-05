@@ -8,13 +8,9 @@ use OrmExtension\Migration\Table;
 class Setup {
 
     public static function migrateUp() {
-        Table::init('oauth_clients')->softDelete();
-
         /** @var RestExtension $config */
         $config = Config::get('RestExtension');
         if($config) {
-
-            Table::init('oauth_clients')->column('rate_limit', ColumnTypes::INT, $config->defaultRateLimit);
 
             if($config->enableApiRouting)
                 Table::init('api_routes')
@@ -90,15 +86,10 @@ class Setup {
                     ->column('usage', ColumnTypes::INT)
                     ->addIndex('client_id')
                     ->addIndex('date');
-        } else
-            Table::init('oauth_clients')->column('rate_limits', ColumnTypes::INT);
+        }
     }
 
     public static function migrateDown() {
-        Table::init('oauth_clients')
-            ->dropColumn('rate_limit')
-            ->dropColumn('deletion_id');
-
         Table::init('api_routes')->dropTable();
         Table::init('api_access_logs')->dropTable();
         Table::init('api_blocked_logs')->dropTable();

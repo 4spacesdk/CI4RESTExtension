@@ -9,7 +9,6 @@ use RestExtension\Core\Model;
 class ApiErrorLogModel extends Model {
     
     public $hasOne = [
-        OAuthClientModel::class,
         ApiRouteModel::class
     ];
     

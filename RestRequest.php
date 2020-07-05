@@ -47,6 +47,11 @@ class RestRequest {
     public $accessToken;
 
     /**
+     * @var array
+     */
+    public $userData;
+
+    /**
      * @return string|null
      */
     public function getAccessToken() {
