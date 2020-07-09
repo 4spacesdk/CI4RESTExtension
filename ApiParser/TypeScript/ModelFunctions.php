@@ -8,9 +8,9 @@
         let data: any = this;
         if (fields.length > 0) {
             data = [];
-            fields.forEach(field => data[field] = this[field]);
+            fields.forEach(field => data[field] = (this as any)[field]);
         }
-        Api.<?=lcfirst($apiItem->name)?>().<?=$endpoint->getTypeScriptFunctionName()?>(this.id).save(data, value => {
+        Api.<?=lcfirst($apiItem->name)?>().<?=$endpoint->getTypeScriptFunctionName()?>(this.id!).save(data, value => {
             this.populate(value, true);
             if (callback) {
                callback();

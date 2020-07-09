@@ -239,6 +239,13 @@ class EndpointItem {
             ->render('Endpoint', ['debug' => false], null);
     }
 
+    public function generateVue(): string {
+        $renderer = Services::renderer(__DIR__.'/Vue', null, false);
+        return $renderer
+            ->setData(['endpoint'  => $this], 'raw')
+            ->render('Endpoint', ['debug' => false], null);
+    }
+
     public function getTypeScriptPathArgumentsWithTypes(): array {
         $argsWithType = [];
         foreach($this->parameters as $parameter) {

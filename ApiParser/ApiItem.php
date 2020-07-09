@@ -265,6 +265,13 @@ class ApiItem {
             ->render('Resource', ['debug' => false], null);
     }
 
+    public function generateVue(): string {
+        $renderer = Services::renderer(__DIR__.'/Vue', null, false);
+        return $renderer
+            ->setData(['path' => $this, 'endpoints' => $this->endpoints], 'raw')
+            ->render('Resource', ['debug' => false], null);
+    }
+
     public function generateTypeScriptModelFunctions(): string {
         $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
         return $renderer
