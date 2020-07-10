@@ -64,6 +64,13 @@ class InterfaceItem {
             ->render('Interface', ['debug' => false], null);
     }
 
+    public function toVue() {
+        $renderer = Services::renderer(__DIR__.'/Vue', null, false);
+        return $renderer
+            ->setData(['interfaceItem' =>  $this], 'raw')
+            ->render('Interface', ['debug' => false], null);
+    }
+
     public function generateXamarin() {
         $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
         return $renderer

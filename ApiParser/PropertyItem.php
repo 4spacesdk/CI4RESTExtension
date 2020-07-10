@@ -129,6 +129,13 @@ class PropertyItem {
             ->render('Property', ['debug' => false], null);
     }
 
+    public function toVue() {
+        $renderer = Services::renderer(__DIR__.'/Vue', null, false);
+        return $renderer
+            ->setData(['property' =>  $this], 'raw')
+            ->render('Property', ['debug' => false], null);
+    }
+
     public function generateXamarin() {
         $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
         return $renderer
