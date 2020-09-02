@@ -57,10 +57,11 @@ class RestRequest {
     public function getAccessToken() {
         if(!$this->accessToken) {
             $request = Services::request();
-            if($request->hasHeader('Authorization'))
+            if($request->hasHeader('Authorization') && strpos($request->getHeader('Authorization'), 'Bearer') !== false) {
                 $this->accessToken = substr($request->getHeader('Authorization'), strlen('Authorization: Bearer '));
-            else if($request->getGet('access_token'))
+            } else if($request->getGet('access_token')) {
                 $this->accessToken = $request->getGet('access_token');
+            }
         }
         return $this->accessToken;
     }
