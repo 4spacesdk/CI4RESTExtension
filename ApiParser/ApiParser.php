@@ -168,16 +168,21 @@ class ApiParser {
         return ApiItem::parse(substr($api, 0, -4));
     }
 
-    private static function loadApi() {
-        $files = scandir(APPPATH . 'Controllers');
+    private static function loadApi(): array {
+        return self::loadApiDirectory(APPPATH . 'Controllers');
+    }
+
+    private static function loadApiDirectory(string $base, string $append = DIRECTORY_SEPARATOR): array {
+        $files = scandir($base.$append);
         $apis = [];
         foreach($files as $file) {
+            if (is_dir($base . $append . $file) && $file != '..' && $file != '.') {
+                $apis = array_merge($apis, self::loadApiDirectory($base, $append . $file . DIRECTORY_SEPARATOR));
+            }
             if($file[0] != '_' && substr($file, -3) == 'php') {
-                $apis[] = $file;
+                $apis[] = str_replace('/', '\\', $append . $file);
             }
         }
-        $apiIgnore = ['_template.php', 'Home.php'];
-        $apis = array_diff($apis, $apiIgnore);
         return $apis;
     }
 

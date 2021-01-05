@@ -32,7 +32,7 @@ class ApiItem {
         $item = new ApiItem();
         $item->path = $api;
 
-        $className = "App\Controllers\\{$api}";
+        $className = "App\Controllers{$api}";
         $rc = new \ReflectionClass('\\'.$className);
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
         $item->nameLoweCase = lcfirst($item->name);

@@ -126,6 +126,11 @@ class RestExtension extends BaseConfig {
     public $apiInterfaceNamespace           = 'App\Interfaces';
 
     /*
+     * Provide base namespace for Controllers to be used in Api export
+     */
+    public $apiControllerNamespace          = 'App\Controllers';
+
+    /*
      * Provide destination for TypeScript Models to be placed when executed as Command
      */
     public $typescriptModelExporterDestination  = '~/Desktop/ModelExporter';
