@@ -1,5 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 use App\Core\ResourceController;
+use CodeIgniter\Config\Config;
+use Config\RestExtension;
 use Config\Services;
 use ReflectionMethod;
 
@@ -32,13 +34,18 @@ class ApiItem {
         $item = new ApiItem();
         $item->path = $api;
 
-        $className = "App\Controllers{$api}";
+        /** @var RestExtension $config */
+        $config = Config::get('RestExtension');
+        $className = "{$config->apiControllerNamespace}{$api}";
         $rc = new \ReflectionClass('\\'.$className);
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
         $item->nameLoweCase = lcfirst($item->name);
         $item->resourceNameUpperCase = singular($item->name);
         $item->resourceNameLowerCase = lcfirst($item->resourceNameUpperCase);
         $item->path = "/".strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $item->name));
+
+        $className = $rc->getName();
+        $item->name = str_replace([$config->apiControllerNamespace, '\\'], '', $className);
 
         foreach(explode("\n", $rc->getDocComment()) as $docComment) {
             $search = '@scope';
