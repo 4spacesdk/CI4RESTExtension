@@ -17,19 +17,21 @@ use RestExtension\Ordering\QueryOrder;
 trait ResourceModelTrait {
 
     /**
-     * @param int $id
+     * @param int|string $primaryKey
      * @param QueryParser $queryParser
      * @return Entity|array|object
      */
-    public function restGet($id, $queryParser) {
-        Data::debug(get_class($this), "restGet", $id);
+    public function restGet($primaryKey, $queryParser) {
+        Data::debug(get_class($this), "restGet", $primaryKey);
 
         if($this instanceof Model) {
             if($this instanceof ResourceModelInterface) {
 
-                if($id) $this->where('id', $id);
+                if($primaryKey) {
+                    $this->where($this->getPrimaryKey(), $primaryKey);
+                }
 
-                $this->preRestGet($queryParser, $id);
+                $this->preRestGet($queryParser, $primaryKey);
 
                 foreach($queryParser->getIncludes() as $include) {
                     if(!$include->ignoreAuto) {
@@ -53,7 +55,7 @@ trait ResourceModelTrait {
                 }
 
                 if($queryParser->isCount()) {
-                    $count = $this->distinct('id')->countAllResults();
+                    $count = $this->distinct($this->getPrimaryKey())->countAllResults();
                     return $count;
                 }
 
@@ -71,13 +73,13 @@ trait ResourceModelTrait {
 
                 /** @var Entity $items */
                 $items = $this
-                    ->groupBy('id')
+                    ->groupBy($this->getPrimaryKey())
                     ->find();
 
                 //Data::lastQuery();
 
                 if($items->exists()) {
-                    if($id) {
+                    if($primaryKey) {
                         $item = $items->first();
                         foreach($queryParser->getIncludes() as $include) {
                             if(!$include->ignoreAuto) $this->applyIncludeMany($items, $include);
@@ -135,6 +137,7 @@ trait ResourceModelTrait {
     }
 
     /**
+     * TDDO Support primary key
      * @param Entity $items
      * @param QueryInclude $include
      */
