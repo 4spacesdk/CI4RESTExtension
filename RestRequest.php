@@ -51,6 +51,8 @@ class RestRequest {
      */
     public $userData;
 
+    public array $token;
+
     /**
      * @return string|null
      */

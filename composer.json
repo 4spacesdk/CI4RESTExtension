@@ -9,7 +9,7 @@
   ],
   "license": "MIT",
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.4",
     "4spacesdk/ci4debugtool": ">=1.0.0"
   },
   "suggest": {

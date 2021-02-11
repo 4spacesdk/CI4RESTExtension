@@ -292,6 +292,9 @@ class Hooks {
                     $restRequest->clientId = $authResponse->client_id;
                     $restRequest->userId = $authResponse->user_id;
                     $restRequest->userData = $authResponse->user_data;
+                    if (isset($authResponse->token)) {
+                        $restRequest->token = (array)$authResponse->token;
+                    }
 
                     /*
                      * API Rate Limit
