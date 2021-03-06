@@ -7,6 +7,20 @@ use RestExtension\Core\Model;
  * @package RestExtension\Models
  */
 class ApiRouteModel extends Model {
+
+    public $table = 'api_routes';
+    public $entityName = 'ApiRoute';
+    public $returnType = '\RestExtension\Entities\ApiRoute';
+    public $allowedFields = [
+        "id",
+        "method",
+        "from",
+        "to",
+        "cacheable",
+        "version",
+        "scope",
+        "is_public",
+    ];
     
     public $hasOne = [
         

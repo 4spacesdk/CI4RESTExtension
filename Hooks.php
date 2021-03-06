@@ -88,13 +88,22 @@ class Hooks {
 
             $routes = Services::routes(true);
 
-            if(self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
-                $routes = Services::routes(true);
-                /** @var ApiRoute $apiRoutes */
-                $apiRoutes = (new ApiRouteModel())->find();
-                foreach($apiRoutes as $route) {
-                    $routes->{$route->method}($route->from, $route->to);
+            if (self::$config->enableApiRouting) {
+
+                try {
+                    /** @var ApiRoute $apiRoutes */
+                    $apiRoutes = (new ApiRouteModel())->find();
+
+                    if ($apiRoutes->count()) {
+                        $routes = Services::routes(true);
+                        foreach ($apiRoutes as $route) {
+                            $routes->{$route->method}($route->from, $route->to);
+                        }
+                    }
+                } catch (\mysqli_sql_exception $e) {
+
                 }
+
             }
 
             /*
