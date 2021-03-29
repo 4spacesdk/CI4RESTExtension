@@ -158,6 +158,16 @@ class EndpointItem {
         return null;
     }
 
+    public function getXamarinResponseSchema(): string {
+        if (isset($this->responseInterfaceItem)) {
+            return $this->responseSchema;
+        } else if (isset($this->responseSchema)) {
+            return Config::get('OrmExtension')->xamarinModelsNamespace . '.' . $this->responseSchema;
+        } else {
+            return 'Empty';
+        }
+    }
+
     public function toSwagger() {
         $item = [
             'tags' => [

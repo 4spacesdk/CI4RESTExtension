@@ -4,7 +4,9 @@
 /** @var \RestExtension\ApiParser\InterfaceItem[] $interfaces */
 ?>
 using System;
+using <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinBaseAPINamespace?>;
 using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>;
+using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinBaseModelNamespace?>;
 using Newtonsoft.Json;
 using static <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>.Api;
 

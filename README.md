@@ -114,6 +114,7 @@ class RestExtension extends BaseConfig {
      * Provide Namespace for Xamarin API
      */
     public $xamarinAPINamespace             = 'App.Http';
+    public $xamarinBaseAPINamespace         = 'App.Http';
 
     /*
      * Provide Route for Xamarin API exporter

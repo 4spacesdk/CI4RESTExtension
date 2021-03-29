@@ -38,11 +38,12 @@ class InterfaceItem {
                 if($property)
                     $item->properties[] = $property;
             }
+            return $item;
         } catch(\Exception $e) {
 
         }
 
-        return $item;
+        return null;
     }
 
     public function toSwagger() {
