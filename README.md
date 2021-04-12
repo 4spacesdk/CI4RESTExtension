@@ -156,7 +156,7 @@ Add these lines to your base controller:
 $this->queryParser = new QueryParser();
 $this->queryParser->parseRequest($this->request);
 ```
-If you use OrmExtension add this trait to your base model: `use OrmExtensionModelTrait;`. 
+If you use OrmExtension add this trait to your base model: `use RestExtension\ResourceModelTrait;` or extend `RestExtension\Core\Model`. 
 This will allow RestExtension to filter your resources based on your models and their relations.
 
 ### Examples
