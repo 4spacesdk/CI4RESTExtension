@@ -3,9 +3,9 @@
 /** @var string[] $imports */
 /** @var \RestExtension\ApiParser\InterfaceItem[] $interfaces */
 ?>
-import {BaseApi} from "@/core/http/Api/BaseApi";
+import {BaseApi} from "./BaseApi";
 <?php foreach($imports as $import) { ?>
-import {<?=$import?>} from '@/core/models';
+import {<?=$import?>} from "./models";
 <?php } ?>
 <?php foreach($interfaces as $interface) { ?>
 
