@@ -110,6 +110,7 @@ class QueryParser {
     private $filters = [];
     private $searchFilters = [];
     private $ordering = [];
+    private $fields = [];
     private $limit = null;
     private $offset = null;
     private $count = null;
