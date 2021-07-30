@@ -1,6 +1,8 @@
 <?php namespace RestExtension;
+
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\Request;
+use RestExtension\Fields\QueryField;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Includes\QueryInclude;
@@ -17,6 +19,7 @@ use RestExtension\Ordering\QueryOrder;
  * @property QueryFilter[][] $searchFilters
  * @property QueryInclude[] $includes
  * @property QueryOrder[] $ordering
+ * @property QueryField[] $fields
  * @property int $limit
  * @property int $offset
  * @property int $count
@@ -116,11 +119,21 @@ class QueryParser {
 
         if ($request instanceof IncomingRequest) {
             $includes = $request->getGet('include');
-            if($includes) $this->parseInclude($request->getGet('include'));
+            if ($includes) {
+                $this->parseInclude($request->getGet('include'));
+            }
             $filter = $request->getGet('filter');
-            if($filter) $this->parseFilter($request->getGet('filter'));
+            if ($filter) {
+                $this->parseFilter($request->getGet('filter'));
+            }
             $ordering = $request->getGet('ordering');
-            if($ordering) $this->parseOrdering($request->getGet('ordering'));
+            if ($ordering) {
+                $this->parseOrdering($request->getGet('ordering'));
+            }
+            $fields = $request->getGet('fields');
+            if ($fields) {
+                $this->parseFields($request->getGet('fields'));
+            }
 
             $this->limit = $request->getGet('limit');
             $this->offset = $request->getGet('offset');
@@ -132,52 +145,72 @@ class QueryParser {
         $item = new QueryParser();
         parse_str($line, $params);
 
-        if(isset($params['include'])) $item->parseInclude($params['include']);
-        if(isset($params['filter'])) $item->parseFilter($params['filter']);
-        if(isset($params['ordering'])) $item->parseOrdering($params['ordering']);
+        if (isset($params['include'])) {
+            $item->parseInclude($params['include']);
+        }
+        if (isset($params['filter'])) {
+            $item->parseFilter($params['filter']);
+        }
+        if (isset($params['ordering'])) {
+            $item->parseOrdering($params['ordering']);
+        }
+        if (isset($params['fields'])) {
+            $item->parseFields($params['fields']);
+        }
 
-        if(isset($params['limit'])) $item->limit = $params['limit'];
-        if(isset($params['offset'])) $item->offset = $params['offset'];
-        if(isset($params['count'])) $item->count = $params['count'];
+        if (isset($params['limit'])) {
+            $item->limit = $params['limit'];
+        }
+        if (isset($params['offset'])) {
+            $item->offset = $params['offset'];
+        }
+        if (isset($params['count'])) {
+            $item->count = $params['count'];
+        }
 
         return $item;
     }
 
 
     public function parseInclude(string $value) {
-        foreach(explode(',', $value) as $line) {
+        foreach (explode(',', $value) as $line) {
             $this->includes[] = QueryInclude::parse($line);
         }
     }
 
     public function parseOrdering(string $value) {
-        foreach(explode(',', $value) as $line) {
+        foreach (explode(',', $value) as $line) {
             $this->ordering[] = QueryOrder::parse($line);
         }
     }
 
+    public function parseFields(string $value) {
+        foreach (explode(',', $value) as $line) {
+            $this->fields[] = QueryField::parse($line);
+        }
+    }
 
     public function parseFilter(string $line) {
         $filters = [];
         $buffer = '';
         $inSquareBracket = false;
         $inString = false;
-        for($i = 0 ; $i < strlen($line) ; $i++) {
+        for ($i = 0; $i < strlen($line); $i++) {
             $char = substr($line, $i, 1);
 
-            if(in_array($char, ['[', ']'])) $inSquareBracket = !$inSquareBracket;
-            if(in_array($char, ['"', "'"])) $inString = !$inString;
+            if (in_array($char, ['[', ']'])) $inSquareBracket = !$inSquareBracket;
+            if (in_array($char, ['"', "'"])) $inString = !$inString;
 
-            if($char == ',' &! $inSquareBracket &! $inString) {
+            if ($char == ',' & !$inSquareBracket & !$inString) {
                 $filters[] = $buffer;
                 $buffer = '';
             } else
                 $buffer .= $char;
         }
-        if(strlen($buffer))
+        if (strlen($buffer))
             $filters[] = $buffer;
 
-        foreach($filters as $filter) {
+        foreach ($filters as $filter) {
             $item = QueryFilter::parse($filter);
             $this->pushFilter($item->property, $item);
         }
@@ -188,13 +221,13 @@ class QueryParser {
      * @param Filter\QueryFilter $filter
      */
     private function pushFilter($name, $filter) {
-        switch($filter->operator) {
+        switch ($filter->operator) {
             case Operators::Search:
-                if(!isset($this->searchFilters[$name])) $this->searchFilters[$name] = [];
+                if (!isset($this->searchFilters[$name])) $this->searchFilters[$name] = [];
                 $this->searchFilters[$name][] = $filter;
                 break;
             default:
-                if(!isset($this->filters[$name])) $this->filters[$name] = [];
+                if (!isset($this->filters[$name])) $this->filters[$name] = [];
                 $this->filters[$name][] = $filter;
         }
     }
@@ -220,8 +253,8 @@ class QueryParser {
      */
     public function getFilters() {
         $all = [];
-        foreach($this->filters as $name => $filters)
-            foreach($filters as $filter)
+        foreach ($this->filters as $name => $filters)
+            foreach ($filters as $filter)
                 $all[] = $filter;
         return $all;
     }
@@ -231,8 +264,8 @@ class QueryParser {
      */
     public function getSearchFilters() {
         $all = [];
-        foreach($this->searchFilters as $name => $filters)
-            foreach($filters as $filter)
+        foreach ($this->searchFilters as $name => $filters)
+            foreach ($filters as $filter)
                 $all[] = $filter;
         return $all;
     }
@@ -286,25 +319,45 @@ class QueryParser {
         return $this->ordering;
     }
 
+    public function getFields() {
+        return $this->fields;
+    }
+
+    public function getFieldsArray() {
+        $fields_arr = [];
+        foreach ($this->getFields() as $field) {
+            $fields_arr[] = $field->fieldName;
+        }
+        return $fields_arr;
+    }
+
+    public function getFieldsImplode() {
+        $fields_arr = array();
+        foreach ($this->getFields() as $field) {
+            $fields_arr[] = $field->fieldName;
+        }
+        return implode(',', $fields_arr);
+    }
+
     public function hasInclude(string $name): bool {
-        foreach($this->includes as $include) {
-            if($include->property == $name)
+        foreach ($this->includes as $include) {
+            if ($include->property == $name)
                 return true;
         }
         return false;
     }
 
     public function getInclude(string $name): ?QueryInclude {
-        foreach($this->includes as $include) {
-            if($include->property == $name)
+        foreach ($this->includes as $include) {
+            if ($include->property == $name)
                 return $include;
         }
         return null;
     }
 
     public function delInclude(string $name) {
-        for($i = 0 ; $i < count($this->includes) ; $i++) {
-            if($this->includes[$i]->property == $name) {
+        for ($i = 0; $i < count($this->includes); $i++) {
+            if ($this->includes[$i]->property == $name) {
                 array_splice($this->includes, $i, 1);
                 return;
             }

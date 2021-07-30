@@ -3,6 +3,7 @@ use DebugTool\Data;
 use OrmExtension\DataMapper\RelationDef;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
+use RestExtension\Fields\QueryField;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Includes\QueryInclude;
@@ -41,6 +42,11 @@ trait ResourceModelTrait {
                 foreach($queryParser->getFilters() as $filter) {
                     if(!$filter->ignoreAuto) {
                         $this->applyFilter($filter);
+                    }
+                }
+                foreach ($queryParser->getFields() as $field) {
+                    if (!$field->ignoreAuto) {
+                        $this->applyField($field);
                     }
                 }
                 $searchFilters = $queryParser->getSearchFilters();
@@ -253,6 +259,18 @@ trait ResourceModelTrait {
 
         }
 
+    }
+
+
+    /**
+     * @param QueryField $field
+     */
+    public function applyField(QueryField $field) {
+        if ($field->isRelationField()) {
+            // TODO Not yet implemented
+        } else {
+            $this->select($field->fieldName);
+        }
     }
 
     /**
