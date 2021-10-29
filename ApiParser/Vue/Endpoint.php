@@ -13,9 +13,9 @@ export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoi
         this.uri = `<?=$endpoint->getTypeScriptUrl()?>`;
     }
 
-    protected convertToResource(data: any): <?=$endpoint->responseSchema ?? 'any'?> {
+    protected convertToResource(data: any): <?=$endpoint->getBaseResponseSchemaName() ?? 'any'?> {
 <?php if($endpoint->isResponseSchemaAModel()) { ?>
-        return new <?="{$endpoint->responseSchema}(data)"?>;
+        return new <?="{$endpoint->getBaseResponseSchemaName()}(data)"?>;
 <?php  } else { ?>
         return data;
 <?php  } ?>

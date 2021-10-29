@@ -42,8 +42,8 @@ class EndpointItem {
      */
     public static function validate($line) {
         $comments = explode("\n", $line->getDocComment());
-        foreach($comments as $comment) {
-            if(strpos($comment, "@route") !== false)
+        foreach ($comments as $comment) {
+            if (strpos($comment, "@route") !== false)
                 return $comments;
         }
         return false;
@@ -55,7 +55,7 @@ class EndpointItem {
      * @return EndpointItem|bool
      */
     public static function parse($method, $comments = null) {
-        if(!$comments) $comments = $comments = explode("\n", $method->getDocComment());
+        if (!$comments) $comments = $comments = explode("\n", $method->getDocComment());
 
         $item = new EndpointItem();
         $item->methodName = $method->name;
@@ -63,18 +63,18 @@ class EndpointItem {
         /** @var RestExtension $config */
         $config = Config::get('RestExtension');
 
-        foreach($comments as $comment) {
+        foreach ($comments as $comment) {
 
-            if(strpos($comment, "@ignore") !== false)
+            if (strpos($comment, "@ignore") !== false)
                 $item->ignore = true;
 
             $line = substr($comment, 7);
             $parts = explode(' ', $line);
-            if(count($parts) < 2) continue;
+            if (count($parts) < 2) continue;
 
             $field = $parts[0];
             $value = $parts[1];
-            switch($field) {
+            switch ($field) {
                 case '@route':
                     $item->path = $value;
                     break;
@@ -83,14 +83,14 @@ class EndpointItem {
                     break;
                 case '@param':
                     $param = ParameterItem::parse(substr($line, strlen('@param ')));
-                    if($param) {
+                    if ($param) {
                         $param->parameterType = 'path';
                         $item->parameters[] = $param;
                     }
                     break;
                 case '@parameter':
                     $param = ParameterItem::parse(substr($line, strlen('@parameter ')));
-                    if($param)
+                    if ($param)
                         $item->parameters[] = $param;
                     break;
                 case '@custom':
@@ -99,7 +99,7 @@ class EndpointItem {
                 case '@requestSchema':
                     try {
                         $item->requestInterfaceItem = InterfaceItem::parse($value);
-                    } catch(\ReflectionException $e) {
+                    } catch (\ReflectionException $e) {
                     }
                 case '@entity':
                     $item->requestEntity = $value;
@@ -114,7 +114,7 @@ class EndpointItem {
                     $item->responseSchema = $value;
                     try {
                         $item->responseInterfaceItem = InterfaceItem::parse($value);
-                    } catch(\ReflectionException $e) {
+                    } catch (\ReflectionException $e) {
                     }
                     break;
                 case '@requestBodyType':
@@ -133,26 +133,26 @@ class EndpointItem {
     }
 
     public function getResponseInterfaceItem() {
-        if(isset($this->responseInterfaceItem))
+        if (isset($this->responseInterfaceItem))
             return $this->responseInterfaceItem;
-        else if(isset($this->responseSchema)) {
+        else if (isset($this->responseSchema)) {
             try {
                 $this->responseInterfaceItem = InterfaceItem::parse($this->responseSchema);
                 return $this->responseInterfaceItem;
-            } catch(\ReflectionException $e) {
+            } catch (\ReflectionException $e) {
             }
         }
         return null;
     }
 
     public function getRequestInterfaceItem() {
-        if(isset($this->requestInterfaceItem))
+        if (isset($this->requestInterfaceItem))
             return $this->requestInterfaceItem;
-        else if(isset($this->requestEntity)) {
+        else if (isset($this->requestEntity)) {
             try {
                 $this->requestInterfaceItem = InterfaceItem::parse($this->requestEntity);
                 return $this->requestInterfaceItem;
-            } catch(\ReflectionException $e) {
+            } catch (\ReflectionException $e) {
             }
         }
         return null;
@@ -179,8 +179,8 @@ class EndpointItem {
                 ]
             ]
         ];
-        if(isset($this->responseSchema)) {
-            if(strpos($this->responseSchema, '[]') !== false) {
+        if (isset($this->responseSchema)) {
+            if (strpos($this->responseSchema, '[]') !== false) {
                 $resources = [
                     'resources' => [
                         'type' => 'array',
@@ -209,24 +209,24 @@ class EndpointItem {
             ];
         }
         $item['parameters'] = [];
-        foreach($this->parameters as $parameter)
+        foreach ($this->parameters as $parameter)
             $item['parameters'][] = $parameter->toSwagger();
 
-        if(isset($this->requestEntity))
+        if (isset($this->requestEntity))
             $item['requestBody'] = [
                 'content' => [
                     $this->requestBodyType => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/'.$this->requestEntity
+                            '$ref' => '#/components/schemas/' . $this->requestEntity
                         ]
                     ]
                 ]
             ];
 
-        if(isset($this->summary))
+        if (isset($this->summary))
             $item['summary'] = $this->summary;
 
-        if(isset($this->scope)) {
+        if (isset($this->scope)) {
             $item['security'] = [
                 [
                     $this->security => explode(' ', $this->scope)
@@ -240,30 +240,30 @@ class EndpointItem {
     }
 
     public function generateTypeScript(): string {
-        $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
+        $renderer = Services::renderer(__DIR__ . '/TypeScript', null, false);
         return $renderer
-            ->setData(['endpoint'  => $this], 'raw')
+            ->setData(['endpoint' => $this], 'raw')
             ->render('Endpoint', ['debug' => false], null);
     }
 
     public function generateXamarin(): string {
-        $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
+        $renderer = Services::renderer(__DIR__ . '/Xamarin', null, false);
         return $renderer
-            ->setData(['endpoint'  => $this], 'raw')
+            ->setData(['endpoint' => $this], 'raw')
             ->render('Endpoint', ['debug' => false], null);
     }
 
     public function generateVue(): string {
-        $renderer = Services::renderer(__DIR__.'/Vue', null, false);
+        $renderer = Services::renderer(__DIR__ . '/Vue', null, false);
         return $renderer
-            ->setData(['endpoint'  => $this], 'raw')
+            ->setData(['endpoint' => $this], 'raw')
             ->render('Endpoint', ['debug' => false], null);
     }
 
     public function getTypeScriptPathArgumentsWithTypes(): array {
         $argsWithType = [];
-        foreach($this->parameters as $parameter) {
-            if($parameter->parameterType == 'path') {
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->parameterType == 'path') {
                 $required = $parameter->required ? '' : '?';
                 $argsWithType[] = "{$parameter->name}{$required}: {$parameter->getTypeScriptType()}";
             }
@@ -273,8 +273,8 @@ class EndpointItem {
 
     public function getXamarinPathArgumentsWithTypes(): array {
         $argsWithType = [];
-        foreach($this->parameters as $parameter) {
-            if($parameter->parameterType == 'path') {
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->parameterType == 'path') {
                 $required = $parameter->required ? '' : '?';
                 $argsWithType[] = "{$parameter->getXamarinType()} {$parameter->name}{$required}";
             }
@@ -284,8 +284,8 @@ class EndpointItem {
 
     public function getTypeScriptPathArgumentsWithOutTypes(): array {
         $argsWithOutType = [];
-        foreach($this->parameters as $parameter) {
-            if($parameter->parameterType == 'path') {
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->parameterType == 'path') {
                 $argsWithOutType[] = $parameter->name;
             }
         }
@@ -295,7 +295,7 @@ class EndpointItem {
     public function getTypeScriptUrl(): string {
         $params = $this->getTypeScriptPathArgumentsWithOutTypes();
         $url = $this->path;
-        foreach($params as $param) {
+        foreach ($params as $param) {
             $url = str_replace("{{$param}}", "\${{$param}}", $url);
         }
         return $url;
@@ -305,7 +305,7 @@ class EndpointItem {
         $params = $this->getTypeScriptPathArgumentsWithOutTypes();
         $url = $this->path;
         $counter = 0;
-        foreach($params as $param) {
+        foreach ($params as $param) {
             $url = str_replace("{{$param}}", "{{$counter}}", $url);
             $counter++;
         }
@@ -318,8 +318,8 @@ class EndpointItem {
     public function getTypeScriptQueryParameters(): array {
         $ignore = ['filter', 'include', 'ordering', 'limit', 'offset', 'count'];
         $parameters = [];
-        foreach($this->parameters as $parameter) {
-            if($parameter->parameterType == 'query' && !in_array($parameter->name, $ignore)) {
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->parameterType == 'query' && !in_array($parameter->name, $ignore)) {
                 $parameters[] = $parameter;
             }
         }
@@ -329,16 +329,16 @@ class EndpointItem {
     public function getTypeScriptFunctionName(): string {
         // Append path arguments to function name, to ensure uniqueness
         $with = [];
-        foreach($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
+        foreach ($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
             $with[] = ucfirst($pathArgument);
-        $by = count($with) ? 'By'.implode('By', $with) : '';
-        $funcName = lcfirst($this->method).$by;
+        $by = count($with) ? 'By' . implode('By', $with) : '';
+        $funcName = lcfirst($this->method) . $by;
 
-        if($this->custom) {
+        if ($this->custom) {
             $customName = $this->methodName ?? '';
             $customName = str_replace(['_get', '_put', '_delete', '_patch'], '', $customName);
 
-            $funcName = $customName.ucfirst($funcName);
+            $funcName = $customName . ucfirst($funcName);
         }
 
         return $funcName;
@@ -347,24 +347,24 @@ class EndpointItem {
     public function getTypeScriptClassName(): string {
         // Append path arguments to class name, to ensure uniqueness
         $with = [];
-        foreach($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
+        foreach ($this->getTypeScriptPathArgumentsWithOutTypes() as $pathArgument)
             $with[] = ucfirst($pathArgument);
-        $by = count($with) ? 'By'.implode('By', $with) : '';
+        $by = count($with) ? 'By' . implode('By', $with) : '';
 
         $name = $this->tag;
-        if($this->custom) {
+        if ($this->custom) {
             $customName = $this->methodName ?? '';
             $customName = str_replace(['_get', '_put', '_delete', '_patch'], '', $customName);
             $name .= ucfirst($customName);
         }
 
-        $className = ucfirst($name).ucfirst($this->method).$by;
+        $className = ucfirst($name) . ucfirst($this->method) . $by;
         return $className;
     }
 
     public function getTopicName(): string {
-        if(isset($this->responseSchema)) {
-            if(strpos($this->responseSchema, '[]') !== false) {
+        if (isset($this->responseSchema)) {
+            if (strpos($this->responseSchema, '[]') !== false) {
                 return "Resources." . plural(substr($this->responseSchema, 0, -2));
             } else {
                 return "Resources." . plural($this->responseSchema);
@@ -374,26 +374,45 @@ class EndpointItem {
     }
 
     public function hasParameter($name): bool {
-        foreach($this->parameters as $parameter) {
-            if($parameter->name == $name)
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->name == $name)
                 return true;
         }
         return false;
     }
 
+    public function getBaseResponseSchemaName(): string {
+        if (strpos($this->responseSchema, '[]') !== false) {
+            return substr($this->responseSchema, 0, -2);
+        } else {
+            return $this->responseSchema;
+        }
+    }
+
+    public function getBaseRequestSchemaName(): string {
+        if (strpos($this->requestEntity, '[]') !== false) {
+            return substr($this->requestEntity, 0, -2);
+        } else {
+            return $this->requestEntity;
+        }
+    }
+
     public function isResponseSchemaAModel(): bool {
-        if(!isset($this->responseSchema)) return false;
-        foreach(OrmExtension::$entityNamespace as $namespace) {
-            if(class_exists($namespace.$this->responseSchema))
+        if (!isset($this->responseSchema)) {
+            return false;
+        }
+        foreach (OrmExtension::$entityNamespace as $namespace) {
+            if (class_exists($namespace . $this->getBaseResponseSchemaName())) {
                 return true;
+            }
         }
         return false;
     }
 
     public function isRequestSchemaAModel(): bool {
-        if(!isset($this->requestEntity)) return false;
-        foreach(OrmExtension::$entityNamespace as $namespace) {
-            if(class_exists($namespace.$this->requestEntity))
+        if (!isset($this->requestEntity)) return false;
+        foreach (OrmExtension::$entityNamespace as $namespace) {
+            if (class_exists($namespace . $this->getBaseRequestSchemaName()))
                 return true;
         }
         return false;

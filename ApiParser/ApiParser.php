@@ -82,8 +82,8 @@ class ApiParser {
         $imports = [];
         foreach($this->paths as $path) {
             foreach($path->endpoints as $endpoint) {
-                if($endpoint->isResponseSchemaAModel()) $path->addImport($endpoint->responseSchema);
-                if($endpoint->isRequestSchemaAModel()) $path->addImport($endpoint->requestEntity);
+                if($endpoint->isResponseSchemaAModel()) $path->addImport($endpoint->getBaseResponseSchemaName());
+                if($endpoint->isRequestSchemaAModel()) $path->addImport($endpoint->getBaseRequestSchemaName());
             }
 
             $imports = array_merge($imports, $path->imports);
@@ -110,8 +110,8 @@ class ApiParser {
         $imports = [];
         foreach($this->paths as $path) {
             foreach($path->endpoints as $endpoint) {
-                if($endpoint->isResponseSchemaAModel()) $path->addImport($endpoint->responseSchema);
-                if($endpoint->isRequestSchemaAModel()) $path->addImport($endpoint->requestEntity);
+                if($endpoint->isResponseSchemaAModel()) $path->addImport($endpoint->getBaseResponseSchemaName());
+                if($endpoint->isRequestSchemaAModel()) $path->addImport($endpoint->getBaseRequestSchemaName());
             }
 
             $imports = array_merge($imports, $path->imports);
