@@ -117,6 +117,17 @@ class ApiParser {
             $imports = array_merge($imports, $path->imports);
         }
 
+        foreach ($this->interfaces as $interface) {
+            foreach ($interface->properties as $property) {
+                if (!$property->isSimpleType && !$property->isInterface) {
+                    $type = str_replace('[]', '', $property->rawType);
+                    if (!in_array($type, $imports)) {
+                        $imports[] = $type;
+                    }
+                }
+            }
+        }
+
         $content = $renderer->setData([
             'imports' => $imports,
             'resources' => $this->paths,
