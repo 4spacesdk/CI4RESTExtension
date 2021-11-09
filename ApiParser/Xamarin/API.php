@@ -8,12 +8,12 @@ using <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinBaseAPINamespa
 using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>;
 using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinBaseModelNamespace?>;
 using Newtonsoft.Json;
-using static <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>.Api;
+using static <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>.<?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPIClassName?>;
 
 namespace <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>
 
 {
-    public static class Api
+    public static class <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPIClassName?>
     {
 <?php foreach($interfaces as $interface) { ?>
 

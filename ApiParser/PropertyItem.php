@@ -1,4 +1,5 @@
 <?php namespace RestExtension\ApiParser;
+use CodeIgniter\Config\Config;
 use Config\Services;
 
 /**
@@ -91,6 +92,13 @@ class PropertyItem {
                 $this->xamarinType = $type;
                 break;
         }
+
+        if (!$this->isSimpleType) {
+            $config = Config::get('RestExtension');
+            $namespace = $config->apiInterfaceNamespace ?? '';
+            $class = "$namespace\\" . str_replace('[]', '', $type);
+            $this->isInterface = interface_exists($class);
+        }
     }
 
     public function toSwagger() {
@@ -145,6 +153,16 @@ class PropertyItem {
 
     public function getCamelName() {
         return camelize($this->name);
+    }
+
+    public function getXamarinType(): string {
+        if ($this->isSimpleType) {
+            return $this->xamarinType;
+        } else if ($this->isInterface) {
+            return $this->xamarinType;
+        } else {
+            return Config::get('OrmExtension')->xamarinModelsNamespace . '.' . $this->xamarinType;
+        }
     }
 
 }
