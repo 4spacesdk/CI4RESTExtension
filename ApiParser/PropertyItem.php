@@ -71,6 +71,9 @@ class PropertyItem {
             case 'string':
                 $this->typeScriptType = 'string';
                 break;
+            case 'string[]':
+                $this->typeScriptType = $type;
+                break;
             case 'int[]':
                 $this->typeScriptType = 'number[]';
                 break;
