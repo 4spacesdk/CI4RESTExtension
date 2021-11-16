@@ -381,19 +381,19 @@ class EndpointItem {
         return false;
     }
 
-    public function getBaseResponseSchemaName(): string {
-        if (strpos($this->responseSchema, '[]') !== false) {
+    public function getBaseResponseSchemaName(): ?string {
+        if (strpos($this->responseSchema ?? '', '[]') !== false) {
             return substr($this->responseSchema, 0, -2);
         } else {
-            return $this->responseSchema;
+            return $this->responseSchema ?? null;
         }
     }
 
-    public function getBaseRequestSchemaName(): string {
-        if (strpos($this->requestEntity, '[]') !== false) {
+    public function getBaseRequestSchemaName(): ?string {
+        if (strpos($this->requestEntity ?? '', '[]') !== false) {
             return substr($this->requestEntity, 0, -2);
         } else {
-            return $this->requestEntity;
+            return $this->requestEntity ?? null;
         }
     }
 
