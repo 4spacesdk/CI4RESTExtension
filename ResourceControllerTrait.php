@@ -19,11 +19,12 @@ trait ResourceControllerTrait {
     protected $resource = null;
     public $queryParser;
 
-    public function _getResourceName() : string {
-        if($this->resource)
+    public function _getResourceName(): string {
+        if ($this->resource) {
             return $this->resource;
-        else
-            return str_replace('Controllers', 'Models', singular(get_class($this)).'Model');
+        } else {
+            return str_replace('Controllers', 'Models', singular(get_class($this)) . 'Model');
+        }
     }
 
     public function get($id = 0) {
@@ -31,9 +32,9 @@ trait ResourceControllerTrait {
         $className = $this->_getResourceName();
         $model = new $className();
         $items = $model->restGet($id, $this->queryParser);
-        if($id)
+        if ($id) {
             $this->_setResource($items->first());
-        else {
+        } else {
             $this->_setResources($items);
         }
         $this->success();
@@ -49,11 +50,11 @@ trait ResourceControllerTrait {
 
         $data = $this->request->getJSON(true);
 
-        if(is_array($this->request->getJSON())) {
+        if (is_array($this->request->getJSON())) {
 
             /** @var Entity $resources */
             $resources = new $entityName();
-            foreach($data as $dataItem) {
+            foreach ($data as $dataItem) {
                 $resources->add($entityName::post($dataItem));
             }
             $this->_setResources($resources);
@@ -78,12 +79,12 @@ trait ResourceControllerTrait {
 
         $data = $this->request->getJSON(true);
 
-        if(is_array($this->request->getJSON())) {
+        if (is_array($this->request->getJSON())) {
 
             /** @var Entity $resources */
             $resources = new $entityName();
-            foreach($data as $dataItem) {
-                $resources->add($entityName::put(isset($dataItem['id']) ? $dataItem['id'] : 0, $dataItem));
+            foreach ($data as $dataItem) {
+                $resources->add($entityName::put(isset($dataItem[$model->getPrimaryKey()]) ? $dataItem[$model->getPrimaryKey()] : 0, $dataItem));
             }
             $this->_setResources($resources);
 
@@ -102,23 +103,24 @@ trait ResourceControllerTrait {
 
         /** @var Model $model */
         $model = new $className();
+        $primaryKey = $model->getPrimaryKey();
         /** @var Entity|ResourceEntityInterface $entityName */
         $entityName = $model->returnType;
 
         $data = $this->request->getJSON(true);
 
-        if($id) {
+        if ($id) {
 
             $item = $entityName::patch($id, $data);
             $this->_setResource($item);
 
-        } else if(is_array($data)) {
+        } else if (is_array($data)) {
 
             /** @var Entity $resources */
             $resources = new $entityName();
-            foreach($data as $dataItem) {
-                if(isset($dataItem['id']) && $dataItem['id'] > 0)
-                    $resources->add($entityName::patch($dataItem['id'], $dataItem));
+            foreach ($data as $dataItem) {
+                if (isset($dataItem[$primaryKey]) && $dataItem[$primaryKey] > 0)
+                    $resources->add($entityName::patch($dataItem[$primaryKey], $dataItem));
                 else
                     $resources->add($entityName::post($dataItem));
             }
@@ -134,13 +136,13 @@ trait ResourceControllerTrait {
 
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $model = new $className();
-        $model->where('id', $id);
+        $model->where($model->getPrimaryKey(), $id);
 
         /** @var Entity $item */
         $item = $model->find();
 
-        if($item->exists()) {
-            if(!$model->isRestDeleteAllowed($item)) {
+        if ($item->exists()) {
+            if (!$model->isRestDeleteAllowed($item)) {
                 $this->error(ErrorCodes::InsufficientAccess, 403);
                 return;
             }
@@ -151,7 +153,6 @@ trait ResourceControllerTrait {
 
         $this->success();
     }
-
 
 
 }

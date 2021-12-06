@@ -18,19 +18,19 @@ trait ResourceEntityTrait {
         Data::debug(get_called_class(), 'post');
         $className = get_called_class();
 
-        // NB !! Is this okay? Client want to send relations as objects. But post should always create.
-        if(isset($data['id']) && $data['id'] > 0) {
-            /** @var Entity $entity */
-            $entity = new $className();
-            $entity->find($data['id']); // Have to do a get, it might be saved later
-            $entity->fill($data);
-            return $entity;
-        }
-
         /** @var ResourceEntityInterface|Entity $item */
         $item = new $className();
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $model = $item->_getModel();
+
+        // NB !! Is this okay? Client want to send relations as objects. But post should always create.
+        if(isset($data['id']) && $data['id'] > 0) {
+            /** @var Entity $entity */
+            $entity = new $className();
+            $entity->find($data[$model->getPrimaryKey()]); // Have to do a get, it might be saved later
+            $entity->fill($data);
+            return $entity;
+        }
 
         $item->populatePatch($data);
         if(!$model->isRestCreationAllowed($item)) {
@@ -97,7 +97,7 @@ trait ResourceEntityTrait {
         $model = $item->_getModel();
 
         $item = $model
-            ->where('id', $id)
+            ->where($model->getPrimaryKey(), $id)
             ->find();
         $item->populatePut($data);
         if(!$model->isRestUpdateAllowed($item)) {
@@ -198,7 +198,7 @@ trait ResourceEntityTrait {
         $model = $item->_getModel();
 
         $item = $model
-            ->where('id', $id)
+            ->where($model->getPrimaryKey(), $id)
             ->find();
         if($item->populatePatch($data)) {
             if(!$model->isRestUpdateAllowed($item)) {
