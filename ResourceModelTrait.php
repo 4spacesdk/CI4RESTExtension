@@ -61,7 +61,9 @@ trait ResourceModelTrait {
                 }
 
                 if($queryParser->isCount()) {
-                    $count = $this->distinct($this->getPrimaryKey())->countAllResults();
+                    $count = $this
+                        ->select($this->getPrimaryKey())
+                        ->distinct(true)->countAllResults();
                     return $count;
                 }
 
