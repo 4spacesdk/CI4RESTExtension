@@ -33,6 +33,10 @@ trait ResourceModelTrait {
                     $this->where($this->getPrimaryKey(), $primaryKey);
                 }
 
+                if ($queryParser->isCount()) {
+                    $this->select($this->getPrimaryKey());
+                }
+
                 $this->preRestGet($queryParser, $primaryKey);
 
                 foreach ($queryParser->getFilters() as $filter) {
@@ -52,9 +56,7 @@ trait ResourceModelTrait {
                 }
 
                 if ($queryParser->isCount()) {
-                    $count = $this
-                        ->select($this->getPrimaryKey())
-                        ->distinct(true)->countAllResults();
+                    $count = $this->distinct(true)->countAllResults();
                     return $count;
                 }
 
