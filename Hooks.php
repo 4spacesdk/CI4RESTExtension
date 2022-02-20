@@ -88,7 +88,7 @@ class Hooks {
 
             $routes = Services::routes(true);
 
-            if (self::$config->enableApiRouting) {
+            if (self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
 
                 try {
                     /** @var ApiRoute $apiRoutes */
