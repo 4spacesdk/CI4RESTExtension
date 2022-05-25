@@ -365,5 +365,29 @@ class QueryParser {
         }
     }
 
+    public function hasOrder(string $name): bool {
+        foreach ($this->ordering as $ordering) {
+            if ($ordering->property == $name)
+                return true;
+        }
+        return false;
+    }
+
+    public function getOrder(string $name): ?QueryOrder {
+        foreach ($this->ordering as $ordering) {
+            if ($ordering->property == $name)
+                return $ordering;
+        }
+        return null;
+    }
+
+    public function delOrder(string $name) {
+        for ($i = 0; $i < count($this->ordering); $i++) {
+            if ($this->ordering[$i]->property == $name) {
+                array_splice($this->ordering, $i, 1);
+                return;
+            }
+        }
+    }
 
 }
