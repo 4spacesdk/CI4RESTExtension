@@ -77,6 +77,9 @@ class ParameterItem {
             case 'int[]':
                 $item['schema']['type'] = 'string';
                 break;
+            case 'double':
+                $item['schema']['type'] = 'number';
+                break;
             case 'File':
                 $item['schema'] = [
                     'type' => 'string',
