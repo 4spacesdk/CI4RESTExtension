@@ -418,7 +418,11 @@ class Hooks {
                 $apiErrorLog->code = $exception->getCode();
                 $apiErrorLog->message = $exception->getMessage();
                 $apiErrorLog->ip_address = $request->getIPAddress();
-                $apiErrorLog->headers = json_encode($request->getHeaders(), JSON_PRETTY_PRINT);
+                $headers = [];
+                foreach ($request->headers() as $header) {
+                    $headers[$header->getName()] = $header->getValueLine();
+                }
+                $apiErrorLog->headers = json_encode($headers, JSON_PRETTY_PRINT);
                 $apiErrorLog->save();
             }
 
