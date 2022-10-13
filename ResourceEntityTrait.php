@@ -1,4 +1,5 @@
 <?php namespace RestExtension;
+
 use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilderInterface;
@@ -24,7 +25,7 @@ trait ResourceEntityTrait {
         $model = $item->_getModel();
 
         // NB !! Is this okay? Client want to send relations as objects. But post should always create.
-        if(isset($data['id']) && $data['id'] > 0) {
+        if (isset($data['id']) && $data['id'] > 0) {
             /** @var Entity $entity */
             $entity = new $className();
             $entity->find($data[$model->getPrimaryKey()]); // Have to do a get, it might be saved later
@@ -33,22 +34,22 @@ trait ResourceEntityTrait {
         }
 
         $item->populatePatch($data);
-        if(!$model->isRestCreationAllowed($item)) {
+        if (!$model->isRestCreationAllowed($item)) {
             Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
             return $item;
         }
         $item->save();
 
         // Create relations
-        if(is_array($data)) {
+        if (is_array($data)) {
             $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
-            foreach($relations as $relation) {
-                switch($relation->getType()) {
+            foreach ($relations as $relation) {
+                switch ($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var Entity|ResourceEntityInterface $entityName */
                             $entityName = $relation->getEntityName();
                             $relationEntity = $entityName::post($data[$relationName]);
@@ -63,15 +64,15 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
-                            foreach($data[$relationName] as $dataItem) {
+                            foreach ($data[$relationName] as $dataItem) {
                                 $relationEntity = $entityName::post($dataItem);
                                 $item->save($relationEntity, $relation->getName());
                                 $item->relationAdded($relationEntity);
 
-                                if(!isset($item->{$relationName})) {
+                                if (!isset($item->{$relationName})) {
                                     $relationClass = $relation->getEntityName();
                                     $item->{$relationName} = new $relationClass();
                                 }
@@ -100,28 +101,28 @@ trait ResourceEntityTrait {
             ->where($model->getPrimaryKey(), $id)
             ->find();
         $item->populatePut($data);
-        if(!$model->isRestUpdateAllowed($item)) {
+        if (!$model->isRestUpdateAllowed($item)) {
             Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
             return $item;
         }
         $item->save();
 
         // Update relations
-        if(is_array($data)) {
+        if (is_array($data)) {
             $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
-            foreach($relations as $relation) {
-                switch($relation->getType()) {
+            foreach ($relations as $relation) {
+                switch ($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
 
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
                             $dataItem = $data[$relationName];
-                            if(isset($dataItem['id']) && $dataItem['id'] > 0)
+                            if (isset($dataItem['id']) && $dataItem['id'] > 0)
                                 $relationEntity = $entityName::put($dataItem['id'], $dataItem);
                             else
                                 $relationEntity = $entityName::post($dataItem);
@@ -136,7 +137,7 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
@@ -144,20 +145,20 @@ trait ResourceEntityTrait {
                             $oldRelations = $item->{$relationName};
                             $oldRelations->find();
                             $oldIds = [];
-                            foreach($oldRelations as $oldRelation)
+                            foreach ($oldRelations as $oldRelation)
                                 $oldIds[$oldRelation->id] = $oldRelation;
 
                             $relationClass = $relation->getEntityName();
                             $item->{$relationName} = new $relationClass();
 
                             $newRelations = [];
-                            foreach($data[$relationName] as $dataItem) {
-                                if(isset($dataItem['id']) && $dataItem['id'] > 0)
+                            foreach ($data[$relationName] as $dataItem) {
+                                if (isset($dataItem['id']) && $dataItem['id'] > 0)
                                     $relationEntity = $entityName::put($dataItem['id'], $dataItem);
                                 else
                                     $relationEntity = $entityName::post($dataItem);
 
-                                if(!isset($oldIds[$relationEntity->id])) {
+                                if (!isset($oldIds[$relationEntity->id])) {
                                     $oldRelations->add($relationEntity);
                                     $newRelations[] = $relationEntity;
                                 } else
@@ -166,12 +167,12 @@ trait ResourceEntityTrait {
                                 $item->{$relationName}->add($relationEntity);
                             }
 
-                            foreach($oldIds as $id => $oldRelation) {
+                            foreach ($oldIds as $id => $oldRelation) {
                                 $oldRelations->remove($oldRelation);
                                 $item->delete($oldRelation);
                                 $item->relationRemoved($oldRelation);
                             }
-                            foreach($newRelations as $newRelation) {
+                            foreach ($newRelations as $newRelation) {
                                 $item->save($newRelation, $relation->getName());
                                 $item->relationAdded($newRelation);
                             }
@@ -200,8 +201,8 @@ trait ResourceEntityTrait {
         $item = $model
             ->where($model->getPrimaryKey(), $id)
             ->find();
-        if($item->populatePatch($data)) {
-            if(!$model->isRestUpdateAllowed($item)) {
+        if ($item->populatePatch($data)) {
+            if (!$model->isRestUpdateAllowed($item)) {
                 Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess, 'Update not allowed');
                 return $item;
             }
@@ -211,21 +212,21 @@ trait ResourceEntityTrait {
         }
 
         // Update relations
-        if(is_array($data)) {
+        if (is_array($data)) {
             $populateIgnore = $item->getPopulateIgnore();
             $relations = $model->getRelations();
-            foreach($relations as $relation) {
-                switch($relation->getType()) {
+            foreach ($relations as $relation) {
+                switch ($relation->getType()) {
                     case RelationDef::HasOne:
 
                         $relationName = $relation->getSimpleName();
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
 
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
                             $dataItem = $data[$relationName];
-                            if(isset($dataItem['id']) && $dataItem['id'] > 0)
+                            if (isset($dataItem['id']) && $dataItem['id'] > 0)
                                 $relationEntity = $entityName::patch($dataItem['id'], $dataItem);
                             else
                                 $relationEntity = $entityName::post($dataItem);
@@ -240,7 +241,7 @@ trait ResourceEntityTrait {
                     case RelationDef::HasMany:
 
                         $relationName = plural($relation->getSimpleName());
-                        if(isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
+                        if (isset($data[$relationName]) && !in_array($relationName, $populateIgnore)) {
                             /** @var ResourceEntityInterface|Entity $entityName */
                             $entityName = $relation->getEntityName();
 
@@ -248,34 +249,44 @@ trait ResourceEntityTrait {
                             $oldRelations = $item->{$relationName};
                             $oldRelations->find();
                             $oldIds = [];
-                            foreach($oldRelations as $oldRelation)
-                                $oldIds[$oldRelation->id] = $oldRelation;
+                            foreach ($oldRelations as $oldRelation) {
+                                if (!isset($oldIds[$oldRelation->id])) {
+                                    $oldIds[$oldRelation->id] = [];
+                                }
+                                $oldIds[$oldRelation->id][] = $oldRelation;
+                            }
 
                             $relationClass = $relation->getEntityName();
                             $item->{$relationName} = new $relationClass();
 
                             $newRelations = [];
-                            foreach($data[$relationName] as $dataItem) {
-                                if(isset($dataItem['id']) && $dataItem['id'] > 0)
+                            foreach ($data[$relationName] as $dataItem) {
+                                if (isset($dataItem['id']) && $dataItem['id'] > 0)
                                     $relationEntity = $entityName::patch($dataItem['id'], $dataItem);
                                 else
                                     $relationEntity = $entityName::post($dataItem);
 
-                                if(!isset($oldIds[$relationEntity->id])) {
+                                if (!isset($oldIds[$relationEntity->id])) {
                                     $oldRelations->add($relationEntity);
                                     $newRelations[] = $relationEntity;
-                                } else
-                                    unset($oldIds[$relationEntity->id]);
+                                } else {
+                                    array_shift($oldIds[$relationEntity->id]);
+                                    if (count($oldIds[$relationEntity->id]) == 0) {
+                                        unset($oldIds[$relationEntity->id]);
+                                    }
+                                }
 
                                 $item->{$relationName}->add($relationEntity);
                             }
 
-                            foreach($oldIds as $id => $oldRelation) {
-                                $oldRelations->remove($oldRelation);
-                                $item->delete($oldRelation);
-                                $item->relationRemoved($oldRelation);
+                            foreach ($oldIds as $id => $oldRelationsToBeRemoved) {
+                                foreach ($oldRelationsToBeRemoved as $oldRelation) {
+                                    $oldRelations->remove($oldRelation);
+                                    $item->delete($oldRelation);
+                                    $item->relationRemoved($oldRelation);
+                                }
                             }
-                            foreach($newRelations as $newRelation) {
+                            foreach ($newRelations as $newRelation) {
                                 $item->save($newRelation, $relation->getName());
                                 $item->relationAdded($newRelation);
                             }
@@ -297,20 +308,20 @@ trait ResourceEntityTrait {
      * @param array $data
      */
     public function populatePut($data) {
-        if($data) {
+        if ($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->_getModel();
 
             $fieldData = ModelDefinitionCache::getFieldData($model->getEntityName());
             $fieldName2Type = [];
-            foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+            foreach ($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
 
             $fields = $model->getTableFields();
             $fields = array_diff($fields, $this->getPopulateIgnore());
             $fields = array_diff($fields, $this->hiddenFields);
-            foreach($fields as $field) {
-                if(isset($data[$field])) {
-                    switch($fieldName2Type[$field]) {
+            foreach ($fields as $field) {
+                if (isset($data[$field])) {
+                    switch ($fieldName2Type[$field]) {
                         case 'datetime':
                             $this->{$field} = date('Y-m-d H:i:s', strtotime($data[$field]));
                             break;
@@ -328,7 +339,7 @@ trait ResourceEntityTrait {
      * @return bool
      */
     public function populatePatch($data) {
-        if($data) {
+        if ($data) {
             /** @var Model|QueryBuilderInterface $model */
             $model = $this->_getModel();
 
