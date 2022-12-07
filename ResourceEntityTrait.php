@@ -282,7 +282,7 @@ trait ResourceEntityTrait {
                             foreach ($oldIds as $id => $oldRelationsToBeRemoved) {
                                 foreach ($oldRelationsToBeRemoved as $oldRelation) {
                                     $oldRelations->remove($oldRelation);
-                                    $item->delete($oldRelation);
+                                    $item->deleteRelation($oldRelation, $relation->getName());
                                     $item->relationRemoved($oldRelation);
                                 }
                             }
