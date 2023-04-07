@@ -1,5 +1,6 @@
 <?php namespace RestExtension\Entities;
 
+use ArrayIterator;
 use OrmExtension\Extensions\Entity;
 
 /**
@@ -19,7 +20,7 @@ class ApiBlockedLog extends Entity {
     /**
      * @return \ArrayIterator|\OrmExtension\Extensions\Entity[]|\Traversable|ApiBlockedLog[]
      */
-    public function getIterator() {
+    public function getIterator(): ArrayIterator {
         return parent::getIterator();
     }
 

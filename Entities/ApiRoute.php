@@ -1,5 +1,6 @@
 <?php namespace RestExtension\Entities;
 
+use ArrayIterator;
 use OrmExtension\Extensions\Entity;
 use RestExtension\Models\ApiRouteModel;
 
@@ -100,6 +101,6 @@ class ApiRoute extends Entity {
     /**
      * @return \ArrayIterator|Entity[]|\Traversable|ApiRoute[]
      */
-    public function getIterator() {return parent::getIterator();}
+    public function getIterator(): ArrayIterator {return parent::getIterator();}
 
 }
