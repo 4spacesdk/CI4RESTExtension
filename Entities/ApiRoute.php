@@ -26,7 +26,7 @@ class ApiRoute extends Entity {
         $route = new ApiRoute();
         $route->method = $method;
         $route->from = $from;
-        $route->to = "${toController}::{$toMethod}";
+        $route->to = "{$toController}::{$toMethod}";
         $route->scope = $scope;
         $route->saveUnique();
         return $route;
@@ -36,7 +36,7 @@ class ApiRoute extends Entity {
         $route = new ApiRoute();
         $route->method = $method;
         $route->from = $from;
-        $route->to = "${toController}::{$toMethod}";
+        $route->to = "{$toController}::{$toMethod}";
         $route->scope = $scope;
         $route->is_public = true;
         $route->saveUnique();
