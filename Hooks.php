@@ -97,6 +97,9 @@ class Hooks {
                     if ($apiRoutes->count()) {
                         $routes = Services::routes(true);
                         foreach ($apiRoutes as $route) {
+                            if (!str_starts_with($route->to, '/')) {
+                                $route->to = "\\{$route->to}";
+                            }
                             $routes->{$route->method}($route->from, $route->to);
                         }
                     }
