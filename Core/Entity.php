@@ -59,6 +59,7 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
     }
 
     public function getResourcePath() {
+        helper('inflector');
         if(!$this->resourcePath) {
             $resource = plural(substr(strrchr(get_class($this), '\\'), 1));
             $resourcePath = "\App\Controllers\\{$resource}";
