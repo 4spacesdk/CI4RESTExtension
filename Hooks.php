@@ -60,7 +60,6 @@ class Hooks {
          */
         Events::on('post_controller_constructor', [\RestExtension\Hooks::class, 'postControllerConstructor']);
         Events::on('post_system', [\RestExtension\Hooks::class, 'postSystem']);
-        Events::on('pre_command', [\RestExtension\Hooks::class, 'postControllerConstructor']);
         Events::on('post_command', [\RestExtension\Hooks::class, 'postSystem']);
 
         /*

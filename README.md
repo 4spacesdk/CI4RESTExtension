@@ -147,6 +147,7 @@ class RestExtension extends BaseConfig {
 
 ### Step 3)
 Add this line to `Config/Events.php` `Events::on('pre_system', [\RestExtension\Hooks::class, 'preSystem']);`. Must be places below `OrmExtension`.
+Add this line to `Config/Events.php` `Events::on('pre_command', [\RestExtension\Hooks::class, 'preSystem']);`. Must be places below `OrmExtension`.
 
 ### Step 4)
 Add this line to your migration file `\RestExtension\Migration\Setup::migrateUp();` and run it.
