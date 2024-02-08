@@ -83,6 +83,7 @@ class ApiItem {
         $item->isResourceController = $rc->getParentClass()->getName() == ResourceController::class;
         if($item->isResourceController) {
             $Resources = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1); // Remove namespace
+            $tag = str_replace([$config->apiControllerNamespace, '\\'], '', $rc->getName());
             $resources = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resources)); // Camel to snake
             $Resource = singular($Resources);
 
@@ -93,7 +94,7 @@ class ApiItem {
             $getEndpoint = new EndpointItem();
             $getEndpoint->method = 'get';
             $getEndpoint->path = "/{$resources}";
-            $getEndpoint->tag = $Resources;
+            $getEndpoint->tag = $tag;
             $getEndpoint->parameters[] = $filterParam;
             $getEndpoint->parameters[] = $includeParam;
             $getEndpoint->parameters[] = $orderingParam;
@@ -115,7 +116,7 @@ class ApiItem {
             $getByIdEndpoint->parameters[] = $idParam;
             $getByIdEndpoint->method = 'get';
             $getByIdEndpoint->path = "/{$resources}/{id}";
-            $getByIdEndpoint->tag = $Resources;
+            $getByIdEndpoint->tag = $tag;
             $getByIdEndpoint->parameters[] = $includeParam;
             $getByIdEndpoint->responseSchema = $Resource;
             if(isset($name2Method['get'])) {
@@ -131,7 +132,7 @@ class ApiItem {
             $postEndpoint = new EndpointItem();
             $postEndpoint->method = 'post';
             $postEndpoint->path = "/{$resources}";
-            $postEndpoint->tag = $Resources;
+            $postEndpoint->tag = $tag;
             $postEndpoint->requestEntity = $Resource;
             $postEndpoint->responseSchema = $Resource;
             if(isset($name2Method['post'])) {
@@ -148,7 +149,7 @@ class ApiItem {
             $putByIdEndpoint->parameters[] = $idParam;
             $putByIdEndpoint->method = 'put';
             $putByIdEndpoint->path = "/{$resources}/{id}";
-            $putByIdEndpoint->tag = $Resources;
+            $putByIdEndpoint->tag = $tag;
             $putByIdEndpoint->requestEntity = $Resource;
             $putByIdEndpoint->responseSchema = $Resource;
             if(isset($name2Method['put'])) {
@@ -164,7 +165,7 @@ class ApiItem {
             $putEndpoint = new EndpointItem();
             $putEndpoint->method = 'put';
             $putEndpoint->path = "/{$resources}";
-            $putEndpoint->tag = $Resources;
+            $putEndpoint->tag = $tag;
             $putEndpoint->requestEntity = $Resource;
             $putEndpoint->responseSchema = $Resource;
             if(isset($name2Method['put'])) {
@@ -181,7 +182,7 @@ class ApiItem {
             $patchByIdEndpoint->parameters[] = $idParam;
             $patchByIdEndpoint->method = 'patch';
             $patchByIdEndpoint->path = "/{$resources}/{id}";
-            $patchByIdEndpoint->tag = $Resources;
+            $patchByIdEndpoint->tag = $tag;
             $patchByIdEndpoint->requestEntity = $Resource;
             $patchByIdEndpoint->responseSchema = $Resource;
             $patchByIdEndpoint->isRestPatchEndpoint = true;
@@ -198,7 +199,7 @@ class ApiItem {
             $patchEndpoint = new EndpointItem();
             $patchEndpoint->method = 'patch';
             $patchEndpoint->path = "/{$resources}";
-            $patchEndpoint->tag = $Resources;
+            $patchEndpoint->tag = $tag;
             $patchEndpoint->requestEntity = $Resource;
             $patchEndpoint->responseSchema = $Resource;
             if(isset($name2Method['patch'])) {
@@ -215,7 +216,7 @@ class ApiItem {
             $deleteEndpoint->parameters[] = $idParam;
             $deleteEndpoint->method = 'delete';
             $deleteEndpoint->path = "/{$resources}/{id}";
-            $deleteEndpoint->tag = $Resources;
+            $deleteEndpoint->tag = $tag;
             $deleteEndpoint->responseSchema = $Resource;
             if(isset($name2Method['delete'])) {
                 $endpoint = EndpointItem::parse($name2Method['delete']);
