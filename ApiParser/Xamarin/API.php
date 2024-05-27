@@ -4,16 +4,16 @@
 /** @var \RestExtension\ApiParser\InterfaceItem[] $interfaces */
 ?>
 using System;
-using <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinBaseAPINamespace?>;
-using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>;
-using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinBaseModelNamespace?>;
+using <?=config('RestExtension')->xamarinBaseAPINamespace?>;
+using <?=config('OrmExtension')->xamarinModelsNamespace?>;
+using <?=config('OrmExtension')->xamarinBaseModelNamespace?>;
 using Newtonsoft.Json;
-using static <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>.<?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPIClassName?>;
+using static <?=config('RestExtension')->xamarinAPINamespace?>.<?=config('RestExtension')->xamarinAPIClassName?>;
 
-namespace <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPINamespace?>
+namespace <?=config('RestExtension')->xamarinAPINamespace?>
 
 {
-    public static class <?=\CodeIgniter\Config\Config::get('RestExtension')->xamarinAPIClassName?>
+    public static class <?=config('RestExtension')->xamarinAPIClassName?>
     {
 <?php foreach($interfaces as $interface) { ?>
 

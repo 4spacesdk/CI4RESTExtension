@@ -1,6 +1,5 @@
 <?php namespace RestExtension;
 
-use CodeIgniter\Config\Config;
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Events\Events;
 use Config\Database;
@@ -75,7 +74,7 @@ class Hooks {
         /*
          * Fetch Config file
          */
-        self::$config = Config::get('RestExtension');
+        self::$config = config('RestExtension');
 
         /*
          * Api Routing

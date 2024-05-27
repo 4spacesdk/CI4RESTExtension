@@ -2,7 +2,6 @@
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
-use CodeIgniter\Config\Config;
 use Config\RestExtension;
 use OrmExtension\ModelParser\ModelParser;
 use RestExtension\ApiParser\ApiParser;

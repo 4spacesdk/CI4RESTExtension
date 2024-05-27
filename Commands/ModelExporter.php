@@ -2,7 +2,6 @@
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
-use CodeIgniter\Config\Config;
 use Config\RestExtension;
 use OrmExtension\ModelParser\ModelParser;
 
@@ -35,7 +34,7 @@ class ModelExporter extends BaseCommand {
         $parser->generateTypeScript();
 
         /** @var RestExtension $config */
-        $config = Config::get('RestExtension');
+        $config = config('RestExtension');
 
         $from = WRITEPATH . 'tmp/models';
         $from = str_replace(' ', '\ ', $from);

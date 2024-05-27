@@ -1,6 +1,5 @@
 <?php namespace RestExtension\ApiParser;
 
-use CodeIgniter\Config\Config;
 use Config\OrmExtension;
 use Config\RestExtension;
 use Config\Services;
@@ -61,7 +60,7 @@ class EndpointItem {
         $item->methodName = $method->name;
 
         /** @var RestExtension $config */
-        $config = Config::get('RestExtension');
+        $config = config('RestExtension');
 
         foreach ($comments as $comment) {
 
@@ -162,7 +161,7 @@ class EndpointItem {
         if (isset($this->responseInterfaceItem)) {
             return $this->responseSchema;
         } else if (isset($this->responseSchema)) {
-            return Config::get('OrmExtension')->xamarinModelsNamespace . '.' . $this->responseSchema;
+            return config('OrmExtension')->xamarinModelsNamespace . '.' . $this->responseSchema;
         } else {
             return 'Empty';
         }

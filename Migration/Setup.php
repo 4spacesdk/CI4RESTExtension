@@ -1,6 +1,5 @@
 <?php namespace RestExtension\Migration;
 
-use CodeIgniter\Config\Config;
 use Config\RestExtension;
 use OrmExtension\Migration\ColumnTypes;
 use OrmExtension\Migration\Table;
@@ -9,7 +8,7 @@ class Setup {
 
     public static function migrateUp() {
         /** @var RestExtension $config */
-        $config = Config::get('RestExtension');
+        $config = config('RestExtension');
         if($config) {
 
             if($config->enableApiRouting)

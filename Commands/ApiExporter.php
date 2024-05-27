@@ -2,7 +2,6 @@
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
-use CodeIgniter\Config\Config;
 use Config\RestExtension;
 use OrmExtension\ModelParser\ModelParser;
 use RestExtension\ApiParser\ApiParser;
@@ -36,7 +35,7 @@ class ApiExporter extends BaseCommand {
         $parser->generateTypeScript(false);
 
         /** @var RestExtension $config */
-        $config = Config::get('RestExtension');
+        $config = config('RestExtension');
 
         $from = WRITEPATH . 'tmp/Api.ts';
         $from = str_replace(' ', '\ ', $from);

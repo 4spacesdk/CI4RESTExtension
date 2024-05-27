@@ -1,6 +1,5 @@
 <?php namespace RestExtension\Core;
 
-use CodeIgniter\Config\Config;
 use Config\RestExtension;
 use OrmExtension\Extensions\Model;
 use RestExtension\Entities\User;
@@ -75,7 +74,7 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
 
         if(is_null($related) && $this->getResourcePath()) {
             /** @var RestExtension $restConfig */
-            $restConfig = Config::get('RestExtension');
+            $restConfig = config('RestExtension');
             if(isset($restConfig->enableZMQEntityPush) && $restConfig->enableZMQEntityPush) {
                 $action = $isNew ? ZMQProxy::ZMQ_ACTION_CREATE : ZMQProxy::ZMQ_ACTION_UPDATE;
                 ZMQProxy::getInstance()->send($this->getResourcePath(), $action, $this);
@@ -88,7 +87,7 @@ class Entity extends \OrmExtension\Extensions\Entity implements ResourceEntityIn
 
         if(is_null($related) && $this->getResourcePath()) {
             /** @var RestExtension $restConfig */
-            $restConfig = Config::get('RestExtension');
+            $restConfig = config('RestExtension');
             if(isset($restConfig->enableZMQEntityPush) && $restConfig->enableZMQEntityPush) {
                 ZMQProxy::getInstance()->send($this->getResourcePath(), ZMQProxy::ZMQ_ACTION_DELETE, $this);
             }

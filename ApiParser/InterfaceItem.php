@@ -1,6 +1,5 @@
 <?php namespace RestExtension\ApiParser;
 
-use CodeIgniter\Config\Config;
 use Config\Services;
 
 /**
@@ -23,7 +22,7 @@ class InterfaceItem {
         $item = new InterfaceItem();
         $item->path = $path;
 
-        $config = Config::get('RestExtension');
+        $config = config('RestExtension');
         $namespace = $config->apiInterfaceNamespace ?? '';
         $class = "$namespace\\{$path}";
 
