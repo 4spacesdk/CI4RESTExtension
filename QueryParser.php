@@ -115,6 +115,8 @@ class QueryParser {
     private $offset = null;
     private $count = null;
 
+    public $request;
+
     public function parseRequest(Request $request) {
         $this->request = $request;
 
