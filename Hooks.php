@@ -1,6 +1,7 @@
 <?php namespace RestExtension;
 
 use CodeIgniter\Database\BaseConnection;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Events\Events;
 use Config\Database;
 use Config\OrmExtension;
@@ -64,9 +65,9 @@ class Hooks {
         /*
          * Append RestExtension Entities and Models to OrmExtension namespaces
          */
-        if(!is_array(OrmExtension::$modelNamespace))
+        if (!is_array(OrmExtension::$modelNamespace))
             OrmExtension::$modelNamespace = [OrmExtension::$modelNamespace];
-        if(!is_array(OrmExtension::$entityNamespace))
+        if (!is_array(OrmExtension::$entityNamespace))
             OrmExtension::$entityNamespace = [OrmExtension::$entityNamespace];
         OrmExtension::$modelNamespace[] = 'RestExtension\Models\\';
         OrmExtension::$entityNamespace[] = 'RestExtension\Entities\\';
@@ -79,7 +80,7 @@ class Hooks {
         /*
          * Api Routing
          */
-        if(self::$config) {
+        if (self::$config) {
 
             /*
              * Setup Database connection
@@ -88,9 +89,8 @@ class Hooks {
 
             $routes = Services::routes(true);
 
-            if (self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
-
-                try {
+            try {
+                if (self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
                     /** @var ApiRoute $apiRoutes */
                     $apiRoutes = (new ApiRouteModel())->find();
 
@@ -103,21 +103,22 @@ class Hooks {
                             $routes->{$route->method}($route->from, $route->to);
                         }
                     }
-                } catch (\mysqli_sql_exception $e) {
-
                 }
+            } catch (DatabaseException $e) {
+
+            } catch (\mysqli_sql_exception $e) {
 
             }
 
             /*
              * Export TypeScript Models
              */
-            if(isset(self::$config->typescriptModelExporterRoute) && self::$config->typescriptModelExporterRoute) {
+            if (isset(self::$config->typescriptModelExporterRoute) && self::$config->typescriptModelExporterRoute) {
                 $routes->get(self::$config->typescriptModelExporterRoute, function($debug = false) {
                     $parser = ModelParser::run();
                     $parser->generateTypeScript($debug);
 
-                    if($debug) return;
+                    if ($debug) return;
 
                     // Zip models folder
                     shell_exec('cd "' . WRITEPATH . 'tmp/" && zip -r models.zip models');
@@ -137,7 +138,7 @@ class Hooks {
             /*
              * Export TypeScript API Class
              */
-            if(isset(self::$config->typescriptAPIExporterRoute) && self::$config->typescriptAPIExporterRoute) {
+            if (isset(self::$config->typescriptAPIExporterRoute) && self::$config->typescriptAPIExporterRoute) {
                 $routes->get(self::$config->typescriptAPIExporterRoute, function($debug = 0) {
                     $parser = ApiParser::run();
                     $parser->generateTypeScript($debug);
@@ -159,7 +160,7 @@ class Hooks {
             /*
              * Export Vue API Class
              */
-            if(isset(self::$config->vueAPIExporterRoute) && self::$config->vueAPIExporterRoute) {
+            if (isset(self::$config->vueAPIExporterRoute) && self::$config->vueAPIExporterRoute) {
                 $routes->get(self::$config->vueAPIExporterRoute, function($debug = 0) {
                     $parser = ApiParser::run();
                     $parser->generateVue($debug);
@@ -181,12 +182,12 @@ class Hooks {
             /*
              * Export Xamarin Models
              */
-            if(isset(self::$config->xamarinModelExporterRoute) && self::$config->xamarinModelExporterRoute) {
+            if (isset(self::$config->xamarinModelExporterRoute) && self::$config->xamarinModelExporterRoute) {
                 $routes->get(self::$config->xamarinModelExporterRoute, function($debug = false) {
                     $parser = ModelParser::run();
                     $parser->generateXamarin($debug);
 
-                    if($debug) return;
+                    if ($debug) return;
 
                     // Zip models folder
                     shell_exec('cd "' . WRITEPATH . 'tmp/xamarin/" && zip -r models.zip models');
@@ -206,7 +207,7 @@ class Hooks {
             /*
              * Export Xamarin API Class
              */
-            if(isset(self::$config->xamarinAPIExporterRoute) && self::$config->xamarinAPIExporterRoute
+            if (isset(self::$config->xamarinAPIExporterRoute) && self::$config->xamarinAPIExporterRoute
                 && isset(self::$config->xamarinAPINamespace) && self::$config->xamarinAPINamespace) {
                 $routes->get(self::$config->xamarinAPIExporterRoute, function($debug = false) {
                     $parser = ApiParser::run();
@@ -239,7 +240,7 @@ class Hooks {
      * @throws \Exception
      */
     public static function postControllerConstructor() {
-        if(self::$config) {
+        if (self::$config) {
 
             $restRequest = RestRequest::getInstance();
             $request = Services::request();
@@ -247,11 +248,11 @@ class Hooks {
             /*
              * CLI is trusted
              */
-            if($request->isCLI()) {
+            if ($request->isCLI()) {
                 return;
             }
 
-            if(self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
+            if (self::$config->enableApiRouting && self::$database->tableExists('api_routes')) {
 
                 /*
                  * Search for api route based on CI's matched route
@@ -259,7 +260,7 @@ class Hooks {
                 $route = Services::router()->getMatchedRoute();
                 if (!$route) {
                     $url = Services::request()->uri;
-                    throw new \Exception("RestExtension: Route ($url) not found. Api Routes have to be store in the ".
+                    throw new \Exception("RestExtension: Route ($url) not found. Api Routes have to be store in the " .
                         "database to check against scopes.");
                 }
                 $routeFrom = $route[0];
@@ -267,12 +268,12 @@ class Hooks {
                 $apiRoute = (new ApiRouteModel())
                     ->groupStart()
                     ->where('from', $routeFrom)
-                    ->orWhere('from', '/'.$routeFrom)
+                    ->orWhere('from', '/' . $routeFrom)
                     ->groupEnd()
                     ->where('method', $request->getMethod())
                     ->find();
-                if(!$apiRoute->exists() && !$request->isCLI()) {
-                    throw new \Exception("RestExtension: Route ($routeFrom) not found. Api Routes have to be store in the ".
+                if (!$apiRoute->exists() && !$request->isCLI()) {
+                    throw new \Exception("RestExtension: Route ($routeFrom) not found. Api Routes have to be store in the " .
                         "database to check against scopes.");
                 }
                 $restRequest->apiRoute = $apiRoute;
@@ -285,9 +286,9 @@ class Hooks {
                 /*
                  * Public API route can skip authorization
                  */
-                if(!$apiRoute->is_public) {
+                if (!$apiRoute->is_public) {
 
-                    if(!isset($authResponse->authorized) || $authResponse->authorized == false) {
+                    if (!isset($authResponse->authorized) || $authResponse->authorized == false) {
 
                         /*
                          * Unauthorized!
@@ -296,7 +297,7 @@ class Hooks {
                     }
                 }
 
-                if($authResponse && isset($authResponse->client_id)) {
+                if ($authResponse && isset($authResponse->client_id)) {
 
                     /*
                      * Authorized, go on
@@ -311,13 +312,13 @@ class Hooks {
                     /*
                      * API Rate Limit
                      */
-                    if(self::$config->enableRateLimit && self::$database->tableExists('api_access_logs')) {
-                        if(self::$config->defaultRateLimit > 0) {
+                    if (self::$config->enableRateLimit && self::$database->tableExists('api_access_logs')) {
+                        if (self::$config->defaultRateLimit > 0) {
                             $lastHour = (new ApiAccessLogModel())
                                 ->where('client_id', $authResponse->client_id)
                                 ->where('date >', date('Y-m-d H:i:s', strtotime('-1 hour')))
                                 ->countAllResults();
-                            if($lastHour >= self::$config->defaultRateLimit) {
+                            if ($lastHour >= self::$config->defaultRateLimit) {
 
                                 /*
                                  * Unauthorized!
@@ -331,14 +332,14 @@ class Hooks {
                     /*
                      * API Usage Reporting
                      */
-                    if(self::$config->enableUsageReporting && self::$database->tableExists('api_usage_reports')) {
+                    if (self::$config->enableUsageReporting && self::$database->tableExists('api_usage_reports')) {
 
                         /** @var ApiUsageReport $usageReport */
                         $usageReport = (new ApiUsageReportModel())
                             ->where('client_id', $authResponse->client_id)
                             ->where('date', date('Y-m-d'))
                             ->find();
-                        if(!$usageReport->exists()) {
+                        if (!$usageReport->exists()) {
                             $usageReport->client_id = $authResponse->client_id;
                             $usageReport->date = date('Y-m-d');
                             $usageReport->usage = 0;
@@ -353,16 +354,16 @@ class Hooks {
             /*
              * API Access Log
              */
-            if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
+            if (self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
 
                 $apiAccessLog = new ApiAccessLog();
-                if($restRequest->userId) {
+                if ($restRequest->userId) {
                     $apiAccessLog->user_id = $restRequest->userId;
                 }
-                if($restRequest->clientId) {
+                if ($restRequest->clientId) {
                     $apiAccessLog->client_id = $restRequest->clientId;
                 }
-                if($restRequest->apiRoute) {
+                if ($restRequest->apiRoute) {
                     $apiAccessLog->api_route_id = $restRequest->apiRoute->id;
                 }
                 $apiAccessLog->access_token = $restRequest->getAccessToken();
@@ -382,7 +383,7 @@ class Hooks {
         /*
          * CLI is trusted
          */
-        if(Services::request()->isCLI())
+        if (Services::request()->isCLI())
             return;
 
         /*
@@ -390,11 +391,11 @@ class Hooks {
          */
         timer('RestExtension::timer');
 
-        if(self::$config) {
+        if (self::$config) {
 
-            if(self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
+            if (self::$config->enableAccessLog && self::$database->tableExists('api_access_logs')) {
                 $apiAccessLog = RestRequest::getInstance()->apiAccessLog;
-                if($apiAccessLog) {
+                if ($apiAccessLog) {
                     $apiAccessLog->milliseconds = timer()->getElapsedTime('RestExtension::timer') * 1000;
                     $apiAccessLog->save();
                 }
@@ -404,17 +405,17 @@ class Hooks {
     }
 
     public static function exceptionHandler(Throwable $exception) {
-        if(self::$config) {
+        if (self::$config) {
 
             $request = Services::request();
             $restRequest = RestRequest::getInstance();
 
-            if(self::$config->enableErrorLog && self::$database->tableExists('api_error_logs')) {
+            if (self::$config->enableErrorLog && self::$database->tableExists('api_error_logs')) {
 
                 $apiErrorLog = new ApiErrorLog();
-                if($restRequest->userId) $apiErrorLog->user_id = $restRequest->userId;
-                if($restRequest->clientId) $apiErrorLog->client_id = $restRequest->clientId;
-                if($restRequest->apiRoute) $apiErrorLog->api_route_id = $restRequest->apiRoute->id;
+                if ($restRequest->userId) $apiErrorLog->user_id = $restRequest->userId;
+                if ($restRequest->clientId) $apiErrorLog->client_id = $restRequest->clientId;
+                if ($restRequest->apiRoute) $apiErrorLog->api_route_id = $restRequest->apiRoute->id;
                 $apiErrorLog->access_token = $restRequest->getAccessToken();
                 $apiErrorLog->uri = current_url();
                 $apiErrorLog->date = date('Y-m-d H:i:s');
@@ -429,13 +430,13 @@ class Hooks {
                 $apiErrorLog->save();
             }
 
-            if($exception instanceof UnauthorizedException || $exception instanceof RateLimitExceededException) {
+            if ($exception instanceof UnauthorizedException || $exception instanceof RateLimitExceededException) {
 
-                if(self::$config->enableBlockedLog && self::$database->tableExists('api_blocked_logs')) {
+                if (self::$config->enableBlockedLog && self::$database->tableExists('api_blocked_logs')) {
                     $apiBlockedLog = new ApiBlockedLog();
-                    if($restRequest->userId) $apiBlockedLog->user_id = $restRequest->userId;
-                    if($restRequest->clientId) $apiBlockedLog->client_id = $restRequest->clientId;
-                    if($restRequest->apiRoute) $apiBlockedLog->api_route_id = $restRequest->apiRoute->id;
+                    if ($restRequest->userId) $apiBlockedLog->user_id = $restRequest->userId;
+                    if ($restRequest->clientId) $apiBlockedLog->client_id = $restRequest->clientId;
+                    if ($restRequest->apiRoute) $apiBlockedLog->api_route_id = $restRequest->apiRoute->id;
                     $apiBlockedLog->access_token = $restRequest->getAccessToken();
                     $apiBlockedLog->uri = current_url();
                     $apiBlockedLog->date = date('Y-m-d H:i:s');
@@ -446,16 +447,16 @@ class Hooks {
 
             }
 
-            if($exception instanceof RestException) {
+            if ($exception instanceof RestException) {
 
                 $response = Services::response();
                 $response->setStatusCode($exception->getCode());
                 $response->setJSON([
-                    'status'    => 'ERROR',
-                    'code'      => $exception->getCode(),
-                    'error'     => get_class($exception),
-                    'reason'    => $exception->getMessage(),
-                    'debug'     => Data::getDebugger()
+                    'status' => 'ERROR',
+                    'code' => $exception->getCode(),
+                    'error' => get_class($exception),
+                    'reason' => $exception->getMessage(),
+                    'debug' => Data::getDebugger()
                 ]);
                 $response->send();
                 return;
