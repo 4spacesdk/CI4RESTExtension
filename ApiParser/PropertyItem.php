@@ -67,8 +67,15 @@ class PropertyItem {
             case 'bool':
                 $this->typeScriptType = 'boolean';
                 break;
+            case '?boolean':
+            case '?bool':
+                $this->typeScriptType = '?boolean';
+                break;
             case 'string':
                 $this->typeScriptType = 'string';
+                break;
+            case '?string':
+                $this->typeScriptType = '?string';
                 break;
             case 'string[]':
                 $this->typeScriptType = $type;
