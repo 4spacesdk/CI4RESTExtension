@@ -61,7 +61,7 @@ class PropertyItem {
                 $this->typeScriptType = 'number';
                 break;
             case '?int':
-                $this->typeScriptType = '?number';
+                $this->typeScriptType = 'number';
                 break;
             case 'string|double':
                 $this->typeScriptType = 'string';
@@ -72,13 +72,13 @@ class PropertyItem {
                 break;
             case '?boolean':
             case '?bool':
-                $this->typeScriptType = '?boolean';
+                $this->typeScriptType = 'boolean';
                 break;
             case 'string':
                 $this->typeScriptType = 'string';
                 break;
             case '?string':
-                $this->typeScriptType = '?string';
+                $this->typeScriptType = 'string';
                 break;
             case 'string[]':
                 $this->typeScriptType = $type;
