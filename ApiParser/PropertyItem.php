@@ -60,6 +60,9 @@ class PropertyItem {
             case 'double':
                 $this->typeScriptType = 'number';
                 break;
+            case '?int':
+                $this->typeScriptType = '?number';
+                break;
             case 'string|double':
                 $this->typeScriptType = 'string';
                 break;
