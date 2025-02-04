@@ -68,6 +68,16 @@ class ApiRoute extends Entity {
     public static function addResourceControllerGet($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
+
+        $rc = new \ReflectionClass('\\'.$class);
+        foreach(explode("\n", $rc->getDocComment()) as $docComment) {
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $resource =trim(substr($docComment, $pos + strlen($search)));
+            }
+        }
+
         ApiRoute::quick($resource, $class, 'get', 'get', $scope);
         ApiRoute::quick("$resource/([0-9]+)", $class, "get/$1", 'get', $scope);
     }
@@ -75,12 +85,32 @@ class ApiRoute extends Entity {
     public static function addResourceControllerPost($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
+
+        $rc = new \ReflectionClass('\\'.$class);
+        foreach(explode("\n", $rc->getDocComment()) as $docComment) {
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $resource =trim(substr($docComment, $pos + strlen($search)));
+            }
+        }
+
         ApiRoute::quick($resource, $class, 'post', 'post', $scope);
     }
 
     public static function addResourceControllerPut($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
+
+        $rc = new \ReflectionClass('\\'.$class);
+        foreach(explode("\n", $rc->getDocComment()) as $docComment) {
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $resource =trim(substr($docComment, $pos + strlen($search)));
+            }
+        }
+
         ApiRoute::quick("$resource/([0-9]+)", $class, "put/$1", 'put', $scope);
         ApiRoute::quick($resource, $class, 'put', 'put', $scope);
     }
@@ -88,6 +118,16 @@ class ApiRoute extends Entity {
     public static function addResourceControllerPatch($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
+
+        $rc = new \ReflectionClass('\\'.$class);
+        foreach(explode("\n", $rc->getDocComment()) as $docComment) {
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $resource =trim(substr($docComment, $pos + strlen($search)));
+            }
+        }
+
         ApiRoute::quick("$resource/([0-9]+)", $class, "patch/$1", 'patch', $scope);
         ApiRoute::quick($resource, $class, 'patch', 'patch', $scope);
     }
@@ -95,6 +135,16 @@ class ApiRoute extends Entity {
     public static function addResourceControllerDelete($class, $scope = '') {
         $Resource = substr($class, strrpos($class, '\\') + 1); // Remove namespace
         $resource = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resource)); // Camel to snake
+
+        $rc = new \ReflectionClass('\\'.$class);
+        foreach(explode("\n", $rc->getDocComment()) as $docComment) {
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $resource =trim(substr($docComment, $pos + strlen($search)));
+            }
+        }
+
         ApiRoute::quick("$resource/([0-9]+)", $class, "delete/$1", 'delete', $scope);
     }
 

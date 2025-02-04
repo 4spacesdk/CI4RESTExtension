@@ -19,6 +19,7 @@ use ReflectionMethod;
  * @property EndpointItem[] $endpoints
  * @property bool $isResourceController
  * @property string[] $imports
+ * @property string $resourceApiPath
  */
 class ApiItem {
 
@@ -59,6 +60,12 @@ class ApiItem {
                 $item->resourceNameUpperCase = trim(substr($docComment, $pos + strlen($search)));
                 $item->resourceNameLowerCase = lcfirst($item->resourceNameUpperCase);
             }
+
+            $search = '@apiPath';
+            $pos = strpos($docComment, $search);
+            if($pos !== false) {
+                $item->resourceApiPath = trim(substr($docComment, $pos + strlen($search)));
+            }
         }
 
         $item->endpoints = [];
@@ -89,6 +96,9 @@ class ApiItem {
             $overrides = [
                 'scope', 'ignore', 'summary', 'requestEntity', 'responseSchema'
             ];
+            if (isset($item->resourceApiPath) && strlen($item->resourceApiPath)) {
+                $resources = $item->resourceApiPath;
+            }
 
             $getEndpoint = new EndpointItem();
             $getEndpoint->method = 'get';
