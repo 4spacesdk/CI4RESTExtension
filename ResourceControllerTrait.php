@@ -33,7 +33,17 @@ trait ResourceControllerTrait {
         $model = new $className();
         $items = $model->restGet($id, $this->queryParser);
         if ($id) {
-            $this->_setResource($items->first());
+            // `first()` on an empty collection answers the entity itself, so an id that does
+            // not exist used to be served as a complete resource with every column null. A
+            // caller could not tell it apart from a row that is there, and anyone signed in
+            // could read off the column names of every resource by asking for an id that is
+            // not there.
+            $item = $items->first();
+            if (!$item->exists()) {
+                $this->error(ErrorCodes::ResourceNotFound, 404);
+                return;
+            }
+            $this->_setResource($item);
         } else {
             $this->_setResources($items);
         }
