@@ -5,6 +5,7 @@ use OrmExtension\DataMapper\RelationDef;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 use RestExtension\Fields\QueryField;
+use RestExtension\Exceptions\InvalidRequestException;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
 use RestExtension\Includes\QueryInclude;
@@ -115,22 +116,57 @@ trait ResourceModelTrait {
             return new Entity();
     }
 
+    /**
+     * `ordering=field:direction`, checked before it reaches the query builder.
+     *
+     * Neither half used to be looked at. A field that is not a column reached `orderBy()`
+     * as it was written and came back as a `DatabaseException` - a 500 carrying the
+     * statement it failed on - and a relation that does not exist came back as the ORM's
+     * own `Failed to find relation`, which is a 500 as well. A direction that is not
+     * `asc` or `desc` was worse for being quiet: CodeIgniter drops a direction it does not
+     * recognise, so `name:sideways` answered `200 OK` sorted ascending, and a client that
+     * asked the wrong question was never told.
+     *
+     * All three are the same mistake - a query string naming something that is not there -
+     * and all three are answered the same way now. The allow-list is the model's own
+     * columns, so it needs no maintenance: `getTableFields()` is read from the schema.
+     *
+     * @throws InvalidRequestException
+     */
     public function applyOrder(QueryOrder $order) {
         Data::debug(get_class($this), "apply order", $order->property, $order->direction);
+
+        $direction = strtolower(trim($order->direction));
+        if ($direction != 'asc' && $direction != 'desc') {
+            throw new InvalidRequestException("Ordering direction has to be asc or desc, and '{$order->direction}' is not");
+        }
 
         $classes = explode('.', $order->property);
         $field = array_pop($classes);
 
         /** @var RelationDef[] $relations */
-        $relations = $this->getRelation($classes, true);
+        try {
+            $relations = $this->getRelation($classes, true);
+        } catch (\Exception $e) {
+            throw new InvalidRequestException("Cannot order by '{$order->property}': " . implode('.', $classes) . " is not a relation");
+        }
+
+        /** @var Model $related the model the field has to belong to, which is this one unless a relation was named */
+        $related = $this;
         $relationNames = [];
         foreach ($relations as $relation) {
             $relationNames[] = $relation->getName();
+            $related = $relation->getRelationClass();
         }
+
+        if (!in_array($field, $related->getTableFields())) {
+            throw new InvalidRequestException("Cannot order by '{$order->property}': it is not a field");
+        }
+
         if (count($relationNames) > 0)
-            $this->orderByRelated($relationNames, $field, $order->direction);
+            $this->orderByRelated($relationNames, $field, $direction);
         else
-            $this->orderBy($field, $order->direction);
+            $this->orderBy($field, $direction);
     }
 
 
