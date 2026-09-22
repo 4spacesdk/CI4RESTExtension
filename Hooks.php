@@ -85,7 +85,7 @@ class Hooks {
             /*
              * Setup Database connection
              */
-            self::$database = Database::connect(self::$config->databaseGroupName ?? 'default');
+            self::$database = Database::connect(self::$config->databaseGroupName ?? null);
 
             $routes = Services::routes(true);
 
@@ -293,7 +293,7 @@ class Hooks {
                         /*
                          * Unauthorized!
                          */
-                        throw new UnauthorizedException($authResponse->reason);
+                        throw new UnauthorizedException((string) $authResponse->reason);
                     }
                 }
 
@@ -366,7 +366,9 @@ class Hooks {
                 if ($restRequest->apiRoute) {
                     $apiAccessLog->api_route_id = $restRequest->apiRoute->id;
                 }
-                $apiAccessLog->access_token = $restRequest->getAccessToken();
+                // Not the token: `user_id` and `client_id` say who called, and a token in a log
+                // table is a way in for whoever can read the table, until it expires.
+                $apiAccessLog->access_token = null;
                 $apiAccessLog->uri = current_url();
                 $apiAccessLog->date = date('Y-m-d H:i:s');
                 $apiAccessLog->ip_address = $request->getIPAddress();
@@ -404,6 +406,36 @@ class Hooks {
         }
     }
 
+    /**
+     * The headers that carry credentials, whatever the application adds to them with
+     * `$redactedHeaders` in its `Config\RestExtension`. Compared without regard to case.
+     */
+    public const RedactedHeaders = ['Authorization', 'Proxy-Authorization', 'Cookie', 'Set-Cookie'];
+
+    /**
+     * The request's headers for the error log, with the value of every one that carries a
+     * credential replaced. The name stays, so the log still says that a token was sent.
+     *
+     * They used to be written as they were: a bearer token in full, and the session cookie that
+     * can fetch new tokens without a password - for every request that ended in an exception,
+     * refused ones included.
+     *
+     * @return array<string, string>
+     */
+    public static function redactedHeaders($request): array {
+        $redacted = array_map('strtolower', array_merge(
+            self::RedactedHeaders,
+            (self::$config && isset(self::$config->redactedHeaders)) ? (array) self::$config->redactedHeaders : []
+        ));
+
+        $headers = [];
+        foreach ($request->headers() as $header) {
+            $name = $header->getName();
+            $headers[$name] = in_array(strtolower($name), $redacted, true) ? '[redacted]' : $header->getValueLine();
+        }
+        return $headers;
+    }
+
     public static function exceptionHandler(Throwable $exception) {
         if (self::$config) {
 
@@ -416,17 +448,13 @@ class Hooks {
                 if ($restRequest->userId) $apiErrorLog->user_id = $restRequest->userId;
                 if ($restRequest->clientId) $apiErrorLog->client_id = $restRequest->clientId;
                 if ($restRequest->apiRoute) $apiErrorLog->api_route_id = $restRequest->apiRoute->id;
-                $apiErrorLog->access_token = $restRequest->getAccessToken();
+                $apiErrorLog->access_token = null;
                 $apiErrorLog->uri = current_url();
                 $apiErrorLog->date = date('Y-m-d H:i:s');
                 $apiErrorLog->code = $exception->getCode();
                 $apiErrorLog->message = $exception->getMessage();
                 $apiErrorLog->ip_address = $request->getIPAddress();
-                $headers = [];
-                foreach ($request->headers() as $header) {
-                    $headers[$header->getName()] = $header->getValueLine();
-                }
-                $apiErrorLog->headers = json_encode($headers, JSON_PRETTY_PRINT);
+                $apiErrorLog->headers = json_encode(self::redactedHeaders($request), JSON_PRETTY_PRINT);
                 $apiErrorLog->save();
             }
 
@@ -437,7 +465,7 @@ class Hooks {
                     if ($restRequest->userId) $apiBlockedLog->user_id = $restRequest->userId;
                     if ($restRequest->clientId) $apiBlockedLog->client_id = $restRequest->clientId;
                     if ($restRequest->apiRoute) $apiBlockedLog->api_route_id = $restRequest->apiRoute->id;
-                    $apiBlockedLog->access_token = $restRequest->getAccessToken();
+                    $apiBlockedLog->access_token = null;
                     $apiBlockedLog->uri = current_url();
                     $apiBlockedLog->date = date('Y-m-d H:i:s');
                     $apiBlockedLog->reason = $exception->getMessage();

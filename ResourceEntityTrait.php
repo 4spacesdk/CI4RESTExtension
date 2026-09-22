@@ -365,7 +365,7 @@ trait ResourceEntityTrait {
                             case 'float':
                             case 'double':
                             case 'decimal':
-                                $this->{$field} = (double)$value;
+                                $this->{$field} = (float)$value;
                                 break;
                             case 'tinyint':
                                 $this->{$field} = (bool)$value;

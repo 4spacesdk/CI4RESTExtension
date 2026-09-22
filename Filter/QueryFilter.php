@@ -14,6 +14,15 @@ class QueryFilter {
 
     public $ignoreAuto = false;
 
+    /** @var string */
+    public $property;
+
+    /** @var string */
+    public $operator;
+
+    /** @var string|array|null */
+    public $value;
+
     public static function parse($line) {
         $item = new QueryFilter();
 

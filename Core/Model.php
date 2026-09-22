@@ -14,7 +14,7 @@ class Model extends \OrmExtension\Extensions\Model implements ResourceBaseModelI
 
     use ResourceModelTrait;
 
-    public function __construct(ConnectionInterface $db = null, ValidationInterface $validation = null) {
+    public function __construct(?ConnectionInterface $db = null, ?ValidationInterface $validation = null) {
         parent::__construct($db, $validation);
         if(in_array('created', $this->getTableFields()))
             $this->createdField = 'created';

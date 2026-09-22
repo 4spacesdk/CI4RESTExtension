@@ -15,6 +15,12 @@ class QueryInclude {
 
     public $ignoreAuto = false;
 
+    /** @var string */
+    public $property;
+
+    /** @var \RestExtension\QueryParser */
+    public $queryParser;
+
     public static function parse($line) {
         $item = new QueryInclude();
 

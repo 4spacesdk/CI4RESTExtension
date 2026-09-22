@@ -13,6 +13,12 @@ class QueryOrder {
 
     public $ignoreAuto = false;
 
+    /** @var string */
+    public $property;
+
+    /** @var string */
+    public $direction;
+
     public static function parse($line) {
         $parts = explode(':', $line);
 

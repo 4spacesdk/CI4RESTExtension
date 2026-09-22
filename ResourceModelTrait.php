@@ -159,7 +159,7 @@ trait ResourceModelTrait {
             $related = $relation->getRelationClass();
         }
 
-        if (!in_array($field, $related->getTableFields())) {
+        if (!self::isQueryable($related, $field)) {
             throw new InvalidRequestException("Cannot order by '{$order->property}': it is not a field");
         }
 
@@ -240,8 +240,17 @@ trait ResourceModelTrait {
             $field = array_pop($classes);
             /** @var RelationDef $relation */
             $relations = [];
-            foreach ($this->getRelation($classes, true) as $relation) {
-                $relations[] = $relation->getName();
+            $related = $this;
+            try {
+                foreach ($this->getRelation($classes, true) as $relation) {
+                    $relations[] = $relation->getName();
+                    $related = $relation->getRelationClass();
+                }
+            } catch (\Exception $e) {
+                throw new InvalidRequestException("Cannot filter on '{$filter->property}': " . implode('.', $classes) . " is not a relation");
+            }
+            if (!self::isQueryable($related, $field)) {
+                throw new InvalidRequestException("Cannot filter on '{$filter->property}': it is not a field");
             }
 
             switch ($filter->operator) {
@@ -271,6 +280,10 @@ trait ResourceModelTrait {
             }
 
         } else {
+
+            if (!self::isQueryable($this, $filter->property)) {
+                throw new InvalidRequestException("Cannot filter on '{$filter->property}': it is not a field");
+            }
 
             switch ($filter->operator) {
 
@@ -311,8 +324,48 @@ trait ResourceModelTrait {
         if ($field->isRelationField()) {
             // TODO Not yet implemented
         } else {
+            if (!self::isQueryable($this, (string) $field->fieldName)) {
+                throw new InvalidRequestException("Cannot select '{$field->fieldName}': it is not a field");
+            }
             $this->select($field->fieldName);
         }
+    }
+
+    /**
+     * Whether a query string may name this column - to filter on it, search it, select it or
+     * sort by it.
+     *
+     * A column of the model's table, and not one of its entity's `hiddenFields`: those are kept
+     * out of every answer by `toArray()`, and a filter, a search or a sort on one gives it away
+     * just the same, a character at a time - `?filter=password~$2y$10$a` answers whether a hash
+     * starts that way. Filters and `fields` used to reach the query builder as they were written,
+     * any column and any text. A hidden column is refused with the same words as a missing one,
+     * so the answer does not say that it exists.
+     *
+     * @param Model $model
+     */
+    private static function isQueryable($model, string $field): bool {
+        return in_array($field, $model->getTableFields(), true)
+            && !in_array($field, self::hiddenFieldsOf($model), true);
+    }
+
+    /** @var array<string, string[]> by entity class */
+    private static array $hiddenFields = [];
+
+    /**
+     * @param Model $model
+     * @return string[]
+     */
+    private static function hiddenFieldsOf($model): array {
+        $class = $model->returnType ?? null;
+        if (!is_string($class) || !class_exists($class)) {
+            return [];
+        }
+        if (!isset(self::$hiddenFields[$class])) {
+            $entity = new $class();
+            self::$hiddenFields[$class] = (array) ($entity->hiddenFields ?? []);
+        }
+        return self::$hiddenFields[$class];
     }
 
     /**

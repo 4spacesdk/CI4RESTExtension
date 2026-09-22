@@ -28,7 +28,7 @@ class RestExtension extends BaseConfig {
 
     /*
      * Track every access to the API.
-     * Consider adding a CronJob to periodically cleanup this table
+     * Consider adding a CronJob to periodically cleanup this table - see "Log tables" below
      */
     public $enableAccessLog         = FALSE;
 
@@ -42,6 +42,12 @@ class RestExtension extends BaseConfig {
      * Track errors
      */
     public $enableErrorLog          = FALSE;
+
+    /*
+     * Headers the error log writes as [redacted], on top of Authorization, Proxy-Authorization,
+     * Cookie and Set-Cookie, which always are. Compared without regard to case.
+     */
+    public array $redactedHeaders   = [];
 
     /*
      * Enable rate limit
@@ -167,6 +173,23 @@ Filtering milestones by name either "Milepæl 02" or "Milepæl 01" and related t
 
 `/projects?filter=id:>=10,id:<=100,name:"SOME PROJECT"`  
 Filtering projects by id greater than or equal to 10 and lower than or equal to 100 and name equals "SOME PROJECT". 
+
+### Log tables
+
+The access, error and blocked logs never store the access token, and the error log writes the
+value of every header that carries a credential as `[redacted]` (see `$redactedHeaders`). Nothing
+removes old rows; schedule this from the application, e.g. nightly:
+
+```php
+\RestExtension\Logs::PruneOlderThan(30); // days - returns how many rows went from each table
+```
+
+### What a query may name
+
+A filter, a search, `fields` and `ordering` may name a column of the model's table, or of a related
+model's, and nothing else - and none of the entity's `hiddenFields`, which are kept out of every
+answer and would otherwise be readable through a filter or a sort. Anything else is an
+`InvalidRequestException`, with the same words for a hidden column as for one that is not there.
 
 ### Filtering
 
