@@ -5,8 +5,12 @@ export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoi
 
     public topic = '<?=$endpoint->getTopicName()?>';
     protected method = '<?=$endpoint->method?>';
+<?php if(!$endpoint->hasTypeScriptQueryParameter('scope')) { ?>
     protected scope = '<?=isset($endpoint->scope)?$endpoint->scope:''?>';
+<?php } ?>
+<?php if(!$endpoint->hasTypeScriptQueryParameter('summary')) { ?>
     protected summary = '<?=isset($endpoint->summary)?$endpoint->summary:''?>';
+<?php } ?>
 
     public constructor(<?=implode(', ', $endpoint->getTypeScriptPathArgumentsWithTypes())?>) {
         super();
@@ -22,7 +26,7 @@ export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoi
     }
 <?php foreach($endpoint->getTypeScriptQueryParameters() as $parameter) { ?>
 
-    public <?=$parameter->name?>(value: <?=$parameter->getTypeScriptType()?>): <?=$endpoint->getTypeScriptClassName()?> {
+    public <?=$endpoint->getTypeScriptQueryParameterMethodName($parameter)?>(value: <?=$parameter->getTypeScriptType()?>): <?=$endpoint->getTypeScriptClassName()?> {
         this.addQueryParameter('<?=$parameter->name?>', value);
         return this;
     }

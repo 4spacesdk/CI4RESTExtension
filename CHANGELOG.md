@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.15 (2026-10-01)
+
+### Fixed bugs
+* **The Vue and TypeScript api clients build when an endpoint has a query parameter named `scope`,
+  `summary`, `topic` or `method`. The endpoint class has properties with those names, and gave the
+  parameter a method of the same name, which TypeScript refuses with `TS2300: Duplicate identifier`.
+  A query parameter named `scope` or `summary` now takes the place of the property, which BaseApi
+  never reads. One named `topic` or `method` gets the method `topicParameter()` or `methodParameter()`,
+  since BaseApi reads `method` to choose between post, put and patch.**
+
+### Upgrade guide
+* Nothing to do. Every endpoint without such a parameter is generated as before.
+
+
+
 ## v1.0.14 (2026-09-22)
 
 ### Security

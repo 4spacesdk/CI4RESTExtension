@@ -325,6 +325,25 @@ class EndpointItem {
         return $parameters;
     }
 
+    public function hasTypeScriptQueryParameter(string $name): bool {
+        foreach ($this->getTypeScriptQueryParameters() as $parameter) {
+            if ($parameter->name == $name)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * The endpoint class also has the properties `topic`, `method`, `scope` and `summary`, and TypeScript refuses a
+     * method with the name of a property. `scope` and `summary` are left out when a query parameter takes the name,
+     * see the templates. `topic` and `method` are read by BaseApi, so the method for the parameter is renamed instead.
+     */
+    public function getTypeScriptQueryParameterMethodName(ParameterItem $parameter): string {
+        if (in_array($parameter->name, ['topic', 'method']))
+            return $parameter->name . 'Parameter';
+        return $parameter->name;
+    }
+
     public function getTypeScriptFunctionName(): string {
         // Append path arguments to function name, to ensure uniqueness
         $with = [];
