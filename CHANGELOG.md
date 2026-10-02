@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.0.16 (2026-10-02)
+
+### Enhancements
+* **The TypeScript export can produce a complete Angular client.** With `typescriptAPIExportBaseClasses`
+  on, `api:export` also writes `BaseApi.ts`, `ApiFilter.ts`, `ApiInclude.ts` and `ApiOrdering.ts`
+  next to `Api.ts`, and `model:export` writes `BaseModel.ts` next to the models. Together with the
+  generated files they compile under `strict`, `noImplicitOverride`, `exactOptionalPropertyTypes` and
+  `noUncheckedIndexedAccess`. Until now every application had to write these itself.
+* `typescriptObservableMethods` adds `find$()`, `count$()`, `save$()` and `delete$()` to the TypeScript
+  endpoints. They return a typed Observable of model instances, for `rxResource`, `toSignal` and RxJS
+  operators. `getClient()`, the only Observable so far, is typed `any`.
+* `typescriptBaseApiImportPath` and `typescriptModelsImportPath` say where `Api.ts` imports `BaseApi`
+  and the models from. They were fixed at `@app/core/http/Api/BaseApi` and `@app/core/models`.
+
+### Fixed bugs
+* **The TypeScript `Api.ts` imports the models that a request or response interface refers to.** It
+  only imported those an endpoint names, so an interface with a model-typed property failed with
+  `TS2552: Cannot find name`. The Vue export already did this.
+
+### Upgrade guide
+* Nothing to do. The new options default to off, and with them off the only change to the
+  generated files is the added imports.
+
+
+
 ## v1.0.15 (2026-10-01)
 
 ### Fixed bugs

@@ -1,5 +1,6 @@
 <?php
 /** @var \RestExtension\ApiParser\EndpointItem $endpoint */
+$observableMethods = \RestExtension\ApiParser\ApiParser::typescriptOption('typescriptObservableMethods', false);
 ?>
 export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoint->responseSchema ?? 'any'?>> {
 
@@ -131,12 +132,24 @@ export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoi
     public count(next?: (value: number) => void): RXJSSubscription {
         return this.executeCount(next);
     }
+<?php if($observableMethods) { ?>
+
+    public count$(): Observable<number> {
+        return this.executeCount$();
+    }
+<?php } ?>
 <?php } ?>
 <?php if($endpoint->method == 'get') { ?>
 
     public find(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>[]) => void): RXJSSubscription {
         return super.executeFind(next);
     }
+<?php if($observableMethods) { ?>
+
+    public find$(): Observable<<?=$endpoint->responseSchema ?? 'any'?>[]> {
+        return super.executeFind$();
+    }
+<?php } ?>
 
     public getClient(): Observable<any | <?=$endpoint->responseSchema ?? 'any'?>[] | any[]> {
         return super.executeClientGet();
@@ -146,10 +159,22 @@ export class <?=$endpoint->getTypeScriptClassName()?> extends BaseApi<<?=$endpoi
     public delete(next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): RXJSSubscription {
         return super.executeDelete(next);
     }
+<?php if($observableMethods) { ?>
+
+    public delete$(): Observable<<?=$endpoint->responseSchema ?? 'any'?>> {
+        return super.executeDelete$();
+    }
+<?php } ?>
 <?php } else { ?>
 
     public save(data: <?=$endpoint->requestEntity ?? 'any'?>, next?: (value: <?=$endpoint->responseSchema ?? 'any'?>) => void): RXJSSubscription {
         return super.executeSave(data, next);
     }
+<?php if($observableMethods) { ?>
+
+    public save$(data: <?=$endpoint->requestEntity ?? 'any'?>): Observable<<?=$endpoint->responseSchema ?? 'any'?>> {
+        return super.executeSave$(data);
+    }
+<?php } ?>
 <?php } ?>
 }

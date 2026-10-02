@@ -2,11 +2,13 @@
 /** @var \RestExtension\ApiParser\ApiItem[] $resources */
 /** @var string[] $imports */
 /** @var \RestExtension\ApiParser\InterfaceItem[] $interfaces */
+/** @var string $baseApiImportPath */
+/** @var string $modelsImportPath */
 ?>
-import {BaseApi} from '@app/core/http/Api/BaseApi';
+import {BaseApi} from '<?=$baseApiImportPath?>';
 import { Observable, Subscription as RXJSSubscription } from 'rxjs';
 <?php foreach($imports as $import) { ?>
-import {<?=$import?>} from '@app/core/models';
+import {<?=$import?>} from '<?=$modelsImportPath?>';
 <?php } ?>
 <?php foreach($interfaces as $interface) { ?>
 

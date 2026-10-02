@@ -148,7 +148,46 @@ class RestExtension extends BaseConfig {
      */
     public $typescriptAPIExporterDestination    = '~/Desktop/APIExporter';
 
+    /*
+     * Where the TypeScript Api.ts imports BaseApi and the models from
+     */
+    public $typescriptBaseApiImportPath     = '@app/core/http/Api/BaseApi';
+    public $typescriptModelsImportPath      = '@app/core/models';
+
+    /*
+     * Also generate find$(), count$(), save$() and delete$(), which return a typed Observable
+     * instead of taking a callback. BaseApi has to provide executeFind$() and friends; the
+     * generated one below does.
+     */
+    public $typescriptObservableMethods     = false;
+
+    /*
+     * Let api:export write BaseApi.ts, ApiFilter.ts, ApiInclude.ts and ApiOrdering.ts next to
+     * Api.ts, and model:export write BaseModel.ts next to the models, replacing what is there.
+     * Leave it off when the application has written its own.
+     */
+    public $typescriptAPIExportBaseClasses  = false;
+
 }
+```
+
+### TypeScript client for Angular
+With `typescriptAPIExportBaseClasses` on, `php spark model:export` and `php spark api:export` produce
+a complete client for Angular's HttpClient that compiles under `strict` and `noImplicitOverride`.
+Endpoints are created with `new`, so hand the injector over once at startup:
+
+```ts
+provideHttpClient(),
+provideAppInitializer(() => {
+    ApiConfig.injector = inject(Injector);
+    ApiConfig.baseUrl = '/api';
+}),
+```
+
+With `typescriptObservableMethods` on as well, a request can feed a signal directly:
+
+```ts
+projects = rxResource({stream: () => Api.projects().get().whereEquals('name', 'x').find$()});
 ```
 
 ### Step 3)

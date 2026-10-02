@@ -4,6 +4,7 @@ use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use Config\RestExtension;
 use OrmExtension\ModelParser\ModelParser;
+use RestExtension\ApiParser\ApiParser;
 
 /**
  * Class ModelExporter
@@ -38,8 +39,8 @@ class ModelExporter extends BaseCommand {
 
         $from = WRITEPATH . 'tmp/models';
         $from = str_replace(' ', '\ ', $from);
-        $to = $config->typescriptModelExporterDestination;
-        $to = str_replace(' ', '\ ', $to);
+        $destination = $config->typescriptModelExporterDestination;
+        $to = str_replace(' ', '\ ', $destination);
 
         // Create destination direction if not already exists
         if(!is_dir($to)) mkdir($to, 0777, true);
@@ -57,6 +58,11 @@ class ModelExporter extends BaseCommand {
 
         // Cleanup
         shell_exec("rm -rf {$from}");
+
+        // BaseModel, which every definition extends, when the application takes it from here
+        if (ApiParser::typescriptOption('typescriptAPIExportBaseClasses', false)) {
+            ApiParser::writeTypeScriptBaseModel($destination);
+        }
     }
 
 }

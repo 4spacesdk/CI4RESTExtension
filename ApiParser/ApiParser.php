@@ -89,10 +89,24 @@ class ApiParser {
             $imports = array_merge($imports, $path->imports);
         }
 
+        // Models named by an interface property, which no endpoint imports on its own behalf
+        foreach ($this->interfaces as $interface) {
+            foreach ($interface->properties as $property) {
+                if (!$property->isSimpleType && !$property->isInterface) {
+                    $type = str_replace('[]', '', $property->rawType);
+                    if (!in_array($type, $imports)) {
+                        $imports[] = $type;
+                    }
+                }
+            }
+        }
+
         $content = $renderer->setData([
             'imports' => $imports,
             'resources' => $this->paths,
-            'interfaces' => $this->interfaces
+            'interfaces' => $this->interfaces,
+            'baseApiImportPath' => self::typescriptOption('typescriptBaseApiImportPath', '@app/core/http/Api/BaseApi'),
+            'modelsImportPath' => self::typescriptOption('typescriptModelsImportPath', '@app/core/models'),
         ], 'raw')->render('API', ['debug' => false], null);
         if($debug) {
             header('Content-Type', 'text/plain');
@@ -100,6 +114,35 @@ class ApiParser {
             exit(0);
         } else
             file_put_contents(WRITEPATH.'tmp/Api.ts', $content);
+    }
+
+    /**
+     * A TypeScript export option from Config\RestExtension. The application's config class
+     * only has the options it was written with, so one added later falls back to its default.
+     */
+    public static function typescriptOption(string $name, $default) {
+        $config = config('RestExtension');
+        return $config && isset($config->{$name}) ? $config->{$name} : $default;
+    }
+
+    /**
+     * Writes BaseApi.ts and the filter, include and ordering classes it uses into $directory,
+     * replacing what is there. Api.ts extends BaseApi, so they go next to it.
+     */
+    public static function writeTypeScriptBaseClasses(string $directory): void {
+        if (!is_dir($directory)) mkdir($directory, 0777, true);
+        foreach (['BaseApi.ts', 'ApiFilter.ts', 'ApiInclude.ts', 'ApiOrdering.ts'] as $file) {
+            copy(__DIR__ . '/TypeScript/BaseClasses/' . $file, rtrim($directory, '/') . '/' . $file);
+        }
+    }
+
+    /**
+     * Writes BaseModel.ts into $directory, replacing what is there. The model definitions
+     * import it from their parent folder, so it goes next to index.ts.
+     */
+    public static function writeTypeScriptBaseModel(string $directory): void {
+        if (!is_dir($directory)) mkdir($directory, 0777, true);
+        copy(__DIR__ . '/TypeScript/BaseClasses/BaseModel.ts', rtrim($directory, '/') . '/BaseModel.ts');
     }
 
     public function generateVue($debug) {
