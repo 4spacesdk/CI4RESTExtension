@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/codeigniter4/framework/system/Test/bootstrap.php"
+         colors="true"
+         cacheDirectory="build/.phpunit.cache"
+         defaultTestSuite="differential">
+    <testsuites>
+        <testsuite name="differential">
+            <directory>tests/Differential</directory>
+        </testsuite>
+        <!-- The CRM of a realistic size, slower: composer test-realistic -->
+        <testsuite name="realistic">
+            <directory>tests/Realistic</directory>
+        </testsuite>
+        <!-- What the CRM's list views cost, into build/benchmark.md: composer benchmark -->
+        <testsuite name="benchmark">
+            <directory>tests/Benchmark</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="CI_ENVIRONMENT" value="testing" force="true"/>
+        <env name="database.tests.DBDriver" value="OrmExtension\Extensions\Database\MySQLi"/>
+        <env name="database.tests.hostname" value="db"/>
+        <env name="database.tests.database" value="restextension_tests"/>
+        <env name="database.tests.username" value="tests"/>
+        <env name="database.tests.password" value="tests"/>
+        <env name="database.tests.DBPrefix" value=""/>
+        <env name="database.tests.charset" value="utf8mb4"/>
+        <env name="database.tests.DBCollat" value="utf8mb4_general_ci"/>
+    </php>
+</phpunit>

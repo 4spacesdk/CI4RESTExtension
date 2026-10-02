@@ -220,6 +220,14 @@ class QueryParser {
     }
 
     /**
+     * A filter that is already parsed, as if it had been part of the query string: a search goes
+     * with the searches.
+     */
+    public function addFilter(QueryFilter $filter) {
+        $this->pushFilter($filter->property, $filter);
+    }
+
+    /**
      * @param string $name
      * @param Filter\QueryFilter $filter
      */

@@ -1,0 +1,7 @@
+# The tests against a checkout of CI4OrmExtension next to this one, instead of the released
+# version in vendor/ - for a change that spans both:
+#   docker compose -f tests/compose.yaml -f tests/compose.ormextension.yaml run --rm tests
+services:
+  tests:
+    volumes:
+      - ../../CI4OrmExtension:/src/vendor/4spacesdk/ci4ormextension

@@ -12,11 +12,25 @@
     "php": ">=8.0",
     "4spacesdk/ci4debugtool": ">=1.0.0",
     "codeigniter4/framework": "^4.0",
-    "4spacesdk/ci4ormextension": "^1.1"
+    "4spacesdk/ci4ormextension": "^1.1.6"
   },
   "autoload": {
     "psr-4": {
       "RestExtension\\": ""
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/",
+      "Config\\": "tests/_support/Config/"
+    }
+  },
+  "scripts": {
+    "test": "docker compose -f tests/compose.yaml run --rm tests",
+    "test-realistic": "docker compose -f tests/compose.yaml run --rm tests sh -c \"composer install --no-interaction --quiet && php -d memory_limit=2G vendor/bin/phpunit --testsuite realistic\"",
+    "benchmark": "docker compose -f tests/compose.yaml run --rm tests sh -c \"composer install --no-interaction --quiet && php -d memory_limit=2G vendor/bin/phpunit --testsuite benchmark\""
   }
 }

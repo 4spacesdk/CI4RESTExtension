@@ -1,0 +1,26 @@
+# The tests against a MySQL of their own:
+#   docker compose -f tests/compose.yaml run --rm tests
+# The first run installs the dev dependencies into vendor/ (ignored by git).
+services:
+  tests:
+    build: ./docker
+    volumes:
+      - ..:/src
+    working_dir: /src
+    command: sh -c "composer install --no-interaction --quiet && vendor/bin/phpunit"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: restextension_tests
+      MYSQL_USER: tests
+      MYSQL_PASSWORD: tests
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 2s
+      retries: 30

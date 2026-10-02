@@ -133,3 +133,5 @@ nb-configuration.xml
 /phpunit*.xml
 
 composer.phar
+# Test output
+/build/

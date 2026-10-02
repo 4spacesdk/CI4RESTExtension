@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.0.17 (unreleased)
+
+### Enhancements
+* **Relations can follow the related model's rules.** With `relationsFollowRules` on, a filter, an
+  include or an ordering on a relation asks the related model's `preRestGet()` which rows the
+  caller may read, instead of joining its table in past it, and a row they may not read counts as
+  no row. Off by default; on, the answer is the same as before wherever nothing is hidden. See
+  "Relations and rules" in the README.
+* With it on, a has-many include is fetched for all rows in one request instead of one per row, and
+  a has-one include with includes of its own in one request instead of one per row.
+* `QueryParser::addFilter()` adds a filter that is already parsed.
+
+### Upgrade guide
+* Requires CI4OrmExtension 1.1.6, which says how a relation is joined (`RelationLink`).
+* Nothing else to do: with `relationsFollowRules` off, nothing changes.
+* Before turning it on, look for rules that live in `postRestGet()`: they still decide what an
+  include holds, but not what a filter on the relation matches.
+
 ## v1.0.16 (2026-10-02)
 
 ### Enhancements

@@ -65,6 +65,18 @@ class RestExtension extends BaseConfig {
      */
     public $enableUsageReporting    = FALSE;
 
+    /*
+     * Filters, includes and orderings on a relation go through the related model's own rules
+     * (its preRestGet), instead of joining its table in past them. See "Relations and rules" below.
+     */
+    public $relationsFollowRules    = FALSE;
+
+    /*
+     * With relationsFollowRules: how many keys of the related rows are fetched into the query
+     * as a list, before they stay a sub query. 0 is a sub query every time.
+     */
+    public $relationKeyListLimit    = 1000;
+
 
     /**
      * Apply function to authenticate $request.
@@ -328,6 +340,34 @@ Ex. `?include=created_by`
 Ex. `?include=created_by.role`     
 Use `.` separation for deep relations. NB, relation names is always singular
 
+
+### Relations and rules
+
+By default a filter, an include or an ordering on a relation joins the related table in, past the
+related model's rules. `orders?filter=buyer_workspace.name:Gamma` then tells a caller who may not
+read Gamma that Gamma bought something, and `include=buyer_workspace` hands them all of Gamma.
+
+With `relationsFollowRules` on - in `Config\RestExtension`, or per model by overriding
+`relationsFollowRules()` - each related model is asked, through its `preRestGet()`, which of its
+rows the caller may read, along the whole path (`order_line.product.workspace.name`), and a row
+they may not read counts as no row:
+
+* a filter only matches through rows the caller may read, and `relation.field:null` matches a
+  row with no such related row, as it does a row with no related row at all;
+* a has-one include the caller may not read comes back empty, and a has-many include holds only
+  what they may read - fetched for all rows in one request, instead of one per row;
+* ordering by a has-one relation's field sorts a row the caller may not read as if the field
+  were empty.
+
+Where nothing is hidden from the caller, the answer is the one the join gives, row for row, page
+for page. The rule is `preRestGet()`: `postRestGet()` works on fetched rows, so it decides what an
+include holds but not what a filter matches - as it never decided a count.
+
+What it costs: the related rows' keys are asked for on their own, without their rows, and used in
+the query as a list when there are at most `relationKeyListLimit` of them and their table is at
+most ten times that size; otherwise as a sub query MySQL can plan from either side. On a CRM of
+400 000 activities, 100 000 contacts and 60 000 deals, a page of 25 and its count took about as
+long as the join for an admin, and mostly far less for a rep, who sees a part of it.
 
 ### API Parser
 If you document your API endpoints like this
