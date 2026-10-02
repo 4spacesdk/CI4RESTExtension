@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.17 (unreleased)
+## v1.0.17 (2026-10-02)
 
 ### Enhancements
 * **Relations can follow the related model's rules.** With `relationsFollowRules` on, a filter, an
