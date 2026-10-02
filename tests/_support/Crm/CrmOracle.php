@@ -132,6 +132,52 @@ final class CrmOracle
         return $answer;
     }
 
+    /**
+     * What an include along a path must give each of these rows, at every level: for a has-one
+     * the related row, `['id' => …, 'next' => …]`, or null; for a has-many a list of those, by id.
+     * `next` is the same for the rest of the path, and only there when there is a rest.
+     *
+     * @param list<string> $path
+     * @param list<int> $ids
+     *
+     * @return array<int, mixed>
+     */
+    public function tree(string $model, array $path, array $ids): array
+    {
+        [$related, $hasMany] = self::LINKS["{$model}.{$path[0]}"];
+        $rest = array_slice($path, 1);
+        $direct = $this->include($model, $path[0], $ids);
+
+        $next = [];
+        if ($rest !== []) {
+            $keys = [];
+            foreach ($direct as $own) {
+                foreach ((array) $own as $key) {
+                    $keys[$key] = $key;
+                }
+            }
+            $next = $keys === [] ? [] : $this->tree($related, $rest, array_values($keys));
+        }
+        $node = static fn (int $key): array => $rest === [] ? ['id' => $key] : ['id' => $key, 'next' => $next[$key]];
+
+        $answer = [];
+        foreach ($direct as $id => $own) {
+            $answer[$id] = $hasMany ? array_map($node, $own) : ($own === null ? null : $node($own));
+        }
+
+        return $answer;
+    }
+
+    /**
+     * @return array{string, bool} the related model, and whether it is a has-many
+     */
+    public static function relation(string $model, string $relation): array
+    {
+        [$related, $hasMany] = self::LINKS["{$model}.{$relation}"];
+
+        return [$related, $hasMany];
+    }
+
     public static function hasMany(string $model, string $relation): bool
     {
         return self::LINKS["{$model}.{$relation}"][1];

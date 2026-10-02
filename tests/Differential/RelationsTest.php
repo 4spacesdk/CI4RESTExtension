@@ -16,7 +16,8 @@ use Tests\Support\Models\WorkspaceModel;
 /**
  * As an admin, whom no rule narrows: the candidate must answer exactly as RestExtension does -
  * the same rows, in the same order, with the same content and the same count, and the same
- * included relations.
+ * included relations. A path through a has-many, which RestExtension includes wrongly, is in
+ * EngineTest.
  */
 final class RelationsTest extends DifferentialTestCase
 {
@@ -67,7 +68,7 @@ final class RelationsTest extends DifferentialTestCase
         OrderModel::class => [
             'count_lines', 'buyer_workspace', 'seller_workspace', 'shipping_address', 'invoice_address', 'parent', 'child', 'order_line', 'buyer_workspace.group',
             'buyer_workspace.group.parent', 'buyer_workspace?include=group', 'buyer_workspace,seller_workspace,parent', 'order_line?limit=1', 'order_line?ordering=quantity:desc',
-            'order_line?filter=quantity:>1', 'child?include=buyer_workspace', 'buyer_workspace.user', 'count_lines,order_line,buyer_workspace',
+            'order_line?filter=quantity:>1', 'child?include=buyer_workspace', 'count_lines,order_line,buyer_workspace',
         ],
         WorkspaceModel::class => [
             'count_users', 'count_users,user', 'user', 'users_workspace', 'target_product', 'address', 'invoice_address', 'buyer_order',

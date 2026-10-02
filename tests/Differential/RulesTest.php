@@ -106,6 +106,16 @@ final class RulesTest extends DifferentialTestCase
         }
     }
 
+    public function testEveryLevelOfAPathFollowsItsOwnRules(): void
+    {
+        // Alpha's members as Bo may see them: Ann, himself and the user without an e-mail
+        $orders = Ask::rows(OrderModel::class, 'id:[1,9]', 'id:asc', 'buyer_workspace.user');
+
+        $this->assertIsArray($orders);
+        $this->assertSame([1, 2, 3], array_column($orders[0]['buyer_workspace']['users'] ?? [], 'id'));
+        $this->assertArrayNotHasKey('buyer_workspace', $orders[1]);
+    }
+
     public function testAnIncludeHeMayNotSeeComesBackEmpty(): void
     {
         // Today the whole of Gamma comes along with G-9

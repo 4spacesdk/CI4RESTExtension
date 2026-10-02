@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.18 (2026-10-02)
+
+### Fixed bugs
+* **With `relationsFollowRules` on, an include through a has-many further along its path is
+  included at every level.** `notes?include=user.notes` and `orders?include=buyer_workspace.user`
+  were left to RestExtension's own include, which includes nothing for the first relation and
+  gives each row the has-many of a row of another table with the same id. The first relation now
+  decides how the path is fetched, and the rest of it is the related model's include.
+
+### Upgrade guide
+* Nothing to do. With `relationsFollowRules` off, nothing changes; such a path is included as
+  wrongly as before.
+
 ## v1.0.17 (2026-10-02)
 
 ### Enhancements

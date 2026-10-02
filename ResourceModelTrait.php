@@ -633,27 +633,21 @@ trait ResourceModelTrait {
     }
 
     /**
-     * How an include is fetched through the rules: HasOne for a path of has-one relations, HasMany
-     * for one has-many relation. Null for the rest - a has-many with a limit of its own, which is
-     * per row, or a path through a has-many - which RestExtension already fetches through the
-     * related model, one row at a time.
+     * How an include is fetched through the rules, by its first relation: HasOne, or HasMany
+     * unless it has a limit of its own, which is per row. The rest of the path is the related
+     * model's include. Null for what RestExtension already fetches through the related model, one
+     * row at a time.
      */
     private function includeThroughRules(QueryInclude $include): ?int {
-        $relations = $this->getRelation(explode('.', $include->property), true);
-        if (!self::canAnswerThroughRules($relations[0]->getClass())) {
+        $relation = $this->getRelation(explode('.', $include->property), true)[0];
+        if (!self::canAnswerThroughRules($relation->getClass())) {
             return null;
         }
-        $hasMany = false;
-        foreach ($relations as $relation) {
-            if ($relation->getType() == RelationDef::HasMany) {
-                $hasMany = true;
-            }
-        }
-        if (!$hasMany) {
+        if ($relation->getType() == RelationDef::HasOne) {
             return RelationDef::HasOne;
         }
         $parser = $include->queryParser;
-        if (count($relations) == 1 && !$parser->hasLimit() && !$parser->hasOffset() && !$parser->isCount()) {
+        if (!$parser->hasLimit() && !$parser->hasOffset() && !$parser->isCount()) {
             return RelationDef::HasMany;
         }
         return null;
@@ -705,10 +699,11 @@ trait ResourceModelTrait {
 
     /**
      * A has-many include, for every row in one request to the related model instead of one per
-     * row, in the order that request gives.
+     * row, in the order that request gives. The rest of the path is its include.
      */
     private function applyIncludeManyThroughRules(Entity $items, QueryInclude $include) {
-        $relation = $this->getRelation([$include->property], true)[0];
+        $names = explode('.', $include->property);
+        $relation = $this->getRelation([$names[0]], true)[0];
         $primaryKey = $this->getPrimaryKey();
 
         $keys = [];
@@ -721,7 +716,7 @@ trait ResourceModelTrait {
                 $all[$key] = $key;
             }
         }
-        $rows = $this->restGetByKeys($relation, array_values($all), $include->queryParser, []);
+        $rows = $this->restGetByKeys($relation, array_values($all), $include->queryParser, array_slice($names, 1));
 
         $position = array_flip(array_keys($rows));
         $property = plural($relation->getSimpleName());
