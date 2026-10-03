@@ -106,10 +106,7 @@ class PropertyItem {
         }
 
         if (!$this->isSimpleType) {
-            $config = config('RestExtension');
-            $namespace = $config->apiInterfaceNamespace ?? '';
-            $class = "$namespace\\" . str_replace('[]', '', $type);
-            $this->isInterface = interface_exists($class);
+            $this->isInterface = Sources::interfaceClass(str_replace('[]', '', $type)) !== null;
         }
     }
 

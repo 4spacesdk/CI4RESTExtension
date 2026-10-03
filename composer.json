@@ -12,7 +12,7 @@
     "php": ">=8.0",
     "4spacesdk/ci4debugtool": ">=1.0.0",
     "codeigniter4/framework": "^4.0",
-    "4spacesdk/ci4ormextension": "^1.1.6"
+    "4spacesdk/ci4ormextension": "^1.1.7"
   },
   "autoload": {
     "psr-4": {

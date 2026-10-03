@@ -1,6 +1,8 @@
 # The tests against a MySQL of their own:
 #   docker compose -f tests/compose.yaml run --rm tests
 # The first run installs the dev dependencies into vendor/ (ignored by git).
+name: restextension-tests
+
 services:
   tests:
     build: ./docker

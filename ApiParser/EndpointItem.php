@@ -126,7 +126,7 @@ class EndpointItem {
         }
 
         $className = $method->getDeclaringClass()->getName();
-        $item->tag = str_replace([$config->apiControllerNamespace, '\\'], '', $className);
+        $item->tag = Sources::relativeName($className);
 
         return $item;
     }

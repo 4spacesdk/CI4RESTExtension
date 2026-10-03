@@ -8,6 +8,7 @@
     <testsuites>
         <testsuite name="differential">
             <directory>tests/Differential</directory>
+            <directory>tests/Export</directory>
         </testsuite>
         <!-- The CRM of a realistic size, slower: composer test-realistic -->
         <testsuite name="realistic">

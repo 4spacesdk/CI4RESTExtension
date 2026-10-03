@@ -24,7 +24,7 @@ class ApiParser {
 
         $interfaces = [];
         foreach(ApiParser::loadInterfaces() as $interface) {
-            $interfaceItem = InterfaceItem::parse(substr($interface, 0, -4));
+            $interfaceItem = InterfaceItem::parse($interface);
             if($interfaceItem) {
                 $interfaces[] = $interfaceItem;
             }
@@ -214,45 +214,26 @@ class ApiParser {
 
 
     /**
-     * @param $api
+     * @param string $api a controller's full class name
      * @return ApiItem
      * @throws \ReflectionException
      */
     private static function parseApiItem($api) {
-        return ApiItem::parse(substr($api, 0, -4));
+        return ApiItem::parse($api);
     }
 
+    /**
+     * Every controller of every controller namespace (Sources).
+     */
     private static function loadApi(): array {
-        return self::loadApiDirectory(APPPATH . 'Controllers');
+        return Sources::controllers();
     }
 
-    private static function loadApiDirectory(string $base, string $append = DIRECTORY_SEPARATOR): array {
-        $files = scandir($base.$append);
-        $apis = [];
-        foreach($files as $file) {
-            if (is_dir($base . $append . $file) && $file != '..' && $file != '.') {
-                $apis = array_merge($apis, self::loadApiDirectory($base, $append . $file . DIRECTORY_SEPARATOR));
-            }
-            if($file[0] != '_' && substr($file, -3) == 'php') {
-                $apis[] = str_replace('/', '\\', $append . $file);
-            }
-        }
-        return $apis;
-    }
-
+    /**
+     * Every interface of every interface namespace (Sources).
+     */
     private static function loadInterfaces() {
-        if(!is_dir(APPPATH. 'Interfaces')) return [];
-
-        $files = scandir(APPPATH . 'Interfaces');
-        $apis = [];
-        foreach($files as $file) {
-            if($file[0] != '_' && substr($file, -3) == 'php') {
-                $apis[] = $file;
-            }
-        }
-        $apiIgnore = [];
-        $apis = array_diff($apis, $apiIgnore);
-        return $apis;
+        return Sources::interfaces();
     }
 
 }

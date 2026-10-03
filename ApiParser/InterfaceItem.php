@@ -22,9 +22,8 @@ class InterfaceItem {
         $item = new InterfaceItem();
         $item->path = $path;
 
-        $config = config('RestExtension');
-        $namespace = $config->apiInterfaceNamespace ?? '';
-        $class = "$namespace\\{$path}";
+        // A full class name, or a short one in one of the interface namespaces
+        $class = interface_exists($path) ? $path : (Sources::interfaceClass($path) ?? $path);
 
         try {
             $rc = new \ReflectionClass($class);

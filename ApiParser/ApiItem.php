@@ -1,5 +1,4 @@
 <?php namespace RestExtension\ApiParser;
-use App\Core\ResourceController;
 use Config\RestExtension;
 use Config\Services;
 use ReflectionMethod;
@@ -36,7 +35,7 @@ class ApiItem {
 
         /** @var RestExtension $config */
         $config = config('RestExtension');
-        $className = "{$config->apiControllerNamespace}{$api}";
+        $className = Sources::controllerClass($api);
         $rc = new \ReflectionClass('\\'.$className);
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
         $item->nameLoweCase = lcfirst($item->name);
@@ -45,7 +44,7 @@ class ApiItem {
         $item->path = "/".strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $item->name));
 
         $className = $rc->getName();
-        $item->name = str_replace([$config->apiControllerNamespace, '\\'], '', $className);
+        $item->name = Sources::relativeName($className);
 
         foreach(explode("\n", $rc->getDocComment()) as $docComment) {
             $search = '@scope';
@@ -86,10 +85,10 @@ class ApiItem {
         }
 
         // Resource methods
-        $item->isResourceController = $rc->getParentClass()->getName() == ResourceController::class;
+        $item->isResourceController = Sources::isResourceController($rc);
         if($item->isResourceController) {
             $Resources = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1); // Remove namespace
-            $tag = str_replace([$config->apiControllerNamespace, '\\'], '', $rc->getName());
+            $tag = Sources::relativeName($rc->getName());
             $resources = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $Resources)); // Camel to snake
             $Resource = singular($Resources);
 

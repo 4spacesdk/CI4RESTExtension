@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.19 (2026-10-03)
+
+### Enhancements
+* **The API export reads more than the app's own controllers and interfaces.**
+  `$apiControllerNamespace` and `$apiInterfaceNamespace` may be lists, and every namespace in them
+  is exported - a composer package's along with the app's. Their directories come from
+  CodeIgniter's autoloader, so subdirectories and packages work as `App\Controllers` always has. A
+  controller by the same name in two namespaces is the first namespace's.
+* `$resourceControllerClass` says which base classes make a controller a resource controller, a
+  class or a list. It is `App\Core\ResourceController` unless it says otherwise, as it always was.
+
+### Upgrade guide
+* Requires CI4OrmExtension 1.1.7.
+* Nothing else to do: with one namespace each, the export is the same, byte for byte.
+
 ## v1.0.18 (2026-10-02)
 
 ### Fixed bugs

@@ -141,14 +141,21 @@ class RestExtension extends BaseConfig {
     public $xamarinAPIExporterRoute         = 'xamarin/api';
 
     /*
-     * Provide Namespace for Api request and response Interfaces
+     * Provide Namespace for Api request and response Interfaces. A list exports the interfaces of
+     * every namespace in it - a composer package's with the app's; the first wins a name both have.
      */
     public $apiInterfaceNamespace           = 'App\Interfaces';
 
     /*
-     * Provide base namespace for Controllers to be used in Api export
+     * Provide base namespace for Controllers to be used in Api export. A list exports the
+     * controllers of every namespace in it, as for the interfaces.
      */
     public $apiControllerNamespace          = 'App\Controllers';
+
+    /*
+     * The base classes of resource controllers, a class or a list
+     */
+    public $resourceControllerClass         = 'App\Core\ResourceController';
 
     /*
      * Provide destination for TypeScript Models to be placed when executed as Command
