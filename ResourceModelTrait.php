@@ -461,6 +461,43 @@ trait ResourceModelTrait {
     }
 
     /**
+     * Whether a write through the resource controller goes through the same rules as a read.
+     * Off, unless `Config\RestExtension::$writesFollowRules` is true or the model says so.
+     *
+     * Off, a write finds its row by the id alone: a PATCH that changes nothing, or a POST with an
+     * `id`, answers with that row whoever's it is, without asking a rule; a relation given as an
+     * object (`customer: {"id": 7}`) is linked, and saved, after the rules have been asked; and a
+     * rule's no answers with the unsaved row. On:
+     *
+     * * PATCH, PUT and DELETE of a row the caller may not read - by preRestGet(), as GET reads it
+     *   - is 404;
+     * * a POST creates: an `id` in its body is ignored;
+     * * a relation given as an object is ignored, on every write; a relation is written by its
+     *   column, `customer_id`, which the rules see;
+     * * one row per request: a list is 400 OneResourcePerRequest;
+     * * a rule's no is 403 InsufficientAccess.
+     */
+    public function writesFollowRules(): bool {
+        $config = config('RestExtension');
+        return (bool)($config->writesFollowRules ?? false);
+    }
+
+    /**
+     * Whether the caller may read row $id, by preRestGet() - as GET finds it. Call it on a model
+     * of its own: it leaves preRestGet()'s conditions on the query.
+     *
+     * @param int $id
+     * @param QueryParser|null $queryParser
+     */
+    public function isRestVisible($id, $queryParser = null): bool {
+        if (!is_numeric($id) || (int)$id < 1) {
+            return false;
+        }
+        $this->preRestGet($queryParser ?? new QueryParser(), (int)$id);
+        return $this->where($this->getPrimaryKey(), (int)$id)->countAllResults() > 0;
+    }
+
+    /**
      * How many keys a filter on a relation fetches and writes into the query as a list, before
      * it leaves them as a sub query instead. They are only fetched from a table of up to ten
      * times as many rows; 0 is a sub query every time.

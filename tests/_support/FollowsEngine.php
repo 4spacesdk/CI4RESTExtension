@@ -17,4 +17,9 @@ trait FollowsEngine
     {
         return Engine::$keyListLimit;
     }
+
+    public function writesFollowRules(): bool
+    {
+        return Engine::$writes;
+    }
 }

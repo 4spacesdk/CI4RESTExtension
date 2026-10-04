@@ -6,6 +6,7 @@ use OrmExtension\DataMapper\QueryBuilderInterface;
 use OrmExtension\DataMapper\RelationDef;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
+use RestExtension\Exceptions\InsufficientAccessException;
 
 /**
  * Created by PhpStorm.
@@ -14,6 +15,14 @@ use OrmExtension\Extensions\Model;
  * Time: 14:04
  */
 trait ResourceEntityTrait {
+
+    /**
+     * Whether $model's writes follow its rules: a rule's no is then an exception, which the
+     * resource controller answers with 403, instead of the unsaved row.
+     */
+    private static function writesFollowRulesOf($model): bool {
+        return method_exists($model, 'writesFollowRules') && $model->writesFollowRules();
+    }
 
     public static function post($data) {
         Data::debug(get_called_class(), 'post');
@@ -36,6 +45,9 @@ trait ResourceEntityTrait {
         $item->populatePatch($data);
         if (!$model->isRestCreationAllowed($item)) {
             Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+            if (self::writesFollowRulesOf($model)) {
+                throw new InsufficientAccessException();
+            }
             return $item;
         }
         $item->save();
@@ -103,6 +115,9 @@ trait ResourceEntityTrait {
         $item->populatePut($data);
         if (!$model->isRestUpdateAllowed($item)) {
             Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess);
+            if (self::writesFollowRulesOf($model)) {
+                throw new InsufficientAccessException();
+            }
             return $item;
         }
         $item->save();
@@ -204,6 +219,9 @@ trait ResourceEntityTrait {
         if ($item->populatePatch($data)) {
             if (!$model->isRestUpdateAllowed($item)) {
                 Data::debug(get_class($item), "ERROR", ErrorCodes::InsufficientAccess, 'Update not allowed');
+                if (self::writesFollowRulesOf($model)) {
+                    throw new InsufficientAccessException();
+                }
                 return $item;
             }
             $item->save();

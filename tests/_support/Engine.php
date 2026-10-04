@@ -14,9 +14,13 @@ final class Engine
 
     public static int $keyListLimit = 1000;
 
+    /** Whether the test models' writes follow their rules (writesFollowRules()) */
+    public static bool $writes = false;
+
     public static function reset(): void
     {
         self::$candidate = false;
+        self::$writes = false;
         $limit = getenv('RESTEXTENSION_KEY_LIST_LIMIT');
         self::$keyListLimit = $limit === false || $limit === '' ? 1000 : (int) $limit;
     }

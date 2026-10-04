@@ -3,6 +3,7 @@
 use CodeIgniter\HTTP\Request;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
+use RestExtension\Exceptions\InsufficientAccessException;
 
 /**
  * Created by PhpStorm.
@@ -60,6 +61,26 @@ trait ResourceControllerTrait {
 
         $data = $this->request->getJSON(true);
 
+        if ($this->writesFollowRules($model)) {
+            if ($this->isListOfRows($data)) {
+                $this->error(ErrorCodes::OneResourcePerRequest, 400);
+                return;
+            }
+            try {
+                $item = $entityName::post($this->writableData($model, $data));
+            } catch (InsufficientAccessException $e) {
+                $this->error(ErrorCodes::InsufficientAccess, 403);
+                return;
+            }
+            if (!$item->exists()) {
+                $this->error(ErrorCodes::InsufficientAccess, 403);
+                return;
+            }
+            $this->_setResource($item);
+            $this->success();
+            return;
+        }
+
         if (is_array($this->request->getJSON())) {
 
             /** @var Entity $resources */
@@ -88,6 +109,11 @@ trait ResourceControllerTrait {
         $entityName = $model->returnType;
 
         $data = $this->request->getJSON(true);
+
+        if ($this->writesFollowRules($model)) {
+            $this->updateFollowingRules($className, $id, $data, 'put');
+            return;
+        }
 
         if (is_array($this->request->getJSON())) {
 
@@ -119,6 +145,11 @@ trait ResourceControllerTrait {
 
         $data = $this->request->getJSON(true);
 
+        if ($this->writesFollowRules($model)) {
+            $this->updateFollowingRules($className, $id, $data, 'patch');
+            return;
+        }
+
         if ($id) {
 
             $item = $entityName::patch($id, $data);
@@ -146,6 +177,10 @@ trait ResourceControllerTrait {
 
         /** @var Model|ResourceBaseModelInterface|ResourceModelInterface $model */
         $model = new $className();
+        if ($this->writesFollowRules($model) && !(new $className())->isRestVisible($id, $this->queryParser)) {
+            $this->error(ErrorCodes::ResourceNotFound, 404);
+            return;
+        }
         $model->where($model->getPrimaryKey(), $id);
 
         /** @var Entity $item */
@@ -164,5 +199,77 @@ trait ResourceControllerTrait {
         $this->success();
     }
 
+
+
+    // <editor-fold desc="Writes that follow the rules">
+
+    /**
+     * See ResourceModelTrait::writesFollowRules().
+     *
+     * @param Model $model
+     */
+    private function writesFollowRules($model): bool {
+        return method_exists($model, 'writesFollowRules') && $model->writesFollowRules();
+    }
+
+    /**
+     * PATCH or PUT of one row the caller may read, with what the body may write.
+     *
+     * @param string $className the model
+     * @param mixed $id
+     * @param mixed $data
+     */
+    private function updateFollowingRules(string $className, $id, $data, string $method): void {
+        /** @var Model $model */
+        $model = new $className();
+        /** @var Entity|ResourceEntityInterface $entityName */
+        $entityName = $model->returnType;
+        if (!$id || $this->isListOfRows($data)) {
+            $this->error(ErrorCodes::OneResourcePerRequest, 400);
+            return;
+        }
+        if (!(new $className())->isRestVisible($id, $this->queryParser)) {
+            $this->error(ErrorCodes::ResourceNotFound, 404);
+            return;
+        }
+        try {
+            $item = $entityName::$method($id, $this->writableData($model, $data));
+        } catch (InsufficientAccessException $e) {
+            $this->error(ErrorCodes::InsufficientAccess, 403);
+            return;
+        }
+        $this->_setResource($item);
+        $this->success();
+    }
+
+    /**
+     * @param mixed $data
+     */
+    private function isListOfRows($data): bool {
+        return is_array($data) && $data !== [] && array_keys($data) === range(0, count($data) - 1);
+    }
+
+    /**
+     * The body without what a write may not carry: the id, which the URL gives or a POST makes,
+     * and every relation given as an object - a relation is written by its column, which the
+     * rules see.
+     *
+     * @param Model $model
+     * @param mixed $data
+     * @return mixed
+     */
+    private function writableData($model, $data) {
+        if (!is_array($data)) {
+            return $data;
+        }
+        unset($data[$model->getPrimaryKey()]);
+        helper('inflector');
+        foreach ($model->getRelations() as $relation) {
+            unset($data[$relation->getSimpleName()], $data[plural($relation->getSimpleName())]);
+        }
+        return $data;
+    }
+
+    // </editor-fold>
 
 }

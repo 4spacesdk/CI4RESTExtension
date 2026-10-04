@@ -77,6 +77,12 @@ class RestExtension extends BaseConfig {
      */
     public $relationKeyListLimit    = 1000;
 
+    /*
+     * Writes through the resource controller go through the same rules as a read. See "Writes
+     * and rules" below.
+     */
+    public $writesFollowRules       = FALSE;
+
 
     /**
      * Apply function to authenticate $request.
@@ -375,6 +381,32 @@ the query as a list when there are at most `relationKeyListLimit` of them and th
 most ten times that size; otherwise as a sub query MySQL can plan from either side. On a CRM of
 400 000 activities, 100 000 contacts and 60 000 deals, a page of 25 and its count took about as
 long as the join for an admin, and mostly far less for a rep, who sees a part of it.
+
+### Writes and rules
+
+By default a write through the resource controller finds its row by the id alone:
+
+* a PATCH that changes nothing (`{}`) answers with the row, whoever's it is, without asking a
+  rule - and so does a POST with an `id` in its body, which finds that row instead of creating
+  one;
+* a relation given as an object (`buyer_workspace: {"id": 3}`) is linked, and saved, after the
+  rules have been asked, so a row can be pointed at - and a related row changed through - one
+  the caller may not read;
+* a rule's no answers 200 with the unsaved row, the body's changes in it.
+
+With `writesFollowRules` on - in `Config\RestExtension`, or per model by overriding
+`writesFollowRules()`:
+
+* PATCH, PUT and DELETE of a row the caller may not read is 404, as GET by id is: the row is
+  `preRestGet()`'s to show (`isRestVisible()`);
+* a POST creates: an `id` in its body is ignored;
+* a relation given as an object is ignored, on every write. A relation is written by its column
+  (`buyer_workspace_id`), which the model's rules see in `$item` - check there that the caller
+  may read the row it points at;
+* one row per request: a list is 400 `OneResourcePerRequest`;
+* a rule's no is 403 `InsufficientAccess`.
+
+A row the caller may read and change answers as before.
 
 ### API Parser
 If you document your API endpoints like this

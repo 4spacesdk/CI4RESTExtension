@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.0.20 (unreleased)
+
+### Security
+* **Writes can follow the rules.** With `writesFollowRules` on, a write through the resource
+  controller goes through the same rules as a read. Off, any caller may read any row: a PATCH
+  that changes nothing, or a POST with an `id`, answers with the row that id names without
+  asking a rule. And a relation given as an object is linked and saved after the rules have been
+  asked. On:
+  * PATCH, PUT and DELETE of a row `preRestGet()` hides is 404, as GET by id is;
+  * a POST ignores an `id`, and every write ignores relations given as objects - a relation is
+    written by its column, which the rules see;
+  * a list of rows is 400 `OneResourcePerRequest`;
+  * a rule's no is 403 `InsufficientAccess`, instead of 200 with the unsaved row.
+
+  See "Writes and rules" in the README.
+* `isRestVisible($id, $queryParser)` says whether the caller may read a row, by `preRestGet()`.
+
+### Upgrade guide
+* Nothing to do: with `writesFollowRules` off, nothing changes.
+* Before turning it on, look for clients that create or change related rows through a relation
+  given as an object, or post lists of rows: they write each row on its own, through its own
+  resource, instead.
+
 ## v1.0.19 (2026-10-03)
 
 ### Enhancements

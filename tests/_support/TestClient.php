@@ -12,6 +12,9 @@ final class TestClient
 
     public static int $userId = 0;
 
+    /** What isRestCreationAllowed() and friends say; the read rules are preRestGet()'s */
+    public static bool $mayWrite = true;
+
     public static function signInAs(int $userId): void
     {
         self::$admin = false;
@@ -22,6 +25,7 @@ final class TestClient
     {
         self::$admin = true;
         self::$userId = 0;
+        self::$mayWrite = true;
     }
 
     /**

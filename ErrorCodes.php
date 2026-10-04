@@ -9,5 +9,6 @@ class ErrorCodes {
 
     const InsufficientAccess    = 'InsufficientAccess';
     const ResourceNotFound      = 'ResourceNotFound';
+    const OneResourcePerRequest = 'OneResourcePerRequest';
 
 }
