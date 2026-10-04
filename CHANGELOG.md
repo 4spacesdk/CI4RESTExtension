@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.20 (unreleased)
+## v1.0.20 (2026-10-04)
 
 ### Security
 * **Writes can follow the rules.** With `writesFollowRules` on, a write through the resource
