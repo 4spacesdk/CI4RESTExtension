@@ -50,7 +50,8 @@ trait ResourceModelTrait {
                     return $count;
                 }
 
-                foreach ($queryParser->getIncludes() as $include) {
+                $includes = self::groupIncludesByParent($queryParser);
+                foreach ($includes as $include) {
                     if (!$include->ignoreAuto) {
                         $this->applyIncludeOne($include);
                     }
@@ -83,12 +84,12 @@ trait ResourceModelTrait {
                 if ($items->exists()) {
                     if ($primaryKey) {
                         $item = $items->first();
-                        foreach ($queryParser->getIncludes() as $include) {
+                        foreach ($includes as $include) {
                             if (!$include->ignoreAuto) $this->applyIncludeMany($items, $include);
                         }
                         $this->applyRestGetOneRelations($item);
                     } else {
-                        foreach ($queryParser->getIncludes() as $include) {
+                        foreach ($includes as $include) {
                             if (!$include->ignoreAuto) $this->applyIncludeMany($items, $include);
                         }
                         $this->appleRestGetManyRelations($items);
@@ -833,6 +834,55 @@ trait ResourceModelTrait {
             $rows[$key] = $rows[$key] ?? $row;
         }
         return $rows;
+    }
+
+    /**
+     * Two relations under the same parent in one request - `company.owner_team,company.country` -
+     * are two includes of `company`, and each of the ways they are fetched handles that
+     * differently. Without rules the joins pile up on one query and both arrive; with rules each
+     * include fetches the parent again and writes it over the row, so only the last one is there
+     * (applyIncludeOneThroughRules()).
+     *
+     * So they are made one include before any of that: `company`, carrying `owner_team` and
+     * `country` as its own includes, which is what the request meant. One fetch instead of two,
+     * and nothing to write over.
+     *
+     * Only includes that ask nothing else of the parent are put together (QueryParser::isPlain()):
+     * a filter, an ordering or a limit on one of them is about that one include, and folding two
+     * of those into one would change what was asked. Those stay as they are.
+     *
+     * @return QueryInclude[]
+     */
+    private static function groupIncludesByParent(QueryParser $queryParser): array {
+        $byParent = [];
+        $result = [];
+        foreach ($queryParser->getIncludes() as $include) {
+            $parent = explode('.', $include->property)[0];
+            if ($include->ignoreAuto || !$include->queryParser->isPlain()) {
+                $result[] = $include;
+                continue;
+            }
+            $byParent[$parent][] = $include;
+        }
+
+        foreach ($byParent as $parent => $members) {
+            if (count($members) === 1) {
+                $result[] = $members[0];
+                continue;
+            }
+            $merged = new QueryInclude();
+            $merged->property = $parent;
+            $merged->queryParser = new QueryParser();
+            foreach ($members as $member) {
+                $rest = substr($member->property, strlen($parent) + 1);
+                if ($rest !== '' && $rest !== false) {
+                    $merged->queryParser->parseInclude($rest);
+                }
+            }
+            $result[] = $merged;
+        }
+
+        return $result;
     }
 
     /**

@@ -351,7 +351,13 @@ Direction is optional.
 `include=RELATION`  
 Ex. `?include=created_by`  
 Ex. `?include=created_by.role`     
-Use `.` separation for deep relations. NB, relation names is always singular
+Use `.` separation for deep relations. NB, relation names is always singular  
+Ex. `?include=created_by.role,created_by.team` - two under the same relation, fetched as one
+
+A sub query on an include ends at the comma, so `?include=a?include=b,c` would be `a` with `b`
+under it and `c` on its own. That reads as both under `a`, so it is refused with 422: say it with
+dots. A sub query of `ordering` or `filter` is unaffected - `?include=a?ordering=id:asc,b` is `a`
+ordered with `b` beside it.
 
 
 ### Relations and rules

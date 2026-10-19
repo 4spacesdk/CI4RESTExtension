@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.0.21 (2026-10-19)
+
+### Fixed bugs
+* **Two relations under the same parent in one request no longer lose all but the last.**
+  `include=company.owner_team,company.country` is two includes of `company`, and with
+  `relationsFollowRules` on each of them fetched the company again and wrote it over the row, so
+  only the last one was there. Includes that ask nothing else of their parent are now made one
+  before anything is fetched - one request to the related model instead of two, and nothing to
+  write over. Without the rules the joins piled up on one query and both already arrived; that is
+  unchanged. An include with a filter, an ordering or a limit of its own stays as it was: those
+  belong to that one include, and folding two of them together would change what was asked.
+
+### Security
+* **A sub query followed by more is refused instead of answered wrongly.** A comma ends a sub
+  query, so `include=a?include=b,c` is `a` with `b` under it and `c` as an include of its own -
+  not, as it reads, `b` and `c` both under `a`. Where the model being asked has no `c` the
+  request failed; where it happened to have one, the answer came back with `c` hanging off the
+  wrong row and nothing to say so. No encoding got round it: the comma is decoded long before the
+  parser sees it. It is now 422 `InvalidRequest`, naming the dotted form that says either meaning.
+
+### Upgrade guide
+* `include=a?include=b,c` and anything else that puts a comma after an `?include=` sub query now
+  answers 422. Write `a.b,a.c` for both under `a`, or put the plain include first, as
+  `c,a?include=b`. A sub query of `ordering` or `filter` followed by a comma is untouched.
+* Nothing else to do. An `include` that was already right returns what it always did.
+
 ## v1.0.20 (2026-10-04)
 
 ### Security

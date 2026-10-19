@@ -5,6 +5,7 @@ use CodeIgniter\HTTP\Request;
 use RestExtension\Fields\QueryField;
 use RestExtension\Filter\Operators;
 use RestExtension\Filter\QueryFilter;
+use RestExtension\Exceptions\InvalidRequestException;
 use RestExtension\Includes\QueryInclude;
 use RestExtension\Ordering\QueryOrder;
 
@@ -175,8 +176,39 @@ class QueryParser {
     }
 
 
+    /**
+     * A comma always ends a sub query: `a?ordering=id:asc,b` is `a` ordered and `b` beside it,
+     * not an ordering of two columns. That is the rule, and it is fine for ordering and filters.
+     *
+     * For `include` it is a trap. `a?include=b,c` reads as "a with b and c under it" and is not:
+     * `c` becomes an include of its own on the model being asked. Where that model has no `c` the
+     * request fails; where it happens to have one, the answer comes back quietly wrong, with `c`
+     * hanging off the wrong row. No encoding gets round it - the comma is decoded long before
+     * this. So it is refused, and the dotted form says it without the ambiguity.
+     */
+    /**
+     * A comma always ends a sub query: `a?ordering=id:asc,b` is `a` ordered with `b` beside it,
+     * not an ordering of two columns. That rule is fine for ordering and filters.
+     *
+     * For `include` it is a trap. `a?include=b,c` reads as "a, with b and c under it" and is not
+     * that: `c` becomes an include of its own on the model being asked. Where that model has no
+     * `c` the request fails; where it happens to have one, the answer comes back quietly wrong,
+     * with `c` hanging off the wrong row. No encoding gets round it - the comma is decoded long
+     * before this. So it is refused, and the dotted form says either meaning without ambiguity.
+     */
     public function parseInclude(string $value) {
-        foreach (explode(',', $value) as $line) {
+        $lines = explode(',', $value);
+        foreach ($lines as $index => $line) {
+            $last = $index === count($lines) - 1;
+            if (!$last && preg_match('/\\?(.*&)?include=/', $line)) {
+                $parent = explode('?', $line, 2)[0];
+                $next = $lines[$index + 1];
+                throw new InvalidRequestException(
+                    "include={$value} is ambiguous: a comma ends the sub query, so '{$next}' is an include of its own "
+                    . "and not one under '{$parent}'. Say it with dots instead - '{$parent}.{$next}' to put it under "
+                    . "'{$parent}', or move it before '{$parent}?...' to keep it on its own."
+                );
+            }
             $this->includes[] = QueryInclude::parse($line);
         }
     }
@@ -320,6 +352,21 @@ class QueryParser {
 
     public function getCount(): bool {
         return $this->count;
+    }
+
+    /**
+     * Nothing asked of it but the relation itself - so two of them under the same parent can be
+     * fetched as one (ResourceModelTrait::groupIncludesByParent()).
+     */
+    public function isPlain(): bool {
+        return $this->includes === []
+            && $this->filters === []
+            && $this->searchFilters === []
+            && $this->ordering === []
+            && $this->fields === []
+            && !$this->hasLimit()
+            && !$this->hasOffset()
+            && !$this->isCount();
     }
 
     public function getIncludes() {
