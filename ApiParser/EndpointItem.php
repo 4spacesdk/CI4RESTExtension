@@ -3,6 +3,7 @@
 use Config\OrmExtension;
 use Config\RestExtension;
 use Config\Services;
+use OrmExtension\ModelParser\OpenApi;
 
 /**
  * Created by PhpStorm.
@@ -18,6 +19,9 @@ use Config\Services;
  * @property string $requestEntity
  * @property string $requestBodyType
  * @property string $summary
+ * @property string $description
+ * @property string $docSummary the doc comment's own summary, see toOpenApi()
+ * @property string $docDescription the doc comment's own description, see toOpenApi()
  * @property string $scope
  * @property bool $ignore
  * @property string $responseSchema
@@ -106,6 +110,9 @@ class EndpointItem {
                 case '@summary':
                     $item->summary = implode(' ', array_splice($parts, 1));
                     break;
+                case '@description':
+                    $item->description = implode(' ', array_splice($parts, 1));
+                    break;
                 case '@scope':
                     $item->scope = implode(' ', array_splice($parts, 1));
                     break;
@@ -123,6 +130,14 @@ class EndpointItem {
                     $item->security = $value;
                     break;
             }
+        }
+
+        // The text of an endpoint's own doc comment is written for its callers. Not that of a
+        // resource controller's get(), post() and so on: those say why they are overridden.
+        if (isset($item->path)) {
+            list($summary, $description) = OpenApi::docText($method->getDocComment());
+            if ($summary !== null) $item->docSummary = $summary;
+            if ($description !== null) $item->docDescription = $description;
         }
 
         $className = $method->getDeclaringClass()->getName();
@@ -236,6 +251,97 @@ class EndpointItem {
         }
 
         return $item;
+    }
+
+    /**
+     * The endpoint as an OpenAPI 3.0 operation. Its summary and description are `@summary` and
+     * `@description`, else those of its doc comment: the first sentence or paragraph, and the text
+     * after it up to the tags.
+     *
+     * A parameter of the path it has not declared is a string, and one it declares which the path
+     * has not is left out. A file or a form field is a field of a multipart body.
+     */
+    public function toOpenApi(): array {
+        $item = [
+            'tags'          => [$this->tag],
+            'operationId'   => $this->getOperationId(),
+        ];
+        $summary = $this->summary ?? $this->docSummary ?? null;
+        $description = $this->description ?? $this->docDescription ?? null;
+        if ($summary !== null) $item['summary'] = $summary;
+        if ($description !== null) $item['description'] = $description;
+
+        preg_match_all('/{([^}]+)}/', $this->path ?? '', $matches);
+        $pathNames = $matches[1];
+
+        $parameters = [];
+        $fields = [];
+        $required = [];
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->isBodyField()) {
+                $fields[$parameter->name] = $parameter->getOpenApiSchema();
+                if (isset($parameter->description))
+                    $fields[$parameter->name]['description'] = $parameter->description;
+                if ($parameter->isRequired()) $required[] = $parameter->name;
+                continue;
+            }
+            if ($parameter->parameterType == 'path' && !in_array($parameter->name, $pathNames)) continue;
+            $parameters[$parameter->parameterType . ':' . $parameter->name] = $parameter->toOpenApi();
+        }
+        foreach ($pathNames as $name) {
+            if (!isset($parameters['path:' . $name])) {
+                $parameters['path:' . $name] = (new ParameterItem($name, 'path', 'string'))->toOpenApi();
+            }
+        }
+        $item['parameters'] = array_values($parameters);
+
+        $body = isset($this->requestEntity) ? OpenApi::schema($this->requestEntity) : null;
+        if (count($fields)) {
+            $form = ['type' => 'object', 'properties' => $fields];
+            if (count($required)) $form['required'] = $required;
+            $body = $body ? ['allOf' => [$body, $form]] : $form;
+        }
+        if ($body) {
+            $contentType = count($fields) && strpos($this->requestBodyType, 'form') === false
+                ? 'multipart/form-data'
+                : $this->requestBodyType;
+            $item['requestBody'] = [
+                'content' => [$contentType => ['schema' => $body]]
+            ];
+        }
+
+        $response = ['description' => 'Success'];
+        if (isset($this->responseSchema)) {
+            $key = substr($this->responseSchema, -2) == '[]' ? 'resources' : 'resource';
+            $response['content'] = [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'status' => ['type' => 'string', 'description' => 'OK'],
+                            $key => OpenApi::schema($this->responseSchema),
+                        ]
+                    ]
+                ]
+            ];
+        }
+        $item['responses'] = ['200' => $response];
+
+        if (isset($this->scope)) {
+            $item['security'] = [
+                [$this->security => array_values(array_filter(explode(' ', $this->scope)))]
+            ];
+        }
+
+        return $item;
+    }
+
+    /**
+     * The operation's id: the name of its class in the TypeScript export, lower camel case -
+     * `deploymentsGetById`. That is unique in the export.
+     */
+    public function getOperationId(): string {
+        return lcfirst($this->getTypeScriptClassName());
     }
 
     public function generateTypeScript(): string {

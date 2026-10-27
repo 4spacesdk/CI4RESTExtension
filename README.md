@@ -418,24 +418,68 @@ A row the caller may read and change answers as before.
 If you document your API endpoints like this
 ```
 /**
+ * Calculate the load for some users.
+ *
+ * The calculation runs over the days from start to end, both included.
+ * Markdown works here.
+ *
  * @route /loads/{loadId}/calculate
  * @method get
  * @custom true
  * @param int $loadId parameterType=path
- * @parameter int[] $user_ids parameterType=query required=true
+ * @parameter int[] $user_ids parameterType=query required=true - the users to calculate for
  * @parameter string $start parameterType=query required=true
- * @parameter string $end parameterType=query required=true
+ * @parameter string $end parameterType=query required=false - today, without
+ * @responseSchema LoadCalculation
  */
 ```
-RestExtension can generate Swagger documentation for you.
+RestExtension can generate an OpenAPI 3.0 document for you:
 ```php
-$parser = ApiParser::run();
-$paths = $parser->generateSwagger();
+$parser = ApiParser::run($scope);
+$document = $parser->generateOpenApi([
+    'info' => ['title' => 'My API', 'version' => '1.0.0'],
+    'servers' => [['url' => '/api']],
+    'components' => [
+        'securitySchemes' => [
+            'OAuth2' => ['type' => 'oauth2', 'flows' => [/* ... */]],
+        ],
+    ],
+]);
 ```
-Attach `$paths` to swagger paths.  
+The array you give is the document's own part - `info`, `servers`, `security`, and the security
+schemes `@security` names (`OAuth2` unless it says otherwise). The paths and the schemas are put
+into it:
+* every endpoint, with an `operationId` - the name of its class in the TypeScript export;
+* the schemas of the models, interfaces and static schemas (`app/Schemas/*.json`, and its folder of
+  the parser's scope) the endpoints name, and every schema those name in turn. A relation or a
+  property of another interface is a `$ref` to its schema. A name that is neither is an object by
+  that name, so no `$ref` points at nothing. A schema of your own `components.schemas` is used
+  over a generated one.
+
+`generateOpenApi($document, '/api')` puts `/api` before every path, for when no server url says it.
+Pass `true` third to use a static schema over the model of its name.
+
+`generateSwagger()` is as it was: the paths of a document, without the schemas, for you to put
+together yourself.
 
 #### Explanation
+* The text of the doc comment is the operation's summary and description, as PHPDoc has them:
+  the summary is the first sentence or paragraph, the description the text after it, up to the
+  tags. Only the doc comment of an endpoint with its own `@route`: the doc comment of a resource
+  controller's `get()`, `post()` and so on usually says why it is overridden, not what a caller
+  should read.
+* `@summary` and `@description` say them on one line, over the text - and are the only way to
+  give a resource controller's endpoints theirs. `@summary` is also the summary in the TypeScript
+  export, which the text of the doc comment is not.
 * `@route` Is self explained.  
 * `@method` Is self explained.
 * `@custom` If not present, RestExtension will add the default parameters: filter, include, offset, limit, ordering
-* `@param` & `@parameter` Is the same. Starts with the type followed by the name. You can specify parameterType and requirement.  
+* `@param` & `@parameter` start with the type followed by the name. You can specify parameterType,
+  `required`, `default` and `example`. The text after ` - ` is the parameter's description. `@param`
+  is a parameter of the path. Without `required=` a parameter is required; `required=false` is not.
+* A `File`, or a parameter with another parameterType than query, path, header or cookie
+  (`parameterType=formData`), is a field of a `multipart/form-data` body.
+* A list in the query, `int[] $user_ids`, is sent as `user_ids=1,2,3`, as the TypeScript export
+  sends it.
+* `@property int $id the text after the name` on an interface or an entity is the property's
+  description.

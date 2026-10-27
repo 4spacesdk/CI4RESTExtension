@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.0.22 (2026-10-27)
+
+### Enhancements
+* **`ApiParser::generateOpenApi()` makes a whole, valid OpenAPI 3.0 document.** `generateSwagger()`
+  gave the paths, and the app put them together with OrmExtension's schemas. Those named a
+  relation as `type: "Workspace"` and a nullable as `type: "?int"`, which no OpenAPI reader takes,
+  and left out a schema only another schema named. The new document has every endpoint, with an
+  `operationId`, and the schemas of the models, interfaces and static schemas the endpoints name,
+  and those they name in turn - a relation and an interface's property as a `$ref`, a `?int` as
+  nullable, an `int[]` in the query as `ids=1,2,3`, a `File` as a field of a multipart body. Every
+  `$ref` points at a schema. It is checked against an OpenAPI reader in the tests.
+* **An endpoint's doc comment is its documentation.** The text above the tags is the operation's
+  summary and description, as PHPDoc has them; `@summary` and the new `@description` say them over
+  it. The text after ` - ` on a `@param` or `@parameter` is the parameter's description, and the
+  comment after a `@property` the property's. A resource controller's overridden `get()`, `post()`
+  and so on keep their text to themselves - it says why they are overridden - and are documented by
+  `@summary` and `@description` only.
+
+### Fixed bugs
+* **`required=false` is not required.** It was the string `"false"`, which PHP takes for true, so
+  `generateSwagger()` said such a parameter was required. A parameter without `required=` is still
+  required, as it was.
+
+### Upgrade guide
+* Requires OrmExtension v1.1.9, which has the schemas of the models and the types of OpenAPI.
+* Nothing else changes: `generateSwagger()`, apart from `required=false`, and the TypeScript, Vue and
+  Xamarin exports are as they were. The text of a doc comment is not the summary in Api.ts.
+* To move to the new document, build it with `generateOpenApi()` - see "API Parser" in the README -
+  where you put together `generateSwagger()`'s paths and `ModelParser::generateSwagger()`'s schemas.
+  Give it your `info`, `servers` and security schemes; `contact` belongs in `info`, and
+  `definitions` is Swagger 2.0, not OpenAPI 3.
+
 ## v1.0.21 (2026-10-19)
 
 ### Fixed bugs

@@ -93,7 +93,7 @@ class ApiItem {
             $Resource = singular($Resources);
 
             $overrides = [
-                'scope', 'ignore', 'summary', 'requestEntity', 'responseSchema'
+                'scope', 'ignore', 'summary', 'description', 'requestEntity', 'responseSchema'
             ];
             if (isset($item->resourceApiPath) && strlen($item->resourceApiPath)) {
                 $resources = $item->resourceApiPath;

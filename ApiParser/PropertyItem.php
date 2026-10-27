@@ -1,5 +1,6 @@
 <?php namespace RestExtension\ApiParser;
 use Config\Services;
+use OrmExtension\ModelParser\OpenApi;
 
 /**
  * @class PropertyItem
@@ -137,6 +138,13 @@ class PropertyItem {
         }
 
         return $item;
+    }
+
+    /**
+     * The property's OpenAPI 3.0 schema, its comment the description.
+     */
+    public function toOpenApi() {
+        return OpenApi::schema($this->rawType, $this->comment);
     }
 
     public function toTypeScript() {

@@ -1,5 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 
+use OrmExtension\ModelParser\OpenApi;
+
 /**
  * Created by PhpStorm.
  * User: martin
@@ -13,6 +15,7 @@
  * @property string $default
  * @property string $example
  * @property bool $isArrayType
+ * @property string $description
  */
 class ParameterItem {
 
@@ -36,6 +39,14 @@ class ParameterItem {
         $item->type = $type;
         $item->isArrayType = strpos($type, '[]') !== false;
         $item->name = substr($name, 1);
+
+        // The text after the options, or after ` - `: `@parameter int $limit required=false - at most 100`
+        $dash = array_search('-', $parts, true);
+        $words = $dash === false
+            ? array_filter($parts, function($part) { return strpos($part, '=') === false; })
+            : array_slice($parts, $dash + 1);
+        $description = trim(implode(' ', $words));
+        if($description !== '') $item->description = $description;
 
         foreach($parts as $arg) {
             if(strpos($arg, '=') === false) continue;
@@ -64,7 +75,7 @@ class ParameterItem {
         $item = [
             'in'        => $this->parameterType,
             'name'      => $this->name,
-            'required'  => (bool)$this->required || $this->parameterType == 'path',
+            'required'  => $this->isRequired(),
             'schema'    => [
                 'type'      => $this->type
             ]
@@ -92,6 +103,68 @@ class ParameterItem {
         if(isset($this->example)) $item['schema']['example'] = $this->example;
 
         return $item;
+    }
+
+    /**
+     * `required=false` is the string "false", which is true to PHP.
+     */
+    public function isRequired(): bool {
+        if($this->parameterType == 'path') return true;
+        return filter_var($this->required ?? false, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * Whether the parameter is in the request's body - a file, or a field of a form - which
+     * OpenAPI 3 has no parameter for.
+     */
+    public function isBodyField(): bool {
+        return !in_array($this->parameterType, ['query', 'path', 'header', 'cookie'])
+            || in_array($this->type, ['File', 'File[]']);
+    }
+
+    /**
+     * The parameter's schema, the default and example in it of its type.
+     */
+    public function getOpenApiSchema(): array {
+        $schema = OpenApi::schema($this->type);
+        foreach(['default', 'example'] as $key) {
+            if(isset($this->{$key})) $schema[$key] = self::typed($this->{$key}, $schema);
+        }
+        return $schema;
+    }
+
+    /**
+     * The parameter as OpenAPI 3.0 has one. A list in the query is sent as `ids=1,2,3`.
+     */
+    public function toOpenApi(): array {
+        $item = [
+            'in'        => $this->parameterType,
+            'name'      => $this->name,
+            'required'  => $this->isRequired(),
+        ];
+        if(isset($this->description)) $item['description'] = $this->description;
+        $item['schema'] = $this->getOpenApiSchema();
+        if(($item['schema']['type'] ?? null) == 'array') {
+            $item['style'] = 'form';
+            $item['explode'] = false;
+        }
+        return $item;
+    }
+
+    private static function typed($value, array $schema) {
+        switch($schema['type'] ?? null) {
+            case 'integer':
+                return is_numeric($value) ? (int)$value : $value;
+            case 'number':
+                return is_numeric($value) ? (float)$value : $value;
+            case 'boolean':
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $value;
+            case 'array':
+                return array_map(function($item) use($schema) {
+                    return self::typed($item, $schema['items']);
+                }, explode(',', $value));
+        }
+        return $value;
     }
 
     public function getTypeScriptType() {

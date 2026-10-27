@@ -1,6 +1,7 @@
 <?php namespace RestExtension\ApiParser;
 
 use Config\Services;
+use OrmExtension\ModelParser\OpenApi;
 
 /**
  * Class InterfaceItem
@@ -54,6 +55,18 @@ class InterfaceItem {
             $item['properties'][$property->name] = $property->toSwagger();
         }
         return $item;
+    }
+
+    /**
+     * The interface's OpenAPI 3.0 schema. Unlike toSwagger(), a property of a model or another
+     * interface is a `$ref` to its schema.
+     */
+    public function toOpenApi() {
+        $properties = [];
+        foreach($this->properties as $property) {
+            $properties[$property->name] = $property->toOpenApi();
+        }
+        return OpenApi::objectSchema($this->name, $properties);
     }
 
     public function toTypeScript() {

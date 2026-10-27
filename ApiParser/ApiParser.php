@@ -1,6 +1,8 @@
 <?php namespace RestExtension\ApiParser;
 use Config\Services;
 use DebugTool\Data;
+use OrmExtension\ModelParser\ModelParser;
+use OrmExtension\ModelParser\OpenApi;
 
 /**
  * Created by PhpStorm.
@@ -11,6 +13,7 @@ use DebugTool\Data;
  * @property ApiItem[] $paths
  * @property string[] $schemaReferences
  * @property InterfaceItem[] $interfaces
+ * @property string|null $scope
  */
 class ApiParser {
 
@@ -21,6 +24,7 @@ class ApiParser {
      */
     public static function run($scope = null) {
         $parser = new ApiParser();
+        $parser->scope = $scope;
 
         $interfaces = [];
         foreach(ApiParser::loadInterfaces() as $interface) {
@@ -72,6 +76,70 @@ class ApiParser {
             }
         }
         return $json;
+    }
+
+    /**
+     * An OpenAPI 3.0 document of the API: every endpoint, and the schemas of the models, interfaces
+     * and static schemas (APPPATH/Schemas, and its folder of the parser's scope) the endpoints name,
+     * and those they name in turn.
+     *
+     * $document is the document's own part - info, servers, security, components.securitySchemes
+     * for the schemes `@security` names (OAuth2 unless it says otherwise) - which the paths and
+     * schemas are put into. A schema of its own components.schemas is used over a generated one.
+     *
+     * generateSwagger() is as it was: this is a whole document, where that is the paths of one.
+     *
+     * @param array $document
+     * @param string $pathPrefix before every path, as `/api` - or say it in a server's url instead
+     * @param bool $overrideWithStatic a static schema over the model of its name
+     * @return array
+     * @throws \ReflectionException
+     */
+    public function generateOpenApi(array $document = [], string $pathPrefix = '', bool $overrideWithStatic = false): array {
+        $paths = [];
+        $operationIds = [];
+        $references = [];
+        foreach ($this->paths as $path) {
+            foreach ($path->endpoints as $endpoint) {
+                $operation = $endpoint->toOpenApi();
+
+                // Unique, as the spec wants; two endpoints of one name both keep theirs and a number
+                $operationId = $operation['operationId'];
+                for ($i = 2; isset($operationIds[$operationId]); $i++) {
+                    $operationId = $operation['operationId'] . $i;
+                }
+                $operationIds[$operationId] = true;
+                $operation['operationId'] = $operationId;
+
+                $paths[rtrim($pathPrefix, '/') . $endpoint->path][strtolower($endpoint->method)] = $operation;
+                $references = array_merge($references, OpenApi::references($operation));
+            }
+        }
+
+        $pool = ModelParser::staticSchemas($this->scope ?? null);
+        foreach (ModelParser::run()->models as $model) {
+            if ($overrideWithStatic && isset($pool[$model->name])) continue;
+            $pool[$model->name] = $model->toOpenApi();
+        }
+        foreach ($this->interfaces as $interface) {
+            if ($overrideWithStatic && isset($pool[$interface->name])) continue;
+            $pool[$interface->name] = $interface->toOpenApi();
+        }
+        $own = $document['components']['schemas'] ?? [];
+        $pool = array_merge($pool, $own);
+        $schemas = OpenApi::closure($pool, array_merge(array_keys($own), $references));
+        ksort($schemas);
+
+        $components = $document['components'] ?? [];
+        $components['schemas'] = count($schemas) ? $schemas : new \stdClass();
+
+        return array_merge([
+            'openapi'   => '3.0.3',
+            'info'      => ['title' => 'API', 'version' => '1.0.0'],
+        ], $document, [
+            'paths'         => count($paths) ? $paths : new \stdClass(),
+            'components'    => $components,
+        ]);
     }
 
     public function generateTypeScript($debug) {
