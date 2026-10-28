@@ -8,21 +8,38 @@ use ReflectionMethod;
  * User: martin
  * Date: 27/11/2018
  * Time: 08.33
- *
- * @property string $name
- * @property string $nameLoweCase
- * @property string $path
- * @property string $resourceNameLowerCase
- * @property string $resourceNameUpperCase
- * @property string $scope
- * @property EndpointItem[] $endpoints
- * @property bool $isResourceController
- * @property string[] $imports
- * @property string $resourceApiPath
  */
 class ApiItem {
 
+    /** @var string */
+    public $name;
+
+    /** @var string */
+    public $nameLoweCase;
+
+    /** @var string */
+    public $path;
+
+    /** @var string */
+    public $resourceNameLowerCase;
+
+    /** @var string */
+    public $resourceNameUpperCase;
+
+    /** @var string */
+    public $scope;
+
+    /** @var EndpointItem[] */
+    public $endpoints;
+
+    /** @var bool */
+    public $isResourceController;
+
+    /** @var string[] */
     public $imports = [];
+
+    /** @var string */
+    public $resourceApiPath;
 
     /**
      * @param $api

@@ -4,18 +4,31 @@ use OrmExtension\ModelParser\OpenApi;
 
 /**
  * @class PropertyItem
- * @property string $name
- * @property string $rawType
- * @property string $typeScriptType
- * @property string $xamarinType
- * @property string $comment
- * @property bool $isSimpleType
- * @property bool $isMany
  */
 class PropertyItem {
 
+    /** @var string */
+    public $name;
+
+    /** @var string */
+    public $rawType;
+
+    /** @var string */
+    public $typeScriptType;
+
+    /** @var string */
+    public $xamarinType;
+
+    /** @var string */
     public $comment = null;
+
+    /** @var bool */
     public $isSimpleType = true;
+
+    /** @var bool */
+    public $isMany;
+
+    /** @var bool */
     public $isInterface = false;
 
     public function __construct($name = "", $type = "", $isSimpleType = true, $isMany = false) {

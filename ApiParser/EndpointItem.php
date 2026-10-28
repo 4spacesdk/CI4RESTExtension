@@ -10,34 +10,65 @@ use OrmExtension\ModelParser\OpenApi;
  * User: martin
  * Date: 25/11/2018
  * Time: 12.20
- *
- * @property string $path
- * @property string $methodName
- * @property string $method
- * @property string $tag
- * @property ParameterItem[] $parameters
- * @property string $requestEntity
- * @property string $requestBodyType
- * @property string $summary
- * @property string $description
- * @property string $docSummary the doc comment's own summary, see toOpenApi()
- * @property string $docDescription the doc comment's own description, see toOpenApi()
- * @property string $scope
- * @property bool $ignore
- * @property string $responseSchema
- * @property string $security
- * @property InterfaceItem $responseInterfaceItem
- * @property InterfaceItem $requestInterfaceItem
- * @property boolean $isRestPatchEndpoint
  */
 class EndpointItem {
 
+    /** @var string */
+    public $path;
+
+    /** @var string */
+    public $methodName;
+
+    /** @var string */
     public $method = 'get';
+
+    /** @var string */
+    public $tag;
+
+    /** @var ParameterItem[] */
     public $parameters = [];
-    public $custom = false;
+
+    /** @var string */
+    public $requestEntity;
+
+    /** @var string */
     public $requestBodyType = 'application/json';
+
+    /** @var string */
+    public $summary;
+
+    /** @var string */
+    public $description;
+
+    /** @var string the doc comment's own summary, see toOpenApi() */
+    public $docSummary;
+
+    /** @var string the doc comment's own description, see toOpenApi() */
+    public $docDescription;
+
+    /** @var string */
+    public $scope;
+
+    /** @var bool */
+    public $ignore;
+
+    /** @var string */
+    public $responseSchema;
+
+    /** @var string */
     public $security = 'OAuth2';
+
+    /** @var InterfaceItem */
+    public $responseInterfaceItem;
+
+    /** @var InterfaceItem */
+    public $requestInterfaceItem;
+
+    /** @var boolean */
     public $isRestPatchEndpoint = false;
+
+    /** @var bool */
+    public $custom = false;
 
     /**
      * @param \ReflectionMethod $line

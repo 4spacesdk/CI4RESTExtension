@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.0.23 (2026-10-28)
+
+### Fixed bugs
+* **The API parser's items declare their properties.** `ApiItem`, `EndpointItem`, `InterfaceItem`,
+  `ParameterItem`, `PropertyItem` and `ApiParser` itself set properties they only named in a
+  `@property` line, and PHP 8.2 and later reports each such property as deprecated each time it
+  is set. One document of an app with some hundred endpoints was more than sixty thousand of
+  them, and CodeIgniter logs every one with its stack trace: seconds for `generateOpenApi()` or
+  an export, more memory than a request or a test has, and logs of a gigabyte a day. Every
+  property is declared now, with the default it had, so nothing is reported and nothing else
+  changes - the documents and exports are as they were. A test fails on any deprecation of the
+  parsers.
+
+### Upgrade guide
+* Requires OrmExtension v1.1.10, whose model parser declares its properties the same way.
+* An app that silenced the parsers' deprecations can stop doing so.
+
 ## v1.0.22 (2026-10-27)
 
 ### Enhancements

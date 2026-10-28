@@ -9,13 +9,20 @@ use OrmExtension\ModelParser\OpenApi;
  * User: martin
  * Date: 27/11/2018
  * Time: 08.33
- *
- * @property ApiItem[] $paths
- * @property string[] $schemaReferences
- * @property InterfaceItem[] $interfaces
- * @property string|null $scope
  */
 class ApiParser {
+
+    /** @var ApiItem[] */
+    public $paths;
+
+    /** @var string[] */
+    public $schemaReferences;
+
+    /** @var InterfaceItem[] */
+    public $interfaces;
+
+    /** @var string|null */
+    public $scope;
 
     /**
      * @param string $scope

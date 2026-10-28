@@ -6,12 +6,16 @@ use OrmExtension\ModelParser\OpenApi;
 /**
  * Class InterfaceItem
  * @package RestExtension\ApiParser\TypeScript
- * @property string $path
- * @property string $name
- * @property PropertyItem[] $properties
  */
 class InterfaceItem {
 
+    /** @var string */
+    public $path;
+
+    /** @var string */
+    public $name;
+
+    /** @var PropertyItem[] */
     public $properties = [];
 
     /**

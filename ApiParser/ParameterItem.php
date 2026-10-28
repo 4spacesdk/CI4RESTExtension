@@ -7,17 +7,32 @@ use OrmExtension\ModelParser\OpenApi;
  * User: martin
  * Date: 28/11/2018
  * Time: 16.57
- *
- * @property string $name
- * @property string $type
- * @property bool $required
- * @property string $parameterType
- * @property string $default
- * @property string $example
- * @property bool $isArrayType
- * @property string $description
  */
 class ParameterItem {
+
+    /** @var string */
+    public $name;
+
+    /** @var string */
+    public $type;
+
+    /** @var bool */
+    public $required;
+
+    /** @var string */
+    public $parameterType;
+
+    /** @var string */
+    public $default;
+
+    /** @var string */
+    public $example;
+
+    /** @var bool */
+    public $isArrayType;
+
+    /** @var string */
+    public $description;
 
     public function __construct($name = '', $parameterType = 'query', $type = '', $required = true) {
         $this->name = $name;
